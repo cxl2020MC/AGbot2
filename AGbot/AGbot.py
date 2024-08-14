@@ -17,7 +17,7 @@ class App:
                 async for msg in ws:
                     data = msg.json()
                     log.debug(f"收到json消息: {data}")
-                    await handler.main(self, data)
+                    await handler.main(self, data, session)
 
         async with aiohttp.ClientSession() as session:
             while True:
