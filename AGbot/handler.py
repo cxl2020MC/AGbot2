@@ -1,4 +1,3 @@
-from networkx import group_in_degree_centrality
 from .log import logger as log
 
 async def main(self, data: dict, session):
