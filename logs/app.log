@@ -1,0 +1,782 @@
+2024-08-14 03:06:29 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:29 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:29 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:06:32 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:32 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:32 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:06:35 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:35 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:35 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:06:38 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:38 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:38 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:06:41 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:41 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:41 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:06:44 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:44 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:44 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:06:47 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:47 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:47 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:06:50 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:50 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:50 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:06:53 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:53 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:53 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:06:56 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:56 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:56 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:06:59 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:06:59 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:06:59 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:07:02 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:02 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:02 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:07:05 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:05 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:05 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:07:08 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:08 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:08 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:07:11 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:11 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:11 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:07:14 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:14 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:14 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:07:17 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:17 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:17 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:07:20 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:20 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:20 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:07:23 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:23 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:23 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:07:26 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:26 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:26 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:07:29 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:29 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:29 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+
+2024-08-14 03:07:32 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:32 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:32 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('127.0.0.1', 3001), [Errno 111] Connect call failed ('::1', 3001, 0, 0)]
+
+2024-08-14 03:07:35 | INFO     | 正在连接: ws://localhost:3001/
+2024-08-14 03:07:35 | ERROR    | 连接断开，将在3s后重连
+2024-08-14 03:07:35 | ERROR    | Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1073, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohappyeyeballs/impl.py", line 122, in start_connection
+    raise OSError(first_errno, msg)
+ConnectionRefusedError: [Errno 111] Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 25, in run
+    await main(session)
+  File "/workspaces/AGbot2/AGbot/AGbot.py", line 15, in main
+    async with session.ws_connect(self.ws_url) as ws:
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 1353, in __aenter__
+    self._resp = await self._coro
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 931, in _ws_connect
+    resp = await self.request(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/client.py", line 657, in _request
+    conn = await self._connector.connect(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 564, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 975, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1350, in _create_direct_connection
+    raise last_exc
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1319, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/codespace/.python/current/lib/python3.10/site-packages/aiohttp/connector.py", line 1088, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host localhost:3001 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 3001, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 3001)]
+

@@ -1,4 +1,6 @@
 import aiohttp
+import asyncio
+import traceback
 from . import handler
 from .log import logger as log
 
@@ -8,18 +10,24 @@ class App:
         self.commends = []
 
     async def run(self) -> None:
-        async with aiohttp.ClientSession() as session:
+        async def main(session) -> None:
+            log.info(f"正在连接: {self.ws_url}")
             async with session.ws_connect(self.ws_url) as ws:
+                log.info("连接成功")
                 async for msg in ws:
-                    # print(msg.type)
                     data = msg.json()
-                    # print(data)
                     log.debug(f"收到json消息: {data}")
                     await handler.main(self, data)
-                    # if msg.type == aiohttp.WSMsgType.TEXT:
-                        # print(msg.json())
-                    # elif msg.type == aiohttp.WSMsgType.ERROR:
-                        # break
-    
+
+        async with aiohttp.ClientSession() as session:
+            while True:
+                try:
+                    await main(session)
+                except:
+                    log.error(traceback.format_exc())
+                    log.error("连接断开，将在3s后重连")
+
+                    await asyncio.sleep(3)
+            
     def commend(self, commend):
         pass
