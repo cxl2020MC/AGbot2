@@ -16,6 +16,7 @@ class _Bot:
         """匹配命令"""
         消息 = data.get("message", "")
         if not 消息:
+            log.warning("消息为空")
             return
         elif 消息[0] == "/":
             for 命令列表 in self.命令列表:
