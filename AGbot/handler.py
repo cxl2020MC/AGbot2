@@ -9,7 +9,8 @@ async def main(self, data: dict, ws):
         elif data.get("message_type") == "private":
             sender: dict = data.get("sender", {})
             log.info(f"收到私聊消息: {sender.get('nickname')}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
-        
+    elif "status" in data:
+        await api.handler(ws, data)
 
 
 def get_uername(sender: dict) -> str:
