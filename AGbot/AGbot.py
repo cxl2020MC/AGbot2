@@ -3,6 +3,8 @@ import asyncio
 import traceback
 from . import handler
 from .log import logger as log
+from . import utils
+
 
 class App:
     def __init__(self, ws_url: str = "ws://localhost:3001/") -> None:
@@ -10,14 +12,15 @@ class App:
         self.commends = []
 
     async def run(self) -> None:
-        async def main(session) -> None:
+        async def main(session: aiohttp.ClientSession):
             log.info(f"正在连接: {self.ws_url}")
             async with session.ws_connect(self.ws_url) as ws:
                 log.info("连接成功")
+                utils.set_ws(ws)
                 async for msg in ws:
                     data = msg.json()
                     log.debug(f"收到json消息: {data}")
-                    await handler.main(self, data, session)
+                    await handler.main(self, data, ws)
 
         async with aiohttp.ClientSession() as session:
             while True:
