@@ -2,7 +2,7 @@ from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
 
-bot = plugin.plugin("关于")
+bot = plugin.Plugin("关于")
 
 @bot.命令("关于", ["/about"])
 async def about(self, data, ws):
