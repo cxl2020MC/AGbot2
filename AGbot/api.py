@@ -17,6 +17,10 @@ async def 刷新群信息缓存(ws, group_id):
 async def 获取群名称(ws, group_id):
     return (await 获取群信息(ws, group_id)).get("group_name", "群名称加载中")
 
+async def 发送群消息(ws, group_id, message):
+    data = {"action": "send_group_msg", "params": {"group_id": group_id, "message": message}, "echo": {"type": "send_group_msg", "group_id": group_id}}
+    await ws.send_json(data)
+
  
 async def handler(ws, data):
     echo = data.get("echo")
