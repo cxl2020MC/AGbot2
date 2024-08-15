@@ -10,7 +10,7 @@ from . import plugin
 class App:
     def __init__(self, ws_url: str = "ws://localhost:3001/") -> None:
         self.ws_url = ws_url
-        self.插件列表 = []
+        self.插件 = plugin.bot
 
     async def run(self) -> None:
         async def main(session: aiohttp.ClientSession):
@@ -32,7 +32,4 @@ class App:
                     log.error("连接断开, 将在3s后重连")
                     await asyncio.sleep(3)
 
-            
-    def 加载插件(self, 蓝图: plugin.plugin) -> None: 
-        self.插件列表.append(蓝图)
 
