@@ -31,6 +31,6 @@ async def 群聊消息处理(self, data: dict, ws):
     sender: dict = data.get("sender", {})
     log.info(f"收到群 {await api.获取群名称(ws, data.get('group_id'))}({data.get('group_id')}) 内 {get_uername(sender)}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
     for 插件 in self.插件列表:
-        for 命令 in 插件:
+        for 命令 in 插件.命令列表:
             if data.get("raw_message", "").startswith(命令):
                 await 命令.get("函数")(self, data, ws)
