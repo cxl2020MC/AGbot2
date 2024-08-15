@@ -35,4 +35,4 @@ async def 群聊消息处理(self, data: dict, ws):
             for 命令 in 命令列表.get("命令列表"):
                 log.debug(f"当前检测命令： {命令}")
                 if data.get("raw_message", "").startswith(命令):
-                    await 命令.get("函数")(self, data, ws)
+                    await 命令列表.get("函数")(self, data, ws)
