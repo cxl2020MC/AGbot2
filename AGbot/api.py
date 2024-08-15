@@ -18,7 +18,7 @@ async def 获取群名称(ws, group_id):
     return (await 获取群信息(ws, group_id)).get("group_name", "群名称加载中")
 
  
- async def handler(ws, data):
+async def handler(ws, data):
     echo = data.get("echo")
     if echo.get("type") == "get_group_info":
         群信息缓存.update({echo.get("group_id"): data.get("data")})
