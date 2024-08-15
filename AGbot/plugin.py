@@ -8,7 +8,7 @@ class plugin:
         self.命令列表 = []
     
     def 命令(self, 名称, 命令列表: list):
-        async def director(func):
+        def director(func):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
                 return await func(*args, **kwargs)
