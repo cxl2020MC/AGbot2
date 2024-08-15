@@ -4,12 +4,13 @@ import traceback
 from . import handler
 from .log import logger as log
 from . import utils
+from . import plugin
 
 
 class App:
     def __init__(self, ws_url: str = "ws://localhost:3001/") -> None:
         self.ws_url = ws_url
-        self.commends = []
+        self.插件列表 = []
 
     async def run(self) -> None:
         async def main(session: aiohttp.ClientSession):
@@ -28,9 +29,10 @@ class App:
                     await main(session)
                 except:
                     log.error(traceback.format_exc())
-                    log.error("连接断开，将在3s后重连")
-
+                    log.error("连接断开, 将在3s后重连")
                     await asyncio.sleep(3)
+
             
-    def commend(self, commend):
-        pass
+    def 加载插件(self, 蓝图: plugin.plugin) -> None: 
+        self.插件列表.append(蓝图)
+
