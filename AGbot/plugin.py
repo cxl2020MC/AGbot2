@@ -20,7 +20,7 @@ class _Bot:
             return
         elif 消息[0] == "/":
             for 命令列表 in self.命令列表:
-                if data["命令"] in 命令列表["命令列表"]:
+                if 消息 in 命令列表["命令列表"]:
                     log.debug(f"匹配到命令: {data['命令']}")
                     await 命令列表["函数"](bot_self, data, ws)
 
