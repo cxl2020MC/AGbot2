@@ -14,7 +14,7 @@ class _Bot:
 
     async def 匹配命令(self, bot_self, data, ws):
         """匹配命令"""
-        消息 = data.get("message", "")
+        消息 = data.get("raw_message", "")
         if not 消息:
             log.warning("消息为空")
             return
