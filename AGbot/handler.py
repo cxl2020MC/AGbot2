@@ -30,4 +30,4 @@ def get_uername(sender: dict) -> str:
 async def 群聊消息处理(self, data: dict, ws):
     sender: dict = data.get("sender", {})
     log.info(f"收到群 {await api.获取群名称(ws, data.get('group_id'))}({data.get('group_id')}) 内 {get_uername(sender)}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
-    self.插件.匹配命令(self, data, ws)
+    await self.插件.匹配命令(self, data, ws)
