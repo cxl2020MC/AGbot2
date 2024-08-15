@@ -1,13 +1,15 @@
 from .log import logger as log
 from . import api
 
+
 async def main(self, data: dict, ws):
     if data.get("post_type") == "message" or data.get("post_type") == "message_sent":
         if data.get("message_type") == "group":
             await 群聊消息处理(self, data, ws)
         elif data.get("message_type") == "private":
             sender: dict = data.get("sender", {})
-            log.info(f"收到私聊消息: {sender.get('nickname')}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
+            log.info(
+                f"收到私聊消息: {sender.get('nickname')}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
     elif data.get("post_type") == "notice":
         log.info(f"收到通知: {data.get('notice_type')}")
     elif data.get("post_type") == "meta_event":
@@ -26,7 +28,8 @@ def get_uername(sender: dict) -> str:
         return sender.get("card", "")
     else:
         return sender.get("nickname", "")
-    
+
+
 async def 群聊消息处理(self, data: dict, ws):
     sender: dict = data.get("sender", {})
     log.info(f"收到群 {await api.获取群名称(ws, data.get('group_id'))}({data.get('group_id')}) 内 {get_uername(sender)}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
