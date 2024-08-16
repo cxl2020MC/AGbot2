@@ -1,4 +1,4 @@
-from AGbot import AGbot, plugin
+from AGbot import AGbot
 import asyncio
 from plugins import about
 
