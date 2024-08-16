@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 import traceback
+import functools
 from .log import logger as log
 
 
@@ -13,6 +14,7 @@ def get_ws() -> aiohttp.ClientWebSocketResponse:
 
 def 重试(重试次数: int, 重试间隔: int = 1, 异常类型 = Exception, 错误处理函数 = None):
     def directer(func):
+        @functools.wraps(func)
         async def wrapper(*args, **kwargs):
             for i in range(重试次数):
                 try:
