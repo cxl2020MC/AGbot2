@@ -27,3 +27,5 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型 = Exception, �
                     await asyncio.sleep(重试间隔)
         return wrapper
     return directer
+
+
