@@ -1,4 +1,3 @@
-from networkx import group_in_degree_centrality
 from .log import logger as log
 import time
 
