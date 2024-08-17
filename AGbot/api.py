@@ -29,7 +29,7 @@ async def 获取群名称(ws, group_id):
 
 async def 发送群消息(ws, group_id, message):
     data = {"action": "send_group_msg", "params": {"group_id": group_id,
-                                                   "message": message}, "echo": {"type": "send_group_msg", "group_id": group_id}}
+                                                   "message": message}, "echo": {"type": "send_group_msg", "group_id": group_id, "message": message}}
     await ws.send_json(data)
 
 
@@ -38,6 +38,6 @@ async def handler(ws, data):
     if echo.get("type") == "get_group_info":
         群信息缓存.update({echo.get("group_id"): data.get("data")})
     elif echo.get("type") == "send_group_msg":
-        log.info(f"发送群消息成功，群号：{echo.get('group_id')}，消息：{data.get('data')}")
+        log.info(f"发送群消息成功，群号：{echo.get('group_id')}，消息：{echo.get('message')}")
     
 
