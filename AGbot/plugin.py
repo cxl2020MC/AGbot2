@@ -40,8 +40,8 @@ class Plugin:
                 try:
                     return await func(消息, data, ws, *args, **kwargs)
                 except Exception as e:
-                    log.error(f"命令 {名称} 执行出错: {e.__class__}: {e}\n{traceback.format_exc()}")
-                    await api.发送群消息(ws, data.get("group_id"), f"命令 {名称} 执行出错: {e.__class__}: {e}")
+                    log.error(f"命令 {名称} 执行出错: {traceback.format_exc()}")
+                    await api.发送群消息(ws, data.get("group_id"), f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}")
             命令数据 = {"命令列表": 命令列表, "命令名称": 名称, "插件名称": self.名称, "函数": wrapper}
             self.命令列表.append(命令数据)
             log.debug(f"注册命令: {命令列表} 成功")
