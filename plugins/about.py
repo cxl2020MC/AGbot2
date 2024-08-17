@@ -5,7 +5,7 @@ from AGbot import api
 bot = plugin.Plugin("关于")
 
 @bot.命令("关于", ["/about", "/关于"])
-async def about(self, 消息, data, ws):
+async def about(消息, data, ws):
     log.info("收到关于命令")
 
     await api.发送群消息(ws, data.get("group_id"), f"""关于AGbot2

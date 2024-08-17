@@ -1,11 +1,12 @@
 from .log import logger as log
 from . import api
+from . import plugin
 
 
-async def main(self, data: dict, ws):
+async def main(data: dict, ws):
     if data.get("post_type") == "message" or data.get("post_type") == "message_sent":
         if data.get("message_type") == "group":
-            await 群聊消息处理(self, data, ws)
+            await 群聊消息处理(data, ws)
         elif data.get("message_type") == "private":
             sender: dict = data.get("sender", {})
             log.info(
@@ -17,7 +18,7 @@ async def main(self, data: dict, ws):
             log.info(f"收到生命周期事件: {data.get('sub_type')}")
         elif data.get("meta_event_type") == "heartbeat":
             log.info(f"收到心跳包: {data.get('status')} [{data.get('interval')}]")
-    elif "retcode" in data:
+    elif not "post_type" in data:
         await api.handler(ws, data)
     else:
         log.warning(f"收到不支持的内容: {data}")
@@ -30,7 +31,7 @@ def get_uername(sender: dict) -> str:
         return sender.get("nickname", "")
 
 
-async def 群聊消息处理(self, data: dict, ws):
+async def 群聊消息处理(data: dict, ws):
     sender: dict = data.get("sender", {})
     log.info(f"收到群 {await api.获取群名称(ws, data.get('group_id'))}({data.get('group_id')}) 内 {get_uername(sender)}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
-    await self.插件.匹配命令(self, data, ws)
+    await plugin.bot.匹配命令(data, ws)

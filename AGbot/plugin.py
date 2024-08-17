@@ -12,7 +12,7 @@ class _Bot:
         self.命令列表 += 插件.命令列表
         log.info(f"加载插件 {插件.名称} 成功")
 
-    async def 匹配命令(self, bot_self, data, ws):
+    async def 匹配命令(self, data, ws):
         """匹配命令"""
         消息: str = data.get("raw_message", "")
         if not 消息:
@@ -23,7 +23,7 @@ class _Bot:
             for 命令列表 in self.命令列表:
                 if 消息列表[0] in 命令列表["命令列表"]:
                     log.debug(f"匹配到命令: {消息列表[0]} 位于 {命令列表['命令列表']}")
-                    await 命令列表["函数"](bot_self, 消息, data, ws)
+                    await 命令列表["函数"](消息, data, ws)
 
 
 class Plugin:

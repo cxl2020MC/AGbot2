@@ -22,4 +22,4 @@ class App:
                 async for msg in ws:
                     data = msg.json()
                     log.debug(f"收到json消息: {data}")
-                    await handler.main(self, data, ws)
+                    await handler.main(data, ws)
