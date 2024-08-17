@@ -10,4 +10,5 @@ async def about(self, 消息, data, ws):
 
     await api.发送群消息(ws, data.get("group_id"), f"""关于AGbot2
 版本: 1.0
-作者: cxl2020mc""")
+作者: cxl2020mc
+开源地址: https://github.com/cxl2020MC/AGbot2""")
