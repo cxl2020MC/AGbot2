@@ -37,6 +37,7 @@ async def handler(ws, data):
     echo = data.get("echo")
     if echo.get("type") == "get_group_info":
         群信息缓存.update({echo.get("group_id"): data.get("data")})
-
-
+    elif echo.get("type") == "send_group_msg":
+        log.info(f"发送群消息成功，群号：{echo.get('group_id')}，消息：{data.get('data')}")
+    
 
