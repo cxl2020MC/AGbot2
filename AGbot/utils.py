@@ -9,10 +9,12 @@ def set_ws(websocket: aiohttp.ClientWebSocketResponse):
     global ws
     ws = websocket
 
+
 def get_ws() -> aiohttp.ClientWebSocketResponse:
     return ws
 
-def 重试(重试次数: int, 重试间隔: int = 1, 异常类型 = Exception, 错误处理函数 = None):
+
+def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错误处理函数=None):
     def directer(func):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
@@ -27,5 +29,3 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型 = Exception, �
                     await asyncio.sleep(重试间隔)
         return wrapper
     return directer
-
-

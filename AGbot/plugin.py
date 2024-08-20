@@ -47,7 +47,7 @@ class Plugin:
             log.debug(f"注册命令: {命令列表} 成功")
             return wrapper
         return director
-    
+
     def 解析命令(self, 命令: str):
         命令列表 = 命令.split(" ")
         命令数据 = {"命令": 命令列表[0], "参数列表": [], "参数字典": {}}
@@ -58,7 +58,6 @@ class Plugin:
             else:
                 命令数据["参数列表"].append(参数)
         return 命令数据
-    
 
 
 bot = _Bot()
