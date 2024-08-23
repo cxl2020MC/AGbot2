@@ -1,3 +1,4 @@
 aiohttp
 loguru
+Jinja2
 tcping

@@ -6,7 +6,7 @@ from . import handler
 from . import config
 
 
-@utils.重试(重试次数=9999, 错误处理函数=None)
+@utils.重试(重试次数=99999, 错误处理函数=None)
 async def run() -> None:
     async with aiohttp.ClientSession() as session:
         ws_url = config.ws_url
