@@ -22,7 +22,7 @@ async def 获取资讯(消息, data, ws):
 {% for i in data['posts'] %}
 {{i['title']}}
 {{i['link']}}
-{{i['url]}}
+{{i['url']}}
 {% endfor %}
 """)
     消息 = 模板.render(data=资讯)
