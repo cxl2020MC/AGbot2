@@ -31,6 +31,6 @@ async def tcp_ping_func(消息, data, ws):
     命令 = bot.解析命令(消息)
     url = 命令["参数列表"][0]
     ping = tcping.Ping(url, 443, 5)
-    ping..ping()
+    ping.ping(4)
     result = ping.result.raw
     await api.发送群消息(ws, data.get("group_id"), result)
