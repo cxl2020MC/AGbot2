@@ -3,6 +3,7 @@ from AGbot.log import logger as log
 from AGbot import api
 import aiohttp
 import time
+import tcping
 
 bot = plugin.Plugin("命令")
 
@@ -24,3 +25,11 @@ async def http_test(消息, data, ws):
         async with session.get(url) as res:
             log.info(f"HTTP请求耗时: {time.time() - start_time}s")
             await api.发送群消息(ws, data.get("group_id"), f"HTTP请求耗时: {time.time() - start_time}s")
+
+@bot.命令("ping", ["/ping"])
+async def tcp_ping_func(消息, data, ws):
+    命令 = bot.解析命令(消息)
+    url = 命令["参数列表"][0]
+    ping = tcping.Ping(url, 443, 5).ping()
+    result = ping.result.raw
+    await api.发送群消息(ws, data.get("group_id"), result)
