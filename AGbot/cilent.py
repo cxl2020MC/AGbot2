@@ -18,4 +18,3 @@ async def run() -> None:
                 data = msg.json()
                 log.debug(f"收到json消息: {data}")
                 await handler.main(data, ws)
-

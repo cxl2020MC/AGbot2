@@ -19,6 +19,7 @@ async def 刷新群信息缓存(ws, group_id):
             "echo": {"type": "get_group_info", "group_id": group_id}}
     await ws.send_json(data)
 
+
 async def 删除群信息缓存(ws):
     群信息缓存.clear()
 
@@ -39,5 +40,3 @@ async def handler(ws, data):
         群信息缓存.update({echo.get("group_id"): data.get("data")})
     elif echo.get("type") == "send_group_msg":
         log.info(f"发送群消息成功，群号：{echo.get('group_id')}，消息：{echo.get('message')}")
-    
-

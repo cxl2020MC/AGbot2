@@ -3,6 +3,7 @@ from . import api
 from . import plugin
 from . import config
 
+
 async def main(data: dict, ws):
     if data.get("post_type") == "message" or data.get("post_type") == "message_sent":
         if data.get("message_type") == "group":
@@ -36,5 +37,3 @@ async def 群聊消息处理(data: dict, ws):
     log.info(f"收到群 {await api.获取群名称(ws, data.get('group_id'))}({data.get('group_id')}) 内 {get_uername(sender)}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
     if data.get("group_id") in config.群聊白名单:
         await plugin.bot.匹配命令(data, ws)
-
-
