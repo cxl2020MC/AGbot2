@@ -12,6 +12,10 @@ async def get_hyp_api_url(区服: str, api: str, language: str = "zh-cn"):
 async def get_game_id(游戏):
     if 游戏 == "原神":
         return "1Z8W5NHUQb"
+    elif 游戏 == "绝区零":
+        return "x6znKlJ0xK"
+    elif 游戏 == "崩坏星穹铁道":
+        return "64kMb5iAWu"
     else:
         raise Exception("不支持的游戏")
 
