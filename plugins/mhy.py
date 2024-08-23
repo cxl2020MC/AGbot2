@@ -26,6 +26,6 @@ async def 获取资讯(消息, data, ws):
 {{i['url']}}
 {% endfor %}
 """)
-    消息 = 模板.render(data=资讯)
+    消息 = 模板.render(data=资讯.get("data"))
     await api.发送群消息(ws, data.get("group_id"), 消息)
 
