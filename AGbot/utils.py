@@ -2,7 +2,10 @@ import aiohttp
 import asyncio
 import traceback
 import functools
+from pathlib import Path
+import time
 from .log import logger as log
+from . import config
 
 
 def set_ws(websocket: aiohttp.ClientWebSocketResponse):
@@ -29,3 +32,9 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型 = Exception, �
     return directer
 
 
+def 储存错误追踪():
+    path = Path(config.数据文件夹)
+    path = path / "错误追踪" / f"{time.time()}.json"
+    path.touch()
+    with open(path, "w", encodeing="utf-8") as f:
+        pass
