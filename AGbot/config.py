@@ -1,4 +1,4 @@
-ws_url = "http://localhost:3001/"
+ws_url = "ws://localhost:3001/"
 
 机器人QQ号 = 123456789
 管理员QQ号 = [123456789]
