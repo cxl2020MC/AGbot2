@@ -15,13 +15,11 @@ async def 获取资讯(消息, data, ws):
     log.debug(资讯)
 
     模板 = jinja2.Template("""轮播图:
-{% for i in data['banners'] %}
-{{i['image']['url']}}
+{% for i in data['banners'] %}[CQ:image,file={{i['image']['url']}}]
 {{i['image']['link']}}
 {% endfor %}
 资讯:
-{% for i in data['posts'] %}
-{{i['title']}}
+{% for i in data['posts'] %}{{i['title']}}
 {{i['link']}}
 {{i['url']}}
 {% endfor %}
