@@ -6,7 +6,7 @@ async def get_hyp_api_url(区服: str, api: str, language: str = "zh-cn"):
         launcher_id = "jGHBHlcOq1"
     else:
         raise Exception("不支持的启动器")
-    url = f"https://{host}/hyp/hyp-connect/api/{api}?laucnher_id={launcher_id}&language={language}"
+    url = f"https://{host}/hyp/hyp-connect/api/{api}?laucher_id={launcher_id}&language={language}"
     return url
 
 async def get_game_id(游戏):
