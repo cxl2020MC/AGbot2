@@ -18,6 +18,8 @@ async def get_game_id(游戏: str) -> str:
         return "x6znKlJ0xK"
     elif 游戏 == "崩坏星穹铁道":
         return "64kMb5iAWu"
+    elif 游戏 == "崩坏3":
+        return "osvnlOc0S8"
     else:
         raise Exception("不支持的游戏")
 
@@ -59,11 +61,20 @@ async def 获取全部游戏安装包信息(区服, language="zh-cn") -> dict:
         async with session.get(url) as resp:
             return await resp.json()
 
+async def 获取游戏安装包信息(区服, game_id: str, language="zh-cn") -> dict | None:
+    ret_data = await 获取全部游戏安装包信息(区服, language)
+    for i in ret_data["data"]["game_packages"]:
+        if i["game"]["id"] == game_id:
+            return i
+
+'''
+# 暂时不可用
 async def 获取游戏安装包信息(区服, game_id: str, language="zh-cn") -> dict:
-    url = get_hyp_api_url(区服, "getGamePackages", language) + f"&game_id={game_id}"
+    url = get_hyp_api_url(区服, "getGamePackages", language) + f"&game_ids[]={game_id}"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             return await resp.json()
+'''
 
 if __name__ == "__main__":
-    print(asyncio.run(获取全部游戏安装包信息("国服", "x6znKlJ0xK")))
+    print(asyncio.run(获取游戏安装包信息("国服", "1Z8W5NHUQb")))
