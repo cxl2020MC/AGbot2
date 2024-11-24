@@ -39,4 +39,5 @@ async def tcp_ping_func(消息, data):
 @bot.命令("/stop", ["/stop"])
 async def stop(消息, data):
     log.info("收到停止命令，尝试停止")
+    await api.发送群消息(data.get("group_id"), f"正在尝试停止,请稍后")
     os._exit(0)
