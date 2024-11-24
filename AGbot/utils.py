@@ -8,15 +8,6 @@ from .log import logger as log
 from . import config
 
 
-def set_ws(websocket: aiohttp.ClientWebSocketResponse):
-    global ws
-    ws = websocket
-
-
-def get_ws() -> aiohttp.ClientWebSocketResponse:
-    return ws
-
-
 def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错误处理函数=None):
     def directer(func):
         @functools.wraps(func)
@@ -34,9 +25,9 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
     return directer
 
 
-def 储存错误追踪():
+async def 储存错误追踪():
     path = Path(config.数据文件夹)
     path = path / "错误追踪" / f"{time.time()}.json"
     path.touch()
-    with open(path, "w", encodeing="utf-8") as f:
+    with open(path, "w", encoding="utf-8") as f:
         pass
