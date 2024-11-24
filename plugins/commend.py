@@ -4,6 +4,7 @@ from AGbot import api
 import aiohttp
 import time
 import tcping
+import os
 
 bot = plugin.Plugin("命令")
 
@@ -34,3 +35,8 @@ async def tcp_ping_func(消息, data):
     ping.ping(4)
     result = ping.result.raw
     await api.发送群消息(data.get("group_id"), result)
+
+@bot.命令("/stop", ["/stop"])
+async def stop(消息, data):
+    log.info("收到停止命令，尝试停止")
+    os._exit(0)
