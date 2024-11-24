@@ -36,9 +36,9 @@ class Plugin:
     def 命令(self, 名称, 命令列表: list):
         def director(func):
             @functools.wraps(func)
-            async def wrapper(消息, data, ws, *args, **kwargs):
+            async def wrapper(消息, data, *args, **kwargs):
                 try:
-                    return await func(消息, data, ws, *args, **kwargs)
+                    return await func(消息, data, *args, **kwargs)
                 except Exception as e:
                     log.error(f"命令 {名称} 执行出错: {traceback.format_exc()}")
                     await api.发送群消息(data.get("group_id"), f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}")
