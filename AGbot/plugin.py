@@ -11,7 +11,7 @@ from . import api
 def 加载插件(插件):
     global 插件列表, 命令列表
     插件列表.append(插件)
-    命令列表 += 插件.命令列表
+    命令列表.append(插件.命令列表)
     log.info(f"加载插件 {插件.名称} 成功")
 
 
