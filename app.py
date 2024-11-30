@@ -8,9 +8,9 @@ config.群聊白名单 = [860769764, 463566277,
                 959593907, 925603600, 993426084, 456912162]
 
 
-plugin.bot.加载插件(about.bot)
-plugin.bot.加载插件(commend.bot)
-plugin.bot.加载插件(mhy.bot)
+plugin.加载插件(about.bot)
+plugin.加载插件(commend.bot)
+plugin.加载插件(mhy.bot)
 
 
 asyncio.run(cilent.run())
