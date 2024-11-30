@@ -8,7 +8,7 @@ bot = plugin.Plugin("帮助")
 @bot.命令("帮助", ["/help"])
 async def 帮助(消息, data):
     插件列表 = plugin.插件列表
-    log.debug("插件列表：", 插件列表)
+    log.debug(f"插件列表: {插件列表}")
     模板 = jinja2.Template("""帮助：
 {% for plugin in plugins %}
 {{ plugin.名称 }} :
