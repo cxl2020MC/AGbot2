@@ -1,5 +1,6 @@
 import functools
 import traceback
+import shlex
 from .log import logger as log
 from . import api
 
@@ -49,7 +50,7 @@ class Plugin:
         return director
 
     def 解析命令(self, 命令: str):
-        命令列表 = 命令.split(" ")
+        命令列表 = shlex.split(命令)
         命令数据 = {"命令": 命令列表[0], "参数列表": [], "参数字典": {}}
         for 参数 in 命令列表[1:]:
             if 参数.startswith("-"):
