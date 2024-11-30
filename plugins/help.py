@@ -16,5 +16,5 @@ async def 帮助(消息, data):
         {{ 命令.get("命令名称") }}
     {% endfor %}
 {% endfor %}""")
-    消息内容 = 模板.render(plugin=插件列表)
+    消息内容 = 模板.render(plugins=插件列表)
     await api.发送群消息(data.get("group_id"), 消息内容)
