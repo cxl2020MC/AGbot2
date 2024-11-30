@@ -36,6 +36,9 @@ async def 发送群消息(group_id, message):
                                                    "message": message}, "echo": {"type": "send_group_msg", "group_id": group_id, "message": message}}
     await ws.send_json(data)
 
+async def 发送消息(data, message):
+    if data.get("group_id"):
+        await 发送群消息(data.get("group_id"), message)
 
 async def handler(data):
     echo = data.get("echo")
