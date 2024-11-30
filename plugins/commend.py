@@ -5,6 +5,7 @@ import aiohttp
 import time
 import tcping
 import os
+import sys
 
 bot = plugin.Plugin("命令")
 
@@ -31,13 +32,15 @@ async def http_test(消息, data):
 async def tcp_ping_func(消息, data):
     命令 = bot.解析命令(消息)
     url = 命令["参数列表"][0]
-    ping = tcping.Ping(url, 443, 5)
+    port = 命令["参数字典"].get("port", 443)
+    ping = tcping.Ping(url, port, 5)
     ping.ping(4)
     result = ping.result.raw
     await api.发送群消息(data.get("group_id"), result)
 
-@bot.命令("/stop", ["/stop"])
+@bot.命令("重启", ["/restart"])
 async def stop(消息, data):
-    log.info("收到停止命令，尝试停止")
-    await api.发送群消息(data.get("group_id"), f"正在尝试停止,请稍后")
+    log.info("收到重启命令，尝试停止")
+    await api.发送群消息(data.get("group_id"), f"正在尝试重启,请稍后")
+    sys.exit(0)
     os._exit(0)
