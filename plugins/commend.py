@@ -12,7 +12,7 @@ bot = plugin.Plugin("命令")
 @bot.命令("命令", ["/commend", "/命令"])
 async def commend(消息, data):
     log.info("收到命令")
-    await api.发送群消息(data.get("group_id"), f"""识别命令为: {bot.解析命令(消息)}""")
+    await api.发送消息(data, f"""识别命令为: {bot.解析命令(消息)}""")
 
 @bot.命令("抛出错误", ["/error"])
 async def error(消息, data):
@@ -26,7 +26,7 @@ async def http_test(消息, data):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as res:
             log.info(f"HTTP请求耗时: {time.time() - start_time}s")
-            await api.发送群消息(data.get("group_id"), f"HTTP请求耗时: {time.time() - start_time}s")
+            await api.发送消息(data, f"HTTP请求耗时: {time.time() - start_time}s")
 
 @bot.命令("ping", ["/ping"])
 async def tcp_ping_func(消息, data):
@@ -36,11 +36,11 @@ async def tcp_ping_func(消息, data):
     ping = tcping.Ping(url, port, 5)
     ping.ping(4)
     result = ping.result.raw
-    await api.发送群消息(data.get("group_id"), result)
+    await api.发送消息(data, result)
 
 @bot.命令("重启", ["/restart"])
 async def stop(消息, data):
     log.info("收到重启命令，尝试停止")
-    await api.发送群消息(data.get("group_id"), f"正在尝试重启,请稍后")
+    await api.发送消息(data, f"正在尝试重启,请稍后")
     sys.exit(0)
     os._exit(0)

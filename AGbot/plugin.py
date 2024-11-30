@@ -49,7 +49,7 @@ class Plugin:
                     except Exception as e:
                         错误跟踪id = None
                         log.error(f"储存错误追踪失败: {e}")
-                    await api.发送群消息(data.get("group_id"), f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\n错误跟踪ID: {错误跟踪id}")
+                    await api.发送消息(data, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\n错误跟踪ID: {错误跟踪id}")
             命令数据 = {"命令列表": 命令列表, "命令名称": 名称, "插件名称": self.名称, "函数": wrapper}
             self.命令列表.append(命令数据)
             log.debug(f"注册命令: {命令列表} 成功")

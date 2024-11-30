@@ -12,6 +12,6 @@ async def 帮助(消息, data):
     模板 = jinja2.Template("""帮助：{% for plugin in plugins %}{% for 命令 in plugin.命令列表 %}
     {{ 命令["命令名称"] }}: {{ 命令["命令列表"] }}{% endfor %}{% endfor %}""")
     消息内容 = 模板.render(plugins=插件列表)
-    await api.发送群消息(data.get("group_id"), 消息内容)
+    await api.发送消息(data, 消息内容)
 
 
