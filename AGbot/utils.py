@@ -18,7 +18,8 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
                 try:
                     return await func(*args, **kwargs)
                 except 异常类型 as e:
-                    log.error(f"发生错误, : {traceback.format_exc()}")
+                    exc = traceback.format_exc()
+                    log.error(f"发生错误, : {exc}")
                     log.info(f"将在 {重试间隔} 秒后重试第 {i+1} 次")
                     if 错误处理函数:
                         错误处理函数(e)
@@ -27,7 +28,7 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
     return directer
 
 
-async def 储存错误追踪(名称: str, data, traceback):
+async def 储存错误追踪(data, traceback):
     timestamp = time.time()
     w_data = json.dumps({
         "data": data,
