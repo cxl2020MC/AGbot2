@@ -35,8 +35,10 @@ async def 储存错误追踪(data, traceback):
         "traceback": traceback,
     })
     path = Path(config.数据文件夹)
-    path = path / "错误追踪" / f"{timestamp}.json"
-    path.touch()
+    path = path / "错误追踪"
+    path.mkdir(exist_ok=True, parents=True)
+    path = path / f"{timestamp}.json"
+    # path.touch()
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(w_data)
     log.info(f"错误追踪已储存至 {path}")
