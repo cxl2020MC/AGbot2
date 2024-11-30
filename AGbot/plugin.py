@@ -3,6 +3,7 @@ import traceback
 import shlex
 from .log import logger as log
 from . import api
+from . import utils
 
 插件列表 = []
 命令列表 = []
@@ -42,6 +43,7 @@ class Plugin:
                     return await func(消息, data, *args, **kwargs)
                 except Exception as e:
                     log.error(f"命令 {名称} 执行出错: {traceback.format_exc()}")
+                    utils.储存错误追踪(名称, data, traceback.format_exc())
                     await api.发送群消息(data.get("group_id"), f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}")
             命令数据 = {"命令列表": 命令列表, "命令名称": 名称, "插件名称": self.名称, "函数": wrapper}
             self.命令列表.append(命令数据)

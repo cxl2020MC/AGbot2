@@ -28,7 +28,7 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
     return directer
 
 
-async def 储存错误追踪(data, traceback):
+async def 储存错误追踪(名称: str, data, traceback):
     timestamp = time.time()
     w_data = json.dumps({
         "data": data,
@@ -39,3 +39,5 @@ async def 储存错误追踪(data, traceback):
     path.touch()
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(w_data)
+    log.info(f"错误追踪已储存至 {path}")
+    return timestamp
