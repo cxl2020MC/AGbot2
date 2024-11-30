@@ -6,7 +6,7 @@ import jinja2
 
 bot = plugin.Plugin("mhy")
 
-@bot.命令("获取资讯", ["/获取资讯"])
+@bot.命令("获取资讯", ["/资讯", "/news"])
 async def 获取资讯(消息, data):
     log.info("收到命令")
     命令 = bot.解析命令(消息)
