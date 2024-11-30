@@ -6,7 +6,6 @@ from pathlib import Path
 import time
 import json
 
-from matplotlib.font_manager import json_dump
 from .log import logger as log
 from . import config
 
