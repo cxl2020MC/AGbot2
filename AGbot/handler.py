@@ -32,4 +32,4 @@ async def 群聊消息处理(data: dict):
     sender = data.get("sender", {})
     log.info(f"收到群 {await api.获取群名称(data.get('group_id'))}({data.get('group_id')}) 内 {get_username(sender)}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
     if data.get("group_id") in config.群聊白名单:
-        await plugin.bot.匹配命令(data)
+        await plugin.匹配命令(data)

@@ -3,29 +3,29 @@ import traceback
 from .log import logger as log
 from . import api
 
-插件列表 = []
-命令列表 = []
 
+class _Bot:
+    def __init__(self) -> None:
+        self.插件列表 = []
+        self.命令列表 = []
 
-def 加载插件(插件):
-    global 插件列表, 命令列表
-    插件列表.append(插件)
-    命令列表 += 插件.命令列表
-    log.info(f"加载插件 {插件.名称} 成功")
+    def 加载插件(self, 插件):
+        self.插件列表.append(插件)
+        self.命令列表 += 插件.命令列表
+        log.info(f"加载插件 {插件.名称} 成功")
 
-
-async def 匹配命令(data):
-    """匹配命令"""
-    消息: str = data.get("raw_message", "")
-    if not 消息:
-        log.warning("消息为空")
-        return
-    elif 消息[0] == "/":
-        消息列表 = 消息.split(" ")
-        for 插件命令列表 in 命令列表:
-            if 消息列表[0] in 插件命令列表["命令列表"]:
-                log.debug(f"匹配到命令: {消息列表[0]} 位于 {插件命令列表['命令列表']}")
-                await 插件命令列表["函数"](消息, data)
+    async def 匹配命令(self, data):
+        """匹配命令"""
+        消息: str = data.get("raw_message", "")
+        if not 消息:
+            log.warning("消息为空")
+            return
+        elif 消息[0] == "/":
+            消息列表 = 消息.split(" ")
+            for 命令列表 in self.命令列表:
+                if 消息列表[0] in 命令列表["命令列表"]:
+                    log.debug(f"匹配到命令: {消息列表[0]} 位于 {命令列表['命令列表']}")
+                    await 命令列表["函数"](消息, data)
 
 
 class Plugin:
@@ -59,3 +59,5 @@ class Plugin:
                 命令数据["参数列表"].append(参数)
         return 命令数据
 
+
+bot = _Bot()
