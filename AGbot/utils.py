@@ -1,9 +1,12 @@
-import aiohttp
+import aiofiles
 import asyncio
 import traceback
 import functools
 from pathlib import Path
 import time
+import json
+
+from matplotlib.font_manager import json_dump
 from .log import logger as log
 from . import config
 
@@ -25,9 +28,14 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
     return directer
 
 
-async def 储存错误追踪():
+async def 储存错误追踪(data, traceback):
+    timestamp = time.time()
+    w_data = json.dumps({
+        "data": data,
+        "traceback": traceback,
+    })
     path = Path(config.数据文件夹)
-    path = path / "错误追踪" / f"{time.time()}.json"
+    path = path / "错误追踪" / f"{timestamp}.json"
     path.touch()
-    with open(path, "w", encoding="utf-8") as f:
-        pass
+    async with aiofiles.open(path, "w", encoding="utf-8") as f:
+        await f.write(w_data)

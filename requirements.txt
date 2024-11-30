@@ -3,3 +3,4 @@ loguru
 Jinja2
 tcping
 websockets
+aiofiles
