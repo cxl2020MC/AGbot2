@@ -38,7 +38,7 @@ async def 发送群消息(group_id, message):
 
 async def 发送消息(data, message):
     if data.get("group_id"):
-        await 发送消息(data, message)
+        await 发送群消息(data.get("group_id"), message)
 
 async def handler(data):
     echo = data.get("echo")
