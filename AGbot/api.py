@@ -30,15 +30,15 @@ async def 获取群名称(group_id):
     return (await 获取群信息(group_id)).get("group_name", "群名称加载中")
 
 
-async def 发送群消息(group_id, message):
+async def send_group_message(group_id, message):
     ws = await websocket.get_ws()
     data = {"action": "send_group_msg", "params": {"group_id": group_id,
                                                    "message": message}, "echo": {"type": "send_group_msg", "group_id": group_id, "message": message}}
     await ws.send_json(data)
 
-async def 发送消息(data, message):
+async def send_message(data, message):
     if data.get("group_id"):
-        await 发送群消息(data.get("group_id"), message)
+        await send_group_message(data.get("group_id"), message)
 
 async def handler(data):
     echo = data.get("echo")
