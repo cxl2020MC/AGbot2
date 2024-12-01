@@ -6,7 +6,7 @@ import jinja2
 
 bot = plugin.Plugin("mhy")
 
-@bot.命令("获取资讯", ["/资讯", "/news"])
+@bot.command("获取资讯", ["/资讯", "/news"])
 async def 获取资讯(消息, data):
     log.info("收到命令")
     命令 = bot.解析命令(消息)
@@ -27,7 +27,7 @@ async def 获取资讯(消息, data):
     消息 = 模板.render(data=ret_data["data"].get("content"))
     await api.send_message(data, 消息)
 
-@bot.命令("获取启动器背景图", ["/获取启动器背景图"])
+@bot.command("获取启动器背景图", ["/获取启动器背景图"])
 async def 获取启动器背景图(消息, data):
     log.info("收到命令")
     命令 = bot.解析命令(消息)
@@ -39,7 +39,7 @@ async def 获取启动器背景图(消息, data):
     消息 = f"背景图:\n[CQ:image,file={ret_data['data']['game_info_list'][0]['backgrounds'][0]['background']['url']}]"
     await api.send_message(data, 消息)
 
-@bot.命令("获取游戏最新版本", ["/获取游戏最新版本"])
+@bot.command("获取游戏最新版本", ["/获取游戏最新版本"])
 async def 获取游戏最新版本(消息, data):
     log.info("收到命令")
     命令 = bot.解析命令(消息)

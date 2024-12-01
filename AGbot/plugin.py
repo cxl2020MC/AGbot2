@@ -38,7 +38,7 @@ class Plugin:
         self.name = 名称
         self.command_list = []
 
-    def 命令(self, 名称, command_list: list):
+    def command(self, 名称, command_list: list):
         def director(func):
             @functools.wraps(func)
             async def wrapper(消息, data, *args, **kwargs):

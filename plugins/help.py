@@ -5,7 +5,7 @@ import jinja2
 
 bot = plugin.Plugin("帮助")
 
-@bot.命令("帮助", ["/help"])
+@bot.command("帮助", ["/help"])
 async def 帮助(消息, data):
     plugin_list = plugin.plugin_list
     log.debug(f"plugin_list: {plugin_list}")
