@@ -30,7 +30,7 @@ class _Bot:
 
 class Plugin:
     def __init__(self, 名称) -> None:
-        selfname = 名称
+        self.name = 名称
         self.command_list = []
 
     def 命令(self, 名称, command_list: list):
