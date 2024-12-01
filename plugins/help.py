@@ -13,5 +13,3 @@ async def 帮助(消息, data):
     {{ 命令["命令名称"] }}: {{ 命令["command_list"] }}{% endfor %}{% endfor %}""")
     消息内容 = 模板.render(plugins=plugin_list)
     await api.send_message(data, 消息内容)
-
-
