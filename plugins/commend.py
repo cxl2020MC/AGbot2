@@ -46,12 +46,16 @@ async def stop(消息, data):
     sys.exit(0)
     os._exit(0)
 
+ollama_history = []
+
 @bot.command("AI", ["/ai"])
 async def ai(消息, data):
     message2 = 消息[4:]
     raw_message2 = ''.join(message2)
     log.info(raw_message2)
     message = {'role': 'user', 'content': raw_message2}
+    ollama_history.append(message)
     response = await AsyncClient().chat(model='qwen2:0.5b', messages=[message])
     log.info(response)
-    await api.send_message(data, response.message.content)
+    ollama_history.append(response["message"])
+    await api.send_message(data, response["message"]["content"])
