@@ -52,6 +52,6 @@ async def ai(消息, data):
     raw_message2 = ''.join(message2)
     log.info(raw_message2)
     message = {'role': 'user', 'content': raw_message2}
-    response = await AsyncClient().chat(model='deepseek:1.5b', messages=[message])
+    response = await AsyncClient().chat(model='deepseek-r1:1.5b', messages=[message])
     log.info(response)
     await api.send_message(data, response)
