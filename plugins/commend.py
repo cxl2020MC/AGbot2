@@ -6,7 +6,7 @@ import time
 import tcping
 import os
 import sys
-import ollama
+from ollama import AsyncClient
 
 bot = plugin.Plugin("命令")
 
