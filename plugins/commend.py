@@ -46,7 +46,7 @@ async def stop(消息, data):
     sys.exit(0)
     os._exit(0)
 
-@bot.commend("AI", ["/ai"])
+@bot.command("AI", ["/ai"])
 async def ai(消息, data):
     message2 = 消息[1:]
     raw_message2 = ''.join(message2)
