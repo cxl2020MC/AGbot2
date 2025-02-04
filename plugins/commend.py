@@ -58,5 +58,5 @@ async def ai(消息, data):
     response = await AsyncClient().chat(model='qwen2:0.5b', messages=ollama_history)
     log.info(response)
     log.debug(ollama_history)
-    ollama_history.append(response["message"])
+    ollama_history.append(dict(response["message"]))
     await api.send_message(data, response["message"]["content"])
