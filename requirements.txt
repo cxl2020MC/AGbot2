@@ -4,3 +4,4 @@ Jinja2
 tcping
 websockets
 aiofiles
+ollama

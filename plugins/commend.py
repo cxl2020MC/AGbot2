@@ -6,6 +6,7 @@ import time
 import tcping
 import os
 import sys
+import ollama
 
 bot = plugin.Plugin("命令")
 
@@ -44,3 +45,12 @@ async def stop(消息, data):
     await api.send_message(data, f"正在尝试重启,请稍后")
     sys.exit(0)
     os._exit(0)
+
+@bot.commend("AI", ["/ai"])
+async def ai(消息, data):
+    message2 = 消息[1:]
+    raw_message2 = ''.join(message2)
+    message = {'role': 'user', 'content': raw_message2}
+    response = await AsyncClient().chat(model='deepseek:1.5b', messages=[message])
+    log.info(response)
+    await api.send_message(data, response)
