@@ -6,6 +6,7 @@ import httpx
 
 client = httpx.AsyncClient()
 
+
 async def post_api(action, post_data) -> dict:
     req = await client.post(f"{config.api_url}/{action}", json=post_data)
     data = req.json()
@@ -14,7 +15,6 @@ async def post_api(action, post_data) -> dict:
         return data
     else:
         raise Exception(data)
-    
 
 
 async def 获取群信息(group_id):
@@ -41,16 +41,17 @@ async def 删除群信息缓存():
 
 
 async def 获取群名称(group_id):
-    return (await 获取群信息(group_id)).get("group_name", "群名称获取失败")
+    return (await 获取群信息(group_id)).get("group_name")
 
 
 async def send_group_message(group_id, message):
-    ws = await websocket.get_ws()
-    data = {"action": "send_group_msg", "params": {"group_id": group_id,
-                                                   "message": message}, "echo": {"type": "send_group_msg", "group_id": group_id, "message": message}}
-    await ws.send_json(data)
+    post_data = {
+        "group_id": group_id,
+        "message": message
+    }
+    await post_api("send_group_message", post_data)
+
 
 async def send_message(data, message):
     if data.get("group_id"):
         await send_group_message(data.get("group_id"), message)
-
