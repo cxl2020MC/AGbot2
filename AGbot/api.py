@@ -14,7 +14,8 @@ async def post_api(action, post_data) -> dict:
     if data["status"] == "ok":
         return data
     else:
-        raise Exception(data)
+        log.error(f"API {action} 返回错误 {data}")
+        raise Exception(f"API {action} 返回错误 {data}")
 
 
 async def 获取群信息(group_id):
