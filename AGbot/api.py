@@ -8,7 +8,7 @@ client = httpx.AsyncClient()
 
 async def post_api(action, post_data) -> dict:
     req = await client.post(f"{config.api_url}/{action}", json=post_data)
-    data = req.json()
+    data = await req.json()
     if data["status"] == "ok":
         return data
     else:
