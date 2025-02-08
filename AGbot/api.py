@@ -1,8 +1,19 @@
 from .log import logger as log
-from . import websocket
-import time
+from . import config
+import httpx
 
 群信息缓存 = {}
+
+client = httpx.AsyncClient()
+
+async def post_api(action, post_data) -> dict:
+    req = await client.post(f"{config.api_url}/{action}", json=post_data)
+    data = req.json()
+    if data["status"] == "ok":
+        return data
+    else:
+        raise Exception(data)
+    
 
 
 async def 获取群信息(group_id):
@@ -16,10 +27,12 @@ async def 获取群信息(group_id):
 
 
 async def 刷新群信息缓存(group_id):
-    ws = await websocket.get_ws()
-    data = {"action": "get_group_info", "params": {"group_id": group_id},
-            "echo": {"type": "get_group_info", "group_id": group_id}}
-    await ws.send_json(data)
+    post_data = {
+        "group_id": group_id,
+    }
+    data = await post_api("get_group_info", post_data)
+    群信息缓存[group_id] = data["data"]
+    return data["data"]
 
 
 async def 删除群信息缓存():
@@ -27,7 +40,7 @@ async def 删除群信息缓存():
 
 
 async def 获取群名称(group_id):
-    return (await 获取群信息(group_id)).get("group_name", "群名称加载中")
+    return (await 获取群信息(group_id)).get("group_name", "群名称获取失败")
 
 
 async def send_group_message(group_id, message):

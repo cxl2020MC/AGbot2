@@ -1,5 +1,4 @@
-from AGbot import cilent, config, plugin
-import asyncio
+from AGbot import client, config, plugin
 from plugins import help, about, commend, mhy
 
 config.管理员QQ号 = [1176503930, 2130812665]
@@ -14,4 +13,4 @@ plugin.加载插件(commend.bot)
 plugin.加载插件(mhy.bot)
 
 
-asyncio.run(cilent.run())
+client.run()

@@ -2,6 +2,6 @@ aiohttp
 loguru
 Jinja2
 tcping
-websockets
+httpx
 aiofiles
 ollama
