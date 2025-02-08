@@ -27,12 +27,12 @@ async def 获取群信息(group_id):
     return 群信息
 
 
-async def 刷新群信息缓存(group_id):
+async def 刷新群信息缓存(group_id: int):
     post_data = {
         "group_id": group_id,
     }
     data = await post_api("get_group_info", post_data)
-    群信息缓存[group_id] = data["data"]
+    群信息缓存.update({group_id: data["data"]})
     return data["data"]
 
 
