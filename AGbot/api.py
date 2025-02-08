@@ -49,7 +49,7 @@ async def send_group_message(group_id, message):
         "group_id": group_id,
         "message": message
     }
-    await post_api("send_group_message", post_data)
+    await post_api("send_group_msg", post_data)
 
 
 async def send_message(data, message):
