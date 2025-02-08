@@ -11,7 +11,7 @@ async def post_api(action, post_data) -> dict:
     req = await client.post(f"{config.api_url}/{action}", json=post_data)
     data = req.json()
     log.debug(f"API {action} 返回: {data}")
-    if data["status"] == "ok":
+    if data.get("status") == "ok":
         return data
     else:
         log.error(f"API {action} 返回错误 {data}")
