@@ -18,8 +18,7 @@ async def main(data: dict):
             log.info(f"收到生命周期事件: {data.get('sub_type')}")
         case {"post_type": "meta_event", "meta_event_type": "heartbeat"}:
             log.info(f"收到心跳包: {data.get('status')} [{data.get('interval')}]")
-        case _ if "post_type" not in data:
-            await api.handler(data)
+
         case _:
             log.warning(f"收到不支持的内容: {data}")
 

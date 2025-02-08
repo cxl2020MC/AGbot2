@@ -6,7 +6,7 @@ from . import config
 
 
 async def main(request):
-    data = request.json()
+    data = await request.json()
     log.debug(f"收到json消息: {data}")
     await handler.main(data)
 
