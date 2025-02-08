@@ -8,7 +8,8 @@ client = httpx.AsyncClient()
 
 async def post_api(action, post_data) -> dict:
     req = await client.post(f"{config.api_url}/{action}", json=post_data)
-    data = await req.json()
+    data = req.json()
+    log.debug(f"API {action} 返回: {data}")
     if data["status"] == "ok":
         return data
     else:
@@ -53,9 +54,3 @@ async def send_message(data, message):
     if data.get("group_id"):
         await send_group_message(data.get("group_id"), message)
 
-async def handler(data):
-    echo = data.get("echo")
-    if echo.get("type") == "get_group_info":
-        群信息缓存.update({echo.get("group_id"): data.get("data")})
-    elif echo.get("type") == "send_group_msg":
-        log.info(f"发送群消息成功，群号：{echo.get('group_id')}，消息：{echo.get('message')}")
