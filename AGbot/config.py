@@ -2,7 +2,7 @@ api_url = "http://localhost:3000"
 
 ws_url = "ws://localhost:3001/" #历史遗留
 host = "localhost"
-port = 3001
+port = 3000
 
 机器人QQ号 = 123456789
 管理员QQ号 = [123456789]
