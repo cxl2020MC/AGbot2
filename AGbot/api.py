@@ -21,9 +21,9 @@ async def 获取群信息(group_id):
     """
     获取群信息
     """
-    群信息 = 群信息缓存.get(group_id, {})
+    群信息 = 群信息缓存.get(group_id)
     if not 群信息:
-        await 刷新群信息缓存(group_id)
+        return await 刷新群信息缓存(group_id)
     return 群信息
 
 
