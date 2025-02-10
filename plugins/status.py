@@ -28,7 +28,7 @@ async def about(消息, data):
         物理核心数: {物理核心数}
     内存: 
         使用率: {内存使用率.percent}%
-    磁盘: {磁盘使用率}
+    磁盘: {磁盘使用率}%
     网络: {网络发送} / {网络接收}"""
    
     await api.send_message(data, 消息)
