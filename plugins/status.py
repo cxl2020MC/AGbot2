@@ -23,7 +23,7 @@ async def about(消息, data):
     消息 = f"""状态:
     CPU: 
         使用率{CPU使用率}%
-        频率: {CPU频率.current}Mhz ({CPU频率.min} - {CPU频率.max}Mhz)
+        频率: {CPU频率.current}Mhz ({CPU频率.min} - {CPU频率.max})
         逻辑核心数: {逻辑核心数}
         物理核心数: {物理核心数}
     内存: 
