@@ -1,5 +1,5 @@
 from AGbot import client, config, plugin
-from plugins import help, about, commend, mhy
+from plugins import help, about, commend, mhy, ai
 
 config.管理员QQ号 = [1176503930, 2130812665]
 config.机器人QQ号 = 1176503930
@@ -11,6 +11,7 @@ plugin.load_pulgin(help.bot)
 plugin.load_pulgin(about.bot)
 plugin.load_pulgin(commend.bot)
 plugin.load_pulgin(mhy.bot)
+plugin.load_pulgin(ai.bot)
 
 
 client.run()
