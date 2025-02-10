@@ -4,7 +4,7 @@ from AGbot import api
 
 bot = plugin.Plugin("关于")
 
-@bot.command("关于", ["/about", "/关于"])
+@bot.command("关于", ["about", "关于"])
 async def about(消息, data):
     log.info("收到关于命令")
 
