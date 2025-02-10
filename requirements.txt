@@ -5,3 +5,4 @@ tcping
 httpx
 aiofiles
 ollama
+psutil
