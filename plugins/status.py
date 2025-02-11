@@ -21,6 +21,10 @@ async def about(消息, data):
     网络发送 = psutil.net_io_counters().bytes_sent
     网络接收 = psutil.net_io_counters().bytes_recv
     温度 = psutil.sensors_temperatures()
+
+    def 磁盘使用率(路径):
+        磁盘使用率 = psutil.disk_usage(路径)
+        return f"{磁盘使用率.percent}% ({磁盘使用率.used /1024/1024/1024}GB/{磁盘使用率.total/1024/1024/1024}GB)"
     
     磁盘模板 = jinja2.Template("""{% for item in 磁盘分区 %}
         驱动器: {{item.device}}
