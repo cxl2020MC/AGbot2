@@ -22,6 +22,7 @@ async def about(消息, data):
     网络发送 = psutil.net_io_counters().bytes_sent
     网络接收 = psutil.net_io_counters().bytes_recv
     温度 = psutil.sensors_temperatures()
+    系统启动时间 = psutil.boot_time()
 
     def 磁盘使用率(路径):
         磁盘使用率 = psutil.disk_usage(路径)
@@ -46,6 +47,7 @@ async def about(消息, data):
     交换分区: {交换分区.percent}% ({交换分区.used/1024/1024/1024:.2f}GB/{交换分区.total/1024/1024/1024:.2f}GB)
     磁盘: {磁盘模板.render(磁盘分区=磁盘分区, 磁盘使用率=磁盘使用率)}
     网络: 发送: {网络发送/1024/1024/1024:.2f}GB / 接收: {网络接收/1024/1024/1024:.2f}GB
-    温度: {温度模板.render(温度=温度)}"""
+    温度: {温度模板.render(温度=温度)}
+    系统启动时间: {启动时间/60/60:.2f}小时"""
    
     await api.send_message(data, 消息)
