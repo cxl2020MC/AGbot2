@@ -32,8 +32,9 @@ async def about(消息, data):
         当前在线 = "无"
 
     await api.send_message(data, f"""服务器状态:
-版本: {状态.version.name}
-描述: {状态.motd.raw}
-延迟: {延迟:.2f}ms
-在线人数: {状态.players.online}/{状态.players.max}
-当前在线: {", ".join(当前在线)}""")
+    地址: {服务器地址}
+    版本: {状态.version.name}
+    描述: {状态.motd.raw}
+    延迟: {延迟:.2f}ms
+    在线人数: {状态.players.online}/{状态.players.max}
+    当前在线: {", ".join(当前在线)}""")
