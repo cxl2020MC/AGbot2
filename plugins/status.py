@@ -15,7 +15,7 @@ async def about(消息, data):
     逻辑核心数 = psutil.cpu_count()
     物理核心数 = psutil.cpu_count(logical=False)
     CPU频率 = psutil.cpu_freq()
-    内存使用率 = psutil.virtual_memory()
+    内存 = psutil.virtual_memory()
     磁盘分区 = psutil.disk_partitions()
     # 磁盘使用率 = psutil.disk_usage('/').percent
     网络发送 = psutil.net_io_counters().bytes_sent
@@ -41,8 +41,7 @@ async def about(消息, data):
         频率: {CPU频率.current}Mhz ({CPU频率.min} - {CPU频率.max})
         逻辑核心数: {逻辑核心数}
         物理核心数: {物理核心数}
-    内存: 
-        使用率: {内存使用率.percent}%
+    内存: {内存.percent}% ({内存.used/1024/1024/1024:.2f}GB/{内存.total/1024/1024/1024:.2f}GB)
     磁盘: {磁盘模板.render(磁盘分区=磁盘分区, 磁盘使用率=磁盘使用率)}
     网络: 发送: {网络发送/1024/1024/1024:.2f}GB / 接收: {网络接收/1024/1024/1024:.2f}GB
     温度: {温度模板.render(温度=温度)}"""
