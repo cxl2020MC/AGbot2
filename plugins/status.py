@@ -24,7 +24,7 @@ async def about(消息, data):
 
     def 磁盘使用率(路径):
         磁盘使用率 = psutil.disk_usage(路径)
-        return f"{磁盘使用率.percent}% ({磁盘使用率.used /1024/1024/1024}GB/{磁盘使用率.total/1024/1024/1024}GB)"
+        return f"{磁盘使用率.percent}% ({磁盘使用率.used /1024/1024/1024:.2f}GB/{磁盘使用率.total/1024/1024/1024:.2f}GB)"
     
     磁盘模板 = jinja2.Template("""{% for item in 磁盘分区 %}
         驱动器: {{item.device}}
