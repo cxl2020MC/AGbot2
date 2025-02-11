@@ -25,7 +25,7 @@ async def about(消息, data):
         驱动器: """)
 
     温度模板 = jinja2.Template("""{% for name, emtries in 温度.items() %}
-        {{name}}: {{emtries.corrent}}℃ (温度墙: {{emtries.high}}℃){% endfor %}""")
+        {{name}}: {{emtries[0].corrent}}℃ (温度墙: {{emtries[0].high}}℃){% endfor %}""")
 
     消息 = f"""状态:
     CPU: 
