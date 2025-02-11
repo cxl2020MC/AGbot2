@@ -12,6 +12,7 @@ async def about(消息, data):
     服务器 = await mcstatus.JavaServer.async_lookup("ifeng.asia:1")
     延迟 = await 服务器.async_ping()
     状态 = await 服务器.async_status()
+    log.debug(状态)
     # 查询 = await 服务器.async_query()
     if 状态.players.sample:
         当前在线 = [玩家.name for 玩家 in 状态.players.sample]
