@@ -24,4 +24,4 @@ async def about(消息, data):
 描述: {状态.motd}
 延迟: {延迟}ms
 在线人数: {状态.players.online}/{状态.players.max}
-当前在线: {当前在线}""")
+当前在线: {", ".join(当前在线)}""")
