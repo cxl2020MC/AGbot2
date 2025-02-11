@@ -19,6 +19,7 @@ async def about(消息, data):
     磁盘使用率 = psutil.disk_usage('/').percent
     网络发送 = psutil.net_io_counters().bytes_sent
     网络接收 = psutil.net_io_counters().bytes_recv
+    温度 = psutil.sensors_temperatures()
 
     消息 = f"""状态:
     CPU: 
@@ -29,6 +30,7 @@ async def about(消息, data):
     内存: 
         使用率: {内存使用率.percent}%
     磁盘: {磁盘使用率}%
-    网络: {网络发送} / {网络接收}"""
+    网络: {网络发送} / {网络接收}
+    温度: {温度}"""
    
     await api.send_message(data, 消息)
