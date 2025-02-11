@@ -26,7 +26,7 @@ async def about(消息, data):
         驱动器: {{item.device}}
             挂载点: {{item.mountpoint}}
             文件系统: {{item.fstype}}
-            使用率: {{disk_usage(item.mountpoint)}}%{% endfor %}""")
+            使用率: {{disk_usage(item.mountpoint).percent}}%{% endfor %}""")
 
     温度模板 = jinja2.Template("""{% for name, emtries in 温度.items() %}
         {{name}}: {{emtries[0].current}}℃ (温度墙: {{emtries[0].high}}℃){% endfor %}""")
