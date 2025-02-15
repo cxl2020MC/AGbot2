@@ -46,9 +46,9 @@ class Plugin:
                     log.error(f"命令 {名称} 执行出错: {exc}")
                     try:
                         error_id = await utils.储存错误追踪(data, exc)
-                    except Exception as e:
+                    except Exception as e2:
                         error_id = None
-                        log.error(f"储存错误追踪失败: {e}")
+                        log.error(f"储存错误追踪失败: {e2}")
                     await api.send_message(data, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
             command_data = {"command_list": command_list, "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
