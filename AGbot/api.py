@@ -4,7 +4,6 @@ import aiohttp
 
 群信息缓存 = {}
 
-client = aiohttp.ClientSession()
 
 
 async def post_api(action, post_data) -> dict:
