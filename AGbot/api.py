@@ -8,14 +8,15 @@ client = aiohttp.ClientSession()
 
 
 async def post_api(action, post_data) -> dict:
-    req = await client.post(f"{config.api_url}/{action}", json=post_data)
-    data = await req.json()
-    log.debug(f"API {action} 返回: {data}")
-    if data.get("status") == "ok":
-        return data
-    else:
-        log.error(f"API {action} 返回错误 {data}")
-        raise Exception(f"API {action} 返回错误 {data}")
+    async with aiohttp.ClientSession() as session:
+        async with await client.post(f"{config.api_url}/{action}", json=post_data) as req:
+            data = await req.json()
+            log.debug(f"API {action} 返回: {data}")
+            if data.get("status") == "ok":
+                return data
+            else:
+                log.error(f"API {action} 返回错误 {data}")
+                raise Exception(f"API {action} 返回错误 {data}")
 
 
 async def 获取群信息(group_id):
