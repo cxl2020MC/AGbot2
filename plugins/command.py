@@ -11,8 +11,8 @@ import sys
 
 bot = plugin.Plugin("命令")
 
-@bot.command("命令", ["commend", "命令"])
-async def commend(消息, data):
+@bot.command("命令", ["command", "命令"])
+async def command(消息, data):
     log.info("收到命令")
     await api.send_message(data, f"""识别命令为: {bot.解析命令(消息)}""")
 
