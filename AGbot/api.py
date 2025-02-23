@@ -9,8 +9,8 @@ client = aiohttp.ClientSession()
 
 async def post_api(action, post_data) -> dict:
     async with aiohttp.ClientSession() as session:
-        async with await session.post(f"{config.api_url}/{action}", json=post_data) as req:
-            data = await req.json()
+        async with await session.post(f"{config.api_url}/{action}", json=post_data) as res:
+            data = await res.json()
             log.debug(f"API {action} 返回: {data}")
             if data.get("status") == "ok":
                 return data
