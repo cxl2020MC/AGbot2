@@ -1,7 +1,7 @@
 aiohttp
 loguru
 Jinja2
-tcping
+ping3
 httpx
 aiofiles
 ollama

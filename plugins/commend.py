@@ -3,7 +3,8 @@ from AGbot.log import logger as log
 from AGbot import api
 import aiohttp
 import time
-import tcping
+# import tcping
+import ping3
 import os
 import sys
 
@@ -33,10 +34,11 @@ async def http_test(消息, data):
 async def tcp_ping_func(消息, data):
     命令 = bot.解析命令(消息)
     url = 命令["参数列表"][0]
-    port = 命令["参数字典"].get("port", 443)
-    ping = tcping.Ping(url, port, 5)
-    ping.ping(4)
-    result = ping.result.raw
+    # port = 命令["参数字典"].get("port", 443)
+    # ping = tcping.Ping(url, port, 5)
+    # ping.ping(4)
+    # result = ping.result.raw
+    result = ping3.verbose_ping(url)
     await api.send_message(data, result)
 
 @bot.command("重启", ["restart"])
