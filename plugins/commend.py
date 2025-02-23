@@ -38,7 +38,7 @@ async def tcp_ping_func(消息, data):
     # ping = tcping.Ping(url, port, 5)
     # ping.ping(4)
     # result = ping.result.raw
-    result = ping3.verbose_ping(url)
+    result = ping3.ping(url)
     await api.send_message(data, result)
 
 @bot.command("重启", ["restart"])

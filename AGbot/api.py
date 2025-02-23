@@ -1,15 +1,15 @@
 from .log import logger as log
 from . import config
-import httpx
+import aiohttp
 
 群信息缓存 = {}
 
-client = httpx.AsyncClient()
+client = aiohttp.ClientSession()
 
 
 async def post_api(action, post_data) -> dict:
     req = await client.post(f"{config.api_url}/{action}", json=post_data)
-    data = req.json()
+    data = await req.json()
     log.debug(f"API {action} 返回: {data}")
     if data.get("status") == "ok":
         return data
