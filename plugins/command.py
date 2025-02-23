@@ -42,7 +42,22 @@ async def tcp_ping_func(消息, data):
     if url is None:
         await api.send_message(data, "请输入要ping的地址")
         return
-    result = ping3.ping(url)
+    results = []
+    for i in range(4):
+        result = ping3.ping(url)
+        if result is None:
+            result = "超时"
+        elif result is False:
+            result = "未知的主机名"
+        else:
+            result = f"{result*1000:.2f}ms"
+        results.append(result)
+
+    result = f"""正在ping {url}:
+    {results[0]}
+    {results[1]}
+    {results[2]}
+    {results[3]}"""
     await api.send_message(data, result)
 
 @bot.command("重启", ["restart"])
