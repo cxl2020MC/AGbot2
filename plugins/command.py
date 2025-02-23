@@ -1,6 +1,7 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
+from AGbot import command_tools
 import aiohttp
 import time
 # import tcping
@@ -32,12 +33,15 @@ async def http_test(消息, data):
 
 @bot.command("ping", ["ping"])
 async def tcp_ping_func(消息, data):
-    命令 = bot.解析命令(消息)
-    url = 命令["参数列表"][0]
+    命令 = command_tools.Command(消息)
+    url = 命令.get_arg(0)
     # port = 命令["参数字典"].get("port", 443)
     # ping = tcping.Ping(url, port, 5)
     # ping.ping(4)
     # result = ping.result.raw
+    if url is None:
+        await api.send_message(data, "请输入要ping的地址")
+        return
     result = ping3.ping(url)
     await api.send_message(data, result)
 

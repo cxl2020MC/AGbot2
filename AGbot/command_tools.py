@@ -30,13 +30,11 @@ class Command:
             return True
         return default
     
-    def get_arg(self, index: int, default: str|None = None, error: str|None = None) -> str|None:
+    def get_arg(self, index: int, default: str|None = None) -> str|None:
         try:
             return self._get_command_args()[index]
         except IndexError:
-            if error is not None:
-                return default
-            raise 命令输入错误(error)
+            return default
 
 
 class 命令输入错误(Exception):
