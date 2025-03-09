@@ -3,13 +3,13 @@ from AGbot.log import logger as log
 from AGbot import api
 
 import os
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
 
 deepseekApi_key = os.getenv("DS_API_KEY")
 
-client = OpenAI(api_key=deepseekApi_key, base_url="https://api.deepseek.com")
+client = AsyncOpenAI(api_key=deepseekApi_key, base_url="https://api.deepseek.com")
 
 chat_history = {}
 
@@ -25,7 +25,7 @@ async def ai(消息, data):
     message = {'role': 'user', 'content': raw_message2}
     chat_history[group_id].append(message)
     
-    response = await client.chat.completions.acreate(
+    response = await client.chat.completions.create(
         model="deepseek-chat",
         messages=chat_history[group_id],
         stream=False
