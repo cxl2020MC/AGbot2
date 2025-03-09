@@ -3,6 +3,6 @@ loguru
 Jinja2
 ping3
 aiofiles
-ollama
+openai
 psutil
 mcstatus
