@@ -25,7 +25,7 @@ async def ai(消息, data):
     message = {'role': 'user', 'content': raw_message2}
     chat_history[group_id].append(message)
     
-    response = client.chat.completions.create(
+    response = await client.chat.completions.acreate(
         model="deepseek-chat",
         messages=chat_history[group_id],
         stream=False
