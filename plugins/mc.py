@@ -6,7 +6,7 @@ import mcstatus
 bot = plugin.Plugin("MC服务器")
 
 server_map = {
-    993426084: "ifeng.asia:1",
+    993426084: "ifeng.asia:19132",
     860769764: "mc.cxl2020mc.top"
 }
 
