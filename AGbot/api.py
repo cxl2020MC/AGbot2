@@ -45,14 +45,25 @@ async def 获取群名称(group_id):
     return (await 获取群信息(group_id)).get("group_name")
 
 
-async def send_group_message(group_id, message):
+async def send_group_message(group_id, message) -> dict:
     post_data = {
         "group_id": group_id,
         "message": message
     }
-    await post_api("send_group_msg", post_data)
+    log.info(f"向群聊 {group_id} 发送消息: {message}")
+    return await post_api("send_group_msg", post_data)
+
+async def send_private_message(user_id, message) -> dict:
+    post_data = {
+        "user_id": user_id,
+        "message": message
+    }
+    log.info(f"向私聊 {user_id} 发送消息: {message}")
+    return await post_api("send_private_msg", post_data)
 
 
 async def send_message(data, message):
     if data.get("group_id"):
-        await send_group_message(data.get("group_id"), message)
+        return await send_group_message(data.get("group_id"), message)
+    elif data.get("user_id"):
+        return await send_private_message(data.get("user_id"), message)
