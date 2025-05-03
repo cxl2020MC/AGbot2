@@ -1,19 +1,21 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
+from AGbot import config
 import mcstatus
+import aiofiles
+import json
 
 bot = plugin.Plugin("MC服务器")
 
-server_map = {
-    993426084: "ifeng.asia:15565",
-    860769764: "mc.cxl2020mc.top",
-    1035082529: "mc.cxl2020mc.top"
-}
 
 @bot.command("MC", ["mc", "查服"])
 async def about(消息, data):
     log.info("收到mc命令")
+
+    async with aiofiles.open(f"{config.数据文件夹}mc.json", "r", encoding="utf-8") as f:
+        server_map = json.loads(await f.read())
+        # server_map = data.get("server_map")
 
     群号 = data.get("group_id")
     if 群号 not in server_map:
