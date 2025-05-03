@@ -6,7 +6,7 @@ import mcstatus
 bot = plugin.Plugin("MC服务器")
 
 server_map = {
-    993426084: "ifeng.asia:19132",
+    993426084: "ifeng.asia:15565",
     860769764: "mc.cxl2020mc.top"
 }
 
@@ -37,4 +37,5 @@ async def about(消息, data):
     描述: {状态.motd.raw}
     延迟: {延迟:.2f}ms
     在线人数: {状态.players.online}/{状态.players.max}
-    当前在线: {", ".join(当前在线)}""")
+    当前在线: {", ".join(当前在线)}
+注: 匿名玩家可能为假人""")
