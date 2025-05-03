@@ -7,7 +7,8 @@ bot = plugin.Plugin("MC服务器")
 
 server_map = {
     993426084: "ifeng.asia:15565",
-    860769764: "mc.cxl2020mc.top"
+    860769764: "mc.cxl2020mc.top",
+    1035082529: "mc.cxl2020mc.top"
 }
 
 @bot.command("MC", ["mc", "查服"])
