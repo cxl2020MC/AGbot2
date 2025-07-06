@@ -1,8 +1,0 @@
-aiohttp
-loguru
-Jinja2
-ping3
-aiofiles
-openai
-psutil
-mcstatus
