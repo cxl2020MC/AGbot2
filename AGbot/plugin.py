@@ -4,7 +4,7 @@ import shlex
 from .log import logger as log
 from . import api
 from . import utils
-from . import event
+from .event import MessageEvent
 
 from collections.abc import Callable
 from typing import Any
@@ -29,7 +29,8 @@ async def 匹配命令(data):
         for command_list in Plugin.command_list:
             if message_list[0] in command_list["command_list"]:
                 log.debug(f"匹配到命令: {message_list[0]} 位于 {command_list['command_list']}")
-                await command_list["函数"](data)
+                event = MessageEvent(data)
+                await command_list["函数"](event)
 
 
 class Plugin:
@@ -42,14 +43,14 @@ class Plugin:
     def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
         def director(func):
             @functools.wraps(func)
-            async def wrapper(data, *args, **kwargs):
+            async def wrapper(event: MessageEvent, *args, **kwargs):
                 try:
-                    return await func(data, *args, **kwargs)
+                    return await func(event, *args, **kwargs)
                 except Exception as e:
                     exc = traceback.format_exc()
                     log.error(f"命令 {名称} 执行出错: {exc}")
                     try:
-                        error_id = await utils.储存错误追踪(data, exc)
+                        error_id = await utils.储存错误追踪(event.data, exc)
                     except Exception as e2:
                         error_id = None
                         log.error(f"储存错误追踪失败: {e2}")
