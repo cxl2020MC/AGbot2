@@ -6,10 +6,10 @@ from pathlib import Path
 import time
 import json
 
-from AGbot.event import MessageEvent
-
+from .event import Event
 from .log import logger as log
 from . import config
+from . import api
 
 
 def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错误处理函数=None):
@@ -47,13 +47,15 @@ async def 储存错误追踪(data, traceback):
     return timestamp
 
 
-async def 错误处理(event: MessageEvent, error_type, error_object, tb):
-    
+async def 错误处理(event: Event, error_type, error_object):
     exc = traceback.format_exc()
-    log.error(f"命令 {名称} 执行出错: {exc}")
+    log.error(f"发生错误 {error_type} 执行出错: {exc}")
     try:
         error_id = await 储存错误追踪(event.data, exc)
     except Exception as e2:
         error_id = None
         log.error(f"储存错误追踪失败: {e2}")
-        await api.send_message(event, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
+    message = f"""发生错误:
+    {error_type} 执行出错: {error_object.__class__.__name__}: {error_object}
+    error_id: {error_id}"""
+    await api.send_message(event, message)
