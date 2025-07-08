@@ -1,6 +1,8 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
+from AGbot.event import MessageEvent
+
 
 import os
 from openai import AsyncOpenAI
@@ -15,11 +17,11 @@ chat_history = {}
 
 
 @bot.command("AI", ["ai"])
-async def ai(消息, data):
-    group_id = data.get("group_id")
+async def ai(event: MessageEvent):
+    group_id = event.data.get("group_id")
     if group_id not in chat_history:
         chat_history[group_id] = []
-    message2 = 消息[4:]
+    message2 = event.message[4:]
     raw_message2 = ''.join(message2)
     log.info(raw_message2)
     message = {'role': 'user', 'content': raw_message2}
@@ -36,9 +38,9 @@ async def ai(消息, data):
     content = response.choices[0].message.content
     log.info(content)
     chat_history[group_id].append(response.choices[0])
-    await api.send_message(data, content)
+    await api.send_message(event, content)
 
 @bot.command("清理AI聊天记录", ["clean"])
-async def clean_history(消息, data):
+async def clean_history(event: MessageEvent):
     chat_history.clear()
-    await api.send_message(data, "AI聊天记录已清理")
+    await api.send_message(event, "AI聊天记录已清理")

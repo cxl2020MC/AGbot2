@@ -52,7 +52,7 @@ class Plugin:
                     except Exception as e:
                         error_id = None
                         log.error(f"储存错误追踪失败: {e}")
-                    await api.send_message(data, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
+                    await api.send_message(event, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
             command_data = {"command_list": command_list, "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
             log.debug(f"注册命令: {command_list} 成功")

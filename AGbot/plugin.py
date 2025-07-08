@@ -4,6 +4,7 @@ import shlex
 from .log import logger as log
 from . import api
 from . import utils
+from . import event
 
 from collections.abc import Callable
 from typing import Any
@@ -28,7 +29,7 @@ async def 匹配命令(data):
         for command_list in Plugin.command_list:
             if message_list[0] in command_list["command_list"]:
                 log.debug(f"匹配到命令: {message_list[0]} 位于 {command_list['command_list']}")
-                await command_list["函数"](消息, data)
+                await command_list["函数"](data)
 
 
 class Plugin:
@@ -41,9 +42,9 @@ class Plugin:
     def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
         def director(func):
             @functools.wraps(func)
-            async def wrapper(消息, data, *args, **kwargs):
+            async def wrapper(data, *args, **kwargs):
                 try:
-                    return await func(消息, data, *args, **kwargs)
+                    return await func(data, *args, **kwargs)
                 except Exception as e:
                     exc = traceback.format_exc()
                     log.error(f"命令 {名称} 执行出错: {exc}")
@@ -52,7 +53,7 @@ class Plugin:
                     except Exception as e2:
                         error_id = None
                         log.error(f"储存错误追踪失败: {e2}")
-                    await api.send_message(data, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
+                    await api.send_message(event, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
             command_data = {"command_list": command_list, "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
             log.debug(f"注册命令: {command_list} 成功")

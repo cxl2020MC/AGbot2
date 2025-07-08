@@ -1,15 +1,18 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
+from AGbot.event import MessageEvent
+
 import jinja2
 import psutil
+import sys
 from datetime import datetime
 
 bot = plugin.Plugin("状态")
 
 
 @bot.command("状态", ["status", "状态"])
-async def about(消息, data):
+async def about(event: MessageEvent):
     log.info("收到关状态命令")
     CPU使用率 = psutil.cpu_percent(interval=0.2)
     逻辑核心数 = psutil.cpu_count()
@@ -23,6 +26,7 @@ async def about(消息, data):
     网络接收 = psutil.net_io_counters().bytes_recv
     温度 = psutil.sensors_temperatures()
     系统启动时间 = datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
+    Python版本 = sys.version
 
     def 磁盘使用率(路径):
         磁盘使用率 = psutil.disk_usage(路径)
@@ -48,6 +52,7 @@ async def about(消息, data):
     磁盘: {磁盘模板.render(磁盘分区=磁盘分区, 磁盘使用率=磁盘使用率)}
     网络: 发送: {网络发送/1024/1024/1024:.2f}GB / 接收: {网络接收/1024/1024/1024:.2f}GB
     温度: {温度模板.render(温度=温度)}
-    系统启动时间: {系统启动时间}"""
+    系统启动时间: {系统启动时间}
+    Python版本: {Python版本}"""
    
-    await api.send_message(data, 消息)
+    await api.send_message(event, 消息)

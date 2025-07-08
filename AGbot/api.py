@@ -62,8 +62,8 @@ async def send_private_message(user_id, message) -> dict:
     return await post_api("send_private_msg", post_data)
 
 
-async def send_message(data, message):
-    if data.get("group_id"):
-        return await send_group_message(data.get("group_id"), message)
-    elif data.get("user_id"):
-        return await send_private_message(data.get("user_id"), message)
+async def send_message(event, message):
+    if event.data.get("group_id"):
+        return await send_group_message(event.data.get("group_id"), message)
+    elif event.data.get("user_id"):
+        return await send_private_message(event.data.get("user_id"), message)

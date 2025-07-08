@@ -2,6 +2,8 @@ from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
 from AGbot import config
+from AGbot.event import MessageEvent
+
 import mcstatus
 import aiofiles
 import json
@@ -10,16 +12,16 @@ bot = plugin.Plugin("MC服务器")
 
 
 @bot.command("MC", ["mc", "查服"])
-async def about(消息, data):
+async def about(event: MessageEvent):
     log.info("收到mc命令")
 
     async with aiofiles.open(f"{config.数据文件夹}mc.json", "r", encoding="utf-8") as f:
         server_map = json.loads(await f.read())
         # server_map = data.get("server_map")
 
-    群号 = data.get("group_id")
+    群号 = event.data.get("group_id")
     if 群号 not in server_map:
-        await api.send_message(data, "该群没有配置mc服务器地址")
+        await api.send_message(event, "该群没有配置mc服务器地址")
         return
     
     服务器地址 = server_map[群号]
@@ -34,7 +36,7 @@ async def about(消息, data):
     else:
         当前在线 = "无"
 
-    await api.send_message(data, f"""服务器状态:
+    await api.send_message(event, f"""服务器状态:
     地址: {服务器地址}
     版本: {状态.version.name}
     描述: {状态.motd.raw}
