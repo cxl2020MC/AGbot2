@@ -13,4 +13,4 @@ bot = plugin.Plugin("Test")
 async def 网页截图(event: MessageEvent):
     url = command_tools.Command(event.message).get_arg(1)
     base64_image = await broswer.屏幕截图(url)
-    return api.send_message(event, f"[CQ:image,file=base64://{base64_image}]")
+    await api.send_message(event, f"[CQ:image,file=base64://{base64_image}]")
