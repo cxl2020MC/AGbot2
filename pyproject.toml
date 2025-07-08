@@ -12,7 +12,7 @@ dependencies = [
     "mcstatus",
     "openai",
     "ping3",
-    "playwright>=1.53.0",
+    "playwright",
     "psutil",
     "pydantic",
 ]
