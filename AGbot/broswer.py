@@ -1,4 +1,4 @@
-from playwright.async_api import async_playwright, Playwright
+from playwright.async_api import async_playwright   # , Playwright
 from . import config
 from .log import logger as log
 
