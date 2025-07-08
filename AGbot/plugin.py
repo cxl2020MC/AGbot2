@@ -5,6 +5,9 @@ from .log import logger as log
 from . import api
 from . import utils
 
+from collections.abc import Callable
+from typing import Any
+
 def load_pulgin(plugin):
     log.info(f"加载插件 {plugin.name} 中...")
     Plugin.plugin_list.append(plugin)
@@ -35,7 +38,7 @@ class Plugin:
         self.name = 名称
         self.command_list = []
 
-    def command(self, 名称, command_list: list):
+    def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
         def director(func):
             @functools.wraps(func)
             async def wrapper(消息, data, *args, **kwargs):
