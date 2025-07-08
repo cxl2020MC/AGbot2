@@ -61,6 +61,27 @@ class Plugin:
             return wrapper
         return director
 
+    def on[F: Callable[..., Any]](self, event_type, data) -> Callable[..., Any]:
+        def director(func):
+            @functools.wraps(func)
+            async def wrapper(event: MessageEvent, *args, **kwargs):
+                try:
+                    return await func(event, *args, **kwargs)
+                except Exception as e:
+                    exc = traceback.format_exc()
+                    log.error(f"命令 {名称} 执行出错: {exc}")
+                    try:
+                        error_id = await utils.储存错误追踪(event.data, exc)
+                    except Exception as e2:
+                        error_id = None
+                        log.error(f"储存错误追踪失败: {e2}")
+                    await api.send_message(event, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
+            _data = 
+            self.command_list.append(command_data)
+            log.debug(f"注册命令: {command_list} 成功")
+            return wrapper
+        return director
+
     def 解析命令(self, 命令: str):
         command_list = shlex.split(命令)
         command_data = {"命令": command_list[0], "参数列表": [], "参数字典": {}, "指定参数": []}

@@ -6,6 +6,8 @@ from pathlib import Path
 import time
 import json
 
+from AGbot.event import MessageEvent
+
 from .log import logger as log
 from . import config
 
@@ -43,3 +45,15 @@ async def 储存错误追踪(data, traceback):
         await f.write(w_data)
     log.info(f"错误追踪已储存至 {path}")
     return timestamp
+
+
+async def 错误处理(event: MessageEvent, error_type, error_object, tb):
+    
+    exc = traceback.format_exc()
+    log.error(f"命令 {名称} 执行出错: {exc}")
+    try:
+        error_id = await 储存错误追踪(event.data, exc)
+    except Exception as e2:
+        error_id = None
+        log.error(f"储存错误追踪失败: {e2}")
+        await api.send_message(event, f"命令 {名称} 执行出错: {e.__class__.__name__}: {e}\nerror_id: {error_id}")
