@@ -1,4 +1,5 @@
 from playwright.async_api import async_playwright   # , Playwright
+import base64
 from . import config
 from .log import logger as log
 
@@ -8,4 +9,15 @@ async def main(func):
         chromium = p.chromium
         broswer = await chromium.connect(config.playwright_chromium_endpoint)
         log.info("连接浏览器成功")
-        return await func(broswer)
+        page = await broswer.new_page()
+        ret_data =  await func(page)
+        await page.close()
+        return ret_data
+
+
+async def 屏幕截图(full_page=True):
+    async def func(page):
+        screenshot_bytes = await page.screenshot(full_page=full_page)
+        img_base64 = base64.b64encode(screenshot_bytes).decode()
+        return img_base64
+    return await main(func)
