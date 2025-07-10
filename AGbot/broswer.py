@@ -6,7 +6,7 @@ from .log import logger as log
 async def main(func):
     async with async_playwright() as p:
         log.info("连接浏览器")
-        chromium = p.chromium
+        chromium = p.firefox # chromium
         broswer = await chromium.connect(config.playwright_chromium_endpoint)
         log.info("连接浏览器成功")
         page = await broswer.new_page()
