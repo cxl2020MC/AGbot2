@@ -9,6 +9,7 @@ from .event import MessageEvent
 from collections.abc import Callable
 from typing import Any
 
+
 def load_pulgin(plugin):
     log.info(f"加载插件 {plugin.name} 中...")
     Plugin.plugin_list.append(plugin)
@@ -28,7 +29,8 @@ async def 匹配命令(data):
         message_list = 消息[1:].split(" ")
         for command_list in Plugin.command_list:
             if message_list[0] in command_list["command_list"]:
-                log.debug(f"匹配到命令: {message_list[0]} 位于 {command_list['command_list']}")
+                log.debug(
+                    f"匹配到命令: {message_list[0]} 位于 {command_list['command_list']}")
                 event = MessageEvent(data)
                 await command_list["函数"](event)
 
@@ -36,6 +38,7 @@ async def 匹配命令(data):
 class Plugin:
     plugin_list = []
     command_list = []
+
     def __init__(self, 名称) -> None:
         self.name = 名称
         self.command_list = []
@@ -57,7 +60,8 @@ class Plugin:
                         log.error(f"储存错误追踪失败: {repr(e2)}")
                     # {e.__class__.__name__}: {e}
                     await api.send_message(event, f"命令 {名称} 执行出错: {repr(e)}\nerror_id: {error_id}")
-            command_data = {"command_list": command_list, "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
+            command_data = {"command_list": command_list,
+                            "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
             log.debug(f"注册命令: {command_list} 成功")
             return wrapper
@@ -79,7 +83,8 @@ class Plugin:
 
     def 解析命令(self, 命令: str):
         command_list = shlex.split(命令)
-        command_data = {"命令": command_list[0], "参数列表": [], "参数字典": {}, "指定参数": []}
+        command_data = {"命令": command_list[0],
+                        "参数列表": [], "参数字典": {}, "指定参数": []}
         for 参数 in command_list[1:]:
             if 参数.startswith("-"):
                 指定参数 = 参数.split("=")
@@ -90,4 +95,3 @@ class Plugin:
             else:
                 command_data["参数列表"].append(参数)
         return command_data
-
