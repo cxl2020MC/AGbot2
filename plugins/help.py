@@ -11,9 +11,8 @@ bot = plugin.Plugin("帮助")
 async def 帮助(event: MessageEvent):
     plugin_list = plugin.Plugin.plugin_list
     log.debug(f"plugin_list: {plugin_list}")
-    模板 = jinja2.Template("""帮助：
-{% for 插件 in 插件列表 %}{{ 插件.name }}:
-{% for 命令 in 插件.command_list %}
+    模板 = jinja2.Template("""命令帮助：
+{% for 插件 in 插件列表 %}{{ 插件.name }}:{% for 命令 in 插件.command_list %}
     {{ 命令["命令名称"] }}: {{ ", ".join(命令["command_list"]) }}
 {% endfor %}{% endfor %}""")
     消息内容 = 模板.render(插件列表=plugin_list)
