@@ -34,5 +34,6 @@ async def 群聊消息处理(data: dict):
 
 async def 私聊消息处理(data: dict):
     sender = data.get("sender", {})
-    log.info(f"收到私聊消息: {sender.get('nickname')}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
+    log.info(
+        f"收到私聊消息: {sender.get('nickname')}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
     await plugin.匹配命令(data)
