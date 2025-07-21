@@ -5,7 +5,6 @@ import aiohttp
 群信息缓存 = {}
 
 
-
 async def post_api(action, post_data) -> dict:
     async with aiohttp.ClientSession() as session:
         async with await session.post(f"{config.api_url}/{action}", json=post_data) as res:
@@ -52,6 +51,7 @@ async def send_group_message(group_id, message) -> dict:
     }
     log.info(f"向群聊 {group_id} 发送消息: {message}")
     return await post_api("send_group_msg", post_data)
+
 
 async def send_private_message(user_id, message) -> dict:
     post_data = {
