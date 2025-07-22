@@ -13,8 +13,8 @@ async def main(data: dict):
         case {"post_type": "notice"}:
             log.info(f"收到通知: {data.get('notice_type')}")
         case {"post_type": "notice", "notice_type": "group_recall"}:
-            # pass
             log.info("群消息撤回")
+            ...
         case {"post_type": "meta_event", "meta_event_type": "lifecycle"}:
             log.info(f"收到生命周期事件: {data.get('sub_type')}")
         case {"post_type": "meta_event", "meta_event_type": "heartbeat"}:
