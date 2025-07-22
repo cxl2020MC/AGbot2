@@ -57,5 +57,5 @@ async def 错误处理(event: Event, error_type, error_object):
         log.error(f"储存错误追踪失败: {repr(e2)}")
     message = f"""发生错误:
     {error_type} 执行出错: {repr(error_object)}
-    error_id: {error_id}"""
+error_id: {error_id}"""
     await api.send_message(event, message)
