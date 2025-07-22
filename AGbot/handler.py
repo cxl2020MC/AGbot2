@@ -22,7 +22,7 @@ async def main(data: dict):
 
 
 def get_username(sender: dict) -> str:
-    return sender.get("card") or sender.get("nickname", "")
+    return sender.get("card", "") or sender.get("nickname", "")
 
 
 async def 群聊消息处理(data: dict):
