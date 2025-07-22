@@ -12,9 +12,9 @@ class MessageEvent(Event):
         # self.message = self.raw_message
         self.message_id: int | None = data.get("message_id")
         self.sender: dict = data.get("sender", {})
-        self.user_id = self.sender.get("user_id")
-        self.sender_nickname = self.sender.get("nickname")
-        self.sender_card = self.sender.get("card")
+        self.user_id: int | None = self.sender.get("user_id")
+        self.sender_nickname: str | None = self.sender.get("nickname")
+        self.sender_card: str | None = self.sender.get("card")
         
     def get_username(self, sender: dict) -> str:
         return self.sender.get("card", "") or self.sender.get("nickname", "")
