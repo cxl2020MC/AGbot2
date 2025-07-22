@@ -28,6 +28,7 @@ async def main(func):
 async def 屏幕截图(url, full_page=True):
     async def func(page):
         await page.goto(url)
+        await page.set_viewport_size({"width": 1920, "height": 1080})
         screenshot_bytes = await page.screenshot(full_page=full_page)
         img_base64 = base64.b64encode(screenshot_bytes).decode()
         return img_base64
