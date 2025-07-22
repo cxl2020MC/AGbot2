@@ -51,15 +51,7 @@ class Plugin:
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    exc = traceback.format_exc()
-                    log.error(f"命令 {名称} 执行出错: {exc}")
-                    try:
-                        error_id = await utils.储存错误追踪(event.data, exc)
-                    except Exception as e2:
-                        error_id = None
-                        log.error(f"储存错误追踪失败: {repr(e2)}")
-                    # {e.__class__.__name__}: {e}
-                    await api.send_message(event, f"命令 {名称} 执行出错: {repr(e)}\nerror_id: {error_id}")
+                    await utils.错误处理(event, f"命令 {名称}", e)
             command_data = {"command_list": command_list,
                             "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
