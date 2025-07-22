@@ -12,6 +12,9 @@ async def main(data: dict):
             await 私聊消息处理(data)
         case {"post_type": "notice"}:
             log.info(f"收到通知: {data.get('notice_type')}")
+        case {"post_type": "notice", "notice_type": "group_recall"}:
+            # pass
+            log.info("群消息撤回")
         case {"post_type": "meta_event", "meta_event_type": "lifecycle"}:
             log.info(f"收到生命周期事件: {data.get('sub_type')}")
         case {"post_type": "meta_event", "meta_event_type": "heartbeat"}:
