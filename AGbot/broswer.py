@@ -27,9 +27,14 @@ async def main(func):
 
 async def 屏幕截图(url, full_page=True):
     async def func(page):
+        log.info(f"开始截图: {url}")
         await page.goto(url)
+        log.info("等待页面加载完成")
+        await page.wait_for_load_state("networkidle")
+        log.info("开始截图")
         await page.set_viewport_size({"width": 1920, "height": 1080})
         screenshot_bytes = await page.screenshot(full_page=full_page)
+        log.info("截图完成")
         img_base64 = base64.b64encode(screenshot_bytes).decode()
         return img_base64
     return await main(func)
