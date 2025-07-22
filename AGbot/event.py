@@ -7,8 +7,8 @@ class Event:
 class MessageEvent(Event):
     def __init__(self, data: dict) -> None:
         super().__init__(data)
-        self.message: str = data.get("message", "")
-        self.raw_message: list = data.get("raw_message", [])
+        self.message: list = data.get("message", [])
+        self.raw_message: str = data.get("raw_message", "")
         # self.message = self.raw_message
         self.message_id: int | None = data.get("message_id")
         self.sender: dict = data.get("sender", {})
