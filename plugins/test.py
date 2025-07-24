@@ -16,6 +16,7 @@ async def 网页截图(event: MessageEvent):
     url = command.get_arg(0)
     timeout = int(command.get_arg(1, "30000") or 30000)
     log.debug(url)
+    log.debug(timeout)
     base64_image = await broswer.屏幕截图(url, timeout=timeout)
     log.debug(base64_image)
     await api.send_message(event, f"[CQ:image,file=base64://{base64_image}]")
