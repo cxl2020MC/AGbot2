@@ -32,15 +32,16 @@ async def main(func):
         return ret_data
 
 
-async def 屏幕截图(url, full_page=True, timeout=30000):
+async def 屏幕截图(url, full_page=True, timeout=30000, no_wait=False):
     async def func(page):
         log.info(f"开始截图: {url}")
         await page.goto(url)
         # log.debug("设置页面大小")
         # await page.set_viewport_size({"width": 1920, "height": 1080})
-        log.debug("等待页面加载完成")
-        await page.wait_for_load_state("networkidle", timeout=timeout)
-        log.debug("页面加载完成")
+        if not no_wait:
+            log.debug("等待页面加载完成")
+            await page.wait_for_load_state("networkidle", timeout=timeout)
+            log.debug("页面加载完成")
         log.info("开始截图")
         screenshot_bytes = await page.screenshot(full_page=full_page, type="png")
         log.info("截图完成")
