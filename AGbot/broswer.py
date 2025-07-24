@@ -1,3 +1,4 @@
+from openai import timeout
 from playwright.async_api import async_playwright   # , Playwright
 import base64
 from . import config
@@ -31,7 +32,7 @@ async def main(func):
         return ret_data
 
 
-async def 屏幕截图(url, full_page=True):
+async def 屏幕截图(url, full_page=True, timeout=30000):
     async def func(page):
         log.info(f"开始截图: {url}")
         await page.goto(url)
@@ -41,7 +42,7 @@ async def 屏幕截图(url, full_page=True):
         await page.wait_for_load_state("networkidle")
         log.debug("页面加载完成")
         log.info("开始截图")
-        screenshot_bytes = await page.screenshot(full_page=full_page, type="png")
+        screenshot_bytes = await page.screenshot(full_page=full_page, type="png", timeout=timeout)
         log.info("截图完成")
         img_base64 = base64.b64encode(screenshot_bytes).decode()
         return img_base64
