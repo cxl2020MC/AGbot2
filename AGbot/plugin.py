@@ -46,6 +46,7 @@ class Plugin:
 
     def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
         def director(func):
+            log.debug(f"注册命令: {command_list}")
             @functools.wraps(func)
             async def wrapper(event: MessageEvent, *args, **kwargs):
                 try:
