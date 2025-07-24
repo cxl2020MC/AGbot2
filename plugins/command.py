@@ -17,7 +17,7 @@ bot = plugin.Plugin("命令")
 @bot.command("命令", ["command", "命令"])
 async def command(event: MessageEvent):
     log.info("收到命令")
-    await api.send_message(event, f"""识别命令为: {bot.解析命令(event.message)}""")
+    await api.send_message(event, f"""识别命令为: {bot.解析命令(event.raw_message)}""")
 
 @bot.command("抛出错误", ["error"])
 async def error(event: MessageEvent):
@@ -25,7 +25,7 @@ async def error(event: MessageEvent):
 
 @bot.command("http test", ["http-test"])
 async def http_test(event: MessageEvent):
-    命令 = bot.解析命令(event.message)
+    命令 = bot.解析命令(event.raw_message)
     url = 命令["参数列表"][0]
     start_time = time.time()
     async with aiohttp.ClientSession() as session:
@@ -35,7 +35,7 @@ async def http_test(event: MessageEvent):
 
 @bot.command("ping", ["ping"])
 async def tcp_ping_func(event: MessageEvent):
-    命令 = command_tools.Command(event.message)
+    命令 = command_tools.Command(event.raw_message)
     url = 命令.get_arg(0)
     # port = 命令["参数字典"].get("port", 443)
     # ping = tcping.Ping(url, port, 5)
