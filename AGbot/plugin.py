@@ -1,8 +1,6 @@
 import functools
-import traceback
 import shlex
 from .log import logger as log
-from . import api
 from . import utils
 from .event import MessageEvent
 
@@ -35,18 +33,41 @@ async def 匹配命令(data):
                 await command_list["函数"](event)
 
 
+async def 匹配命令2(event: MessageEvent):
+    message_list = event.message
+    if not message_list:
+        log.warning("消息为空")
+        return
+    else:
+        for msg in message_list:
+            if msg.get("type") == "text":
+                message = msg.get("data", {}).get("text", "")
+                log.debug(f"检测消息文本: {message}")
+            return 
+            # 匹配命令
+            # 忽略第一位/
+            message_list = 消息[1:].split(" ")
+            for command_list in Plugin.command_list:
+                if message_list[0] in command_list["command_list"]:
+                    log.debug(
+                        f"匹配到命令: {message_list[0]} 位于 {command_list['command_list']}")
+                    event = MessageEvent(data)
+                    await command_list["函数"](event)
+
+
 class Plugin:
     plugin_list = []
     command_list = []
 
-    def __init__(self, 名称) -> None:
-        self.name = 名称
+    def __init__(self, name) -> None:
+        self.name = name
         self.command_list = []
         self.event_list = []
 
     def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
         def director(func):
             log.debug(f"注册命令: {command_list}")
+
             @functools.wraps(func)
             async def wrapper(event: MessageEvent, *args, **kwargs):
                 try:

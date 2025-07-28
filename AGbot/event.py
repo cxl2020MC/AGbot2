@@ -12,9 +12,8 @@ class MessageEvent(Event):
     def __init__(self, data: dict) -> None:
         super().__init__(data)
         self.message_type: str = data.get("message_type", "")
-        self.message: list = data.get("message", [])
+        self.message: list[dict] = data.get("message", [])
         self.raw_message: str = data.get("raw_message", "")
-        # self.message = self.raw_message
         self.message_id: int | None = data.get("message_id")
         self.sender: dict = data.get("sender", {})
         self.user_id: int | None = self.sender.get("user_id")
@@ -28,7 +27,6 @@ class GroupMessageEvent(MessageEvent):
     def __init__(self, data: dict) -> None:
         super().__init__(data)
         self.group_id: int | None = data.get("group_id")
-        # self.group_name: str | None = api.获取群名称(self.group_id)
         self.anonymous: dict | None = data.get("anonymous")
         self.sender_card: str | None = self.sender.get("card")
 
