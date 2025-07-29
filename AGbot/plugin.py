@@ -43,15 +43,15 @@ async def 匹配命令(event: MessageEvent):
             if msg.get("type") == "text":
                 message: str = msg.get("data", {}).get("text", "")
                 log.debug(f"检测消息文本: {message}")
-                messages = message[1:].split(" ")
-                if 消息[0] == "/":
+                if message[0] == "/":
+                    messages = message[1:].split(" ")
                     for message in messages:
-                        for command_list in Plugin.command_list:
-                            if message in command_list["command_list"]:
-                                log.debug(
-                                    f"匹配到命令: {message} 位于 {command_list['command_list']}")
-                                event = MessageEvent(event.data)
-                                await command_list["函数"](event)
+                            for command_list in Plugin.command_list:
+                                if message in command_list["command_list"]:
+                                    log.debug(
+                                        f"匹配到命令: {message} 位于 {command_list['command_list']}")
+                                    event = MessageEvent(event.data)
+                                    await command_list["函数"](event)
         # return
         
 
