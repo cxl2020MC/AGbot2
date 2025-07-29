@@ -10,8 +10,9 @@ bot = plugin.Plugin("图片")
 
 @bot.command("随机st", ["st"])
 async def 随机色图(event: MessageEvent):
+    req_data = {"proxy": "https://100148461.xyz/https://i.pixiv.re/"}
     async with aiohttp.ClientSession() as session:
-        async with session.post("https://api.lolicon.app/setu/v2") as response:
+        async with session.post("https://api.lolicon.app/setu/v2", json=req_data) as response:
             data = await response.json()
             log.debug(data)
             data = data["data"]
