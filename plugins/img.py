@@ -14,6 +14,7 @@ async def 随机色图(event: MessageEvent):
         async with session.post("https://api.lolicon.app/setu/v2") as response:
             data = await response.json()
             log.debug(data)
+            data = data["data"]
             message = f"""[CQ:image,file={data[0]["urls"]["original"]}]
 pid: {data[0]["pid"]}
 uid: {data[0]["uid"]}
