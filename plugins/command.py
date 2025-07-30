@@ -10,7 +10,7 @@ import time
 import ping3
 import os
 import sys
-
+import subprocess
 
 bot = plugin.Plugin("命令")
 
@@ -44,23 +44,13 @@ async def tcp_ping_func(event: MessageEvent):
     if url is None:
         await api.send_message(event, "请输入要ping的地址")
         return
-    results = []
-    for i in range(4):
-        result = ping3.ping(url)
-        if result is None:
-            result = "超时"
-        elif result is False:
-            result = "未知的主机名"
-        else:
-            result = f"{result*1000:.2f}ms"
-        results.append(result)
+    elif url in "|" or url in "&":
+        await api.send_message(event, "请勿输入特殊字符")
+        return
+    
+    result = subprocess.run(["ping", "-c", "4", url], capture_output=True, text=True)
 
-    result = f"""正在ping {url}:
-    {results[0]}
-    {results[1]}
-    {results[2]}
-    {results[3]}"""
-    await api.send_message(event, result)
+    await api.send_message(event, result.stdout)
 
 @bot.command("重启", ["restart"])
 async def stop(event: MessageEvent):
