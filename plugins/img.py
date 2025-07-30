@@ -32,6 +32,7 @@ async def 获取bing壁纸(event: MessageEvent):
     async with aiohttp.ClientSession() as session:
         async with session.get(api_url, params=params) as response:
             data = await response.json()
+            log.debug(data)
             img_data = data["images"][0]
             url = 'https://cn.bing.com' + img_data["url"]
             url = url.replace('_1920x1080', '_UHD')
