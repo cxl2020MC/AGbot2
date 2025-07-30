@@ -50,7 +50,7 @@ async def about(event: MessageEvent):
         频率: {CPU频率.current}Mhz ({CPU频率.min} - {CPU频率.max})
         逻辑核心数: {逻辑核心数}
         物理核心数: {物理核心数}
-    系统load: {" ".join([str(item) for item in 系统load])}
+    系统load: {" ".join([str(round(item, 2)) for item in 系统load])}
     内存: {内存.percent}% ({内存.used/1024/1024/1024:.2f}GB/{内存.total/1024/1024/1024:.2f}GB)
     交换分区: {交换分区.percent}% ({交换分区.used/1024/1024/1024:.2f}GB/{交换分区.total/1024/1024/1024:.2f}GB)
     磁盘: {磁盘模板.render(磁盘分区=磁盘分区, 磁盘使用率=磁盘使用率)}
