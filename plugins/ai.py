@@ -1,7 +1,7 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
-from AGbot.event import MessageEvent
+from AGbot.event import GroupMessageEvent
 
 
 import os
@@ -17,11 +17,13 @@ chat_history = {}
 
 
 @bot.command("AI", ["ai"])
-async def ai(event: MessageEvent):
-    group_id = event.data.get("group_id")
+async def ai(event: GroupMessageEvent):
+    if event.message_type == "private":
+        return
+    group_id = event.group_id
     if group_id not in chat_history:
         chat_history[group_id] = []
-    message2 = event.message[4:]
+    message2 = event.raw_message[4:]
     raw_message2 = ''.join(message2)
     log.info(raw_message2)
     message = {'role': 'user', 'content': raw_message2}
