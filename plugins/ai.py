@@ -43,6 +43,6 @@ async def ai(event: GroupMessageEvent):
     await api.send_message(event, content)
 
 @bot.command("清理AI聊天记录", ["clean"])
-async def clean_history(event: MessageEvent):
+async def clean_history(event: GroupMessageEvent):
     chat_history.clear()
     await api.send_message(event, "AI聊天记录已清理")
