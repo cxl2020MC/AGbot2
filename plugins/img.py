@@ -23,3 +23,19 @@ uid: {data[0]["uid"]}
 作者: {data[0]["author"]}
 标签: {data[0]["tags"]}"""
     await api.send_message(event, message)
+
+
+@bot.command("获取bing壁纸", ["bing"])
+async def 获取bing壁纸(event: MessageEvent):
+    api_url = 'https://cn.bing.com/HPImageArchive.aspx'
+    params = {'format': 'js', 'idx': 0, 'n': 1, 'mkt': 'zh-CN'}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(api_url, params=params) as response:
+            data = await response.json()
+            img_data = data["images"][0]
+            url = 'https://cn.bing.com' + img_data["url"]
+            url = url.replace('_1920x1080', '_UHD')
+            message = f"""[CQ:image,file={url}]
+{img_data["title"]}
+{img_data["copyright"]}"""
+            await api.send_message(event, message)
