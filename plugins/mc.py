@@ -14,17 +14,9 @@ bot = plugin.Plugin("MC服务器")
 @bot.command("MC", ["mc", "查服"])
 async def about(event: MessageEvent):
     log.info("收到mc命令")
-
-    async with aiofiles.open(f"{config.数据文件夹}mc.json", "r", encoding="utf-8") as f:
-        server_map = json.loads(await f.read())
-        # server_map = data.get("server_map")
-
-    群号 = event.data.get("group_id")
-    if 群号 not in server_map:
-        await api.send_message(event, "该群没有配置mc服务器地址")
+    if not event.command_text:
         return
-    
-    服务器地址 = server_map[群号]
+    服务器地址 = event.command_text.split(" ")[1]
     
     服务器 = await mcstatus.JavaServer.async_lookup(服务器地址)
     延迟 = await 服务器.async_ping()
