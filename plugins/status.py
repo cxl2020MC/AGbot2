@@ -13,11 +13,13 @@ bot = plugin.Plugin("状态")
 
 @bot.command("状态", ["status", "状态"])
 async def about(event: MessageEvent):
-    log.info("收到关状态命令")
-    CPU使用率 = psutil.cpu_percent(interval=0.2)
+    # log.info("收到状态命令")
+    CPU使用率 = psutil.cpu_percent(interval=0.5)
+    每个核心的使用率 = psutil.cpu_percent(interval=0.5, percpu=True)
     逻辑核心数 = psutil.cpu_count()
     物理核心数 = psutil.cpu_count(logical=False)
     CPU频率 = psutil.cpu_freq()
+    系统load = psutil.getloadavg()
     内存 = psutil.virtual_memory()
     交换分区 = psutil.swap_memory()
     磁盘分区 = psutil.disk_partitions()
@@ -43,10 +45,11 @@ async def about(event: MessageEvent):
 
     消息 = f"""状态:
     CPU: 
-        使用率{CPU使用率}%
+        使用率: {CPU使用率}% ({", ".join([f"{item}%" for item in 每个核心的使用率])})
         频率: {CPU频率.current}Mhz ({CPU频率.min} - {CPU频率.max})
         逻辑核心数: {逻辑核心数}
         物理核心数: {物理核心数}
+    系统load: {" ".join([str(item) for item in 系统load])}
     内存: {内存.percent}% ({内存.used/1024/1024/1024:.2f}GB/{内存.total/1024/1024/1024:.2f}GB)
     交换分区: {交换分区.percent}% ({交换分区.used/1024/1024/1024:.2f}GB/{交换分区.total/1024/1024/1024:.2f}GB)
     磁盘: {磁盘模板.render(磁盘分区=磁盘分区, 磁盘使用率=磁盘使用率)}
