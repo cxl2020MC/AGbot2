@@ -35,6 +35,11 @@ class GroupMessageEvent(MessageEvent):
         return await api.获取群名称(self.group_id)
 
 
+class PrivateMessageEvent(MessageEvent):
+    def __init__(self, data: dict) -> None:
+        super().__init__(data)
+        # self.user_id: int | None = data.get("user_id")
+
 class Sender:
     def __init__(self, sender: dict) -> None:
         self.user_id: int | None = sender.get("user_id")

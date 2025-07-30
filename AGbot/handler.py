@@ -2,7 +2,7 @@ from .log import logger as log
 from . import api
 from . import plugin
 from . import config
-from .event import GroupMessageEvent
+from .event import GroupMessageEvent, PrivateMessageEvent
 
 
 async def main(data: dict):
@@ -37,7 +37,7 @@ async def 群聊消息处理(data: dict):
 
 
 async def 私聊消息处理(data: dict):
-    sender: dict = data.get("sender", {})
+    event = PrivateMessageEvent(data)
     log.info(
-        f"收到私聊消息: {sender.get('nickname')}({sender.get('user_id')}) 的消息: {data.get('raw_message')} [{data.get('message_id')}]")
-    await plugin.匹配命令_old(data)
+        f"收到私聊消息: {event.sender_nickname}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
+    await plugin.匹配命令(event)
