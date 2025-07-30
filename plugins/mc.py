@@ -1,12 +1,9 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
-from AGbot import config
 from AGbot.event import MessageEvent
 
 import mcstatus
-import aiofiles
-import json
 
 bot = plugin.Plugin("MC服务器")
 
