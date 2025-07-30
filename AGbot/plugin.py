@@ -15,23 +15,6 @@ def load_pulgin(plugin):
     log.info(f"加载插件 {plugin.name} 成功")
 
 
-async def 匹配命令_old(data):
-    """匹配命令"""
-    消息: str = data.get("raw_message", "")
-    if not 消息:
-        log.warning("消息为空")
-        return
-    elif 消息[0] == "/":
-        # 匹配命令
-        # 忽略第一位/
-        message_list = 消息[1:].split(" ")
-        for command_list in Plugin.command_list:
-            if message_list[0] in command_list["command_list"]:
-                log.debug(
-                    f"匹配到命令: {message_list[0]} 位于 {command_list['command_list']}")
-                event = MessageEvent(data)
-                await command_list["函数"](event)
-
 
 async def 匹配命令(event: MessageEvent):
     message_list = event.message
@@ -49,7 +32,7 @@ async def 匹配命令(event: MessageEvent):
                         if messages[0] in command_list["command_list"]:
                             log.debug(
                                 f"匹配到命令: {messages[0]} 位于 {command_list['command_list']}")
-                            event = MessageEvent(event.data)
+                            event.command_text = message
                             await command_list["函数"](event)
         # return
         

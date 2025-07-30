@@ -18,6 +18,7 @@ class MessageEvent(Event):
         self.sender: dict = data.get("sender", {})
         self.user_id: int | None = self.sender.get("user_id")
         self.sender_nickname: str | None = self.sender.get("nickname")
+        self.command_text: str | None = None
 
     def get_username(self) -> str:
         return self.sender.get("card", "") or self.sender.get("nickname", "")
