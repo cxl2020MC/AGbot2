@@ -24,8 +24,9 @@ async def about(event: MessageEvent):
     交换分区 = psutil.swap_memory()
     磁盘分区 = psutil.disk_partitions()
     # 磁盘使用率 = psutil.disk_usage('/').percent
-    网络发送 = psutil.net_io_counters().bytes_sent
-    网络接收 = psutil.net_io_counters().bytes_recv
+    网络 = psutil.net_io_counters()
+    网络发送 = 网络.bytes_sent
+    网络接收 = 网络.bytes_recv
     温度 = psutil.sensors_temperatures()
     系统启动时间 = datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
     Python版本 = sys.version
