@@ -14,6 +14,9 @@ bot = plugin.Plugin("Test")
 async def 网页截图(event: MessageEvent):
     command = command_tools.Command(event.raw_message)
     url = command.get_arg(0)
+    if str(url) in "file://":
+        await api.send_message(event, "禁止使用此功能！")
+        return
     timeout = int(command.get_kwarg("timeout", "t", "30000") or 30000)
     no_wait = command.get_kwarg_bool("no_wait", "n")
     log.debug(url)
