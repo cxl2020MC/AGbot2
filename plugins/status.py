@@ -27,6 +27,13 @@ async def about(event: MessageEvent):
     网络 = psutil.net_io_counters()
     网络发送 = 网络.bytes_sent
     网络接收 = 网络.bytes_recv
+    磁盘 = psutil.disk_io_counters()
+    if 磁盘:
+        磁盘写入 = 磁盘.write_bytes
+        磁盘读取 = 磁盘.read_bytes
+    else:
+        磁盘写入 = 0
+        磁盘读取 = 0
     温度 = psutil.sensors_temperatures()
     系统启动时间 = datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
     Python版本 = sys.version
@@ -54,7 +61,8 @@ async def about(event: MessageEvent):
     内存: {内存.percent}% ({内存.used/1024/1024/1024:.2f}GB/{内存.total/1024/1024/1024:.2f}GB)
     交换分区: {交换分区.percent}% ({交换分区.used/1024/1024/1024:.2f}GB/{交换分区.total/1024/1024/1024:.2f}GB)
     磁盘: {磁盘模板.render(磁盘分区=磁盘分区, 磁盘使用率=磁盘使用率)}
-    网络: 发送: {网络发送/1024/1024/1024:.2f}GB / 接收: {网络接收/1024/1024/1024:.2f}GB
+    网络IO: 发送: {网络发送/1024/1024/1024:.2f}GB / 接收: {网络接收/1024/1024/1024:.2f}GB
+    磁盘IO: 读取: {磁盘读取/1024/1024/1024:.2f}GB / 写入: {磁盘写入/1024/1024/1024:.2f}GB
     温度: {温度模板.render(温度=温度)}
     系统启动时间: {系统启动时间}
     Python版本: {Python版本}"""
