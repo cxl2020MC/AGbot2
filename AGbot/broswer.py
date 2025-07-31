@@ -5,7 +5,7 @@ from . import config
 from .log import logger as log
 
 
-async def remote_main(func, timeout: float = 60):
+async def remote_main(func, timeout: float = 60000):
     async with async_playwright() as p:
         log.info("连接浏览器")
         chromium = p.chromium
