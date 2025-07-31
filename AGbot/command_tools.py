@@ -3,16 +3,16 @@ import shlex
 class Command:
     def __init__(self, command_string: str) -> None:
         self.command_string = command_string
-        self.command = shlex.split(command_string)
+        self.command_list = shlex.split(command_string)
 
     def get_command_list(self) -> list:
-        return self.command
+        return self.command_list
 
     def get_command_name(self) -> str:
-        return self.command[0][1:]
+        return self.command_list[0][1:]
     
     def _get_command_args(self) -> list:
-        return self.command[1:]
+        return self.command_list[1:]
     
     def get_kwarg(self, long_arg: str, short_arg: str|None = None, default: str|None = None) -> str|None:
         for i in self._get_command_args():
