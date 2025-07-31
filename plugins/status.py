@@ -53,7 +53,7 @@ async def about(event: MessageEvent):
 
     消息 = f"""状态:
     CPU: 
-        使用率: {CPU使用率}% ({", ".join([f"{item}%" for item in 每个核心的使用率])})
+        使用率: {CPU使用率}% ({每个核心的使用率})
         频率: {CPU频率.current}Mhz ({CPU频率.min} - {CPU频率.max})
         逻辑核心数: {逻辑核心数}
         物理核心数: {物理核心数}
