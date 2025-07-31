@@ -50,4 +50,4 @@ async def 屏幕截图(url, full_page=True, timeout=30000, no_wait=False):
         log.info("截图完成")
         img_base64 = base64.b64encode(screenshot_bytes).decode()
         return img_base64
-    return await remote_main(func)
+    return await main(func)
