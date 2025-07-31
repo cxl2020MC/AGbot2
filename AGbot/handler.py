@@ -1,5 +1,4 @@
 from .log import logger as log
-from . import api
 from . import plugin
 from . import config
 from .event import GroupMessageEvent, PrivateMessageEvent
