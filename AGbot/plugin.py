@@ -48,7 +48,7 @@ class Plugin:
         self.event_list = []
 
     def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
-        def director(func):
+        def director(func: F) -> F:
             log.debug(f"注册命令: {command_list}")
 
             @functools.wraps(func)
@@ -61,7 +61,7 @@ class Plugin:
                             "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
             log.debug(f"注册命令: {command_list} 成功")
-            return wrapper
+            return wrapper # type: ignore
         return director
 
     def on[F: Callable[..., Any]](self, event_type, data) -> Callable[..., Any]:
