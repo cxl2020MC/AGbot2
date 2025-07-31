@@ -5,12 +5,15 @@ from . import config
 from .log import logger as log
 
 
-async def remote_main(func):
+async def remote_main(func, timeout: float = 60):
     async with async_playwright() as p:
         log.info("连接浏览器")
-        chromium = p.firefox  # chromium
-        broswer = await chromium.connect(config.playwright_chromium_endpoint)
+        chromium = p.chromium
+        broswer = await chromium.connect(config.playwright_chromium_endpoint, timeout=timeout)
         log.info("连接浏览器成功")
+        log.info("设置浏览器")
+        broswer = await broswer.new_context(viewport={"width": 1920, "height": 1080}, device_scale_factor=2, locale="zh-CN")
+        log.info("设置浏览器成功")
         page = await broswer.new_page()
         ret_data = await func(page)
         await page.close()
@@ -22,9 +25,9 @@ async def main(func):
         log.info("启动浏览器")
         browser = await p.chromium.launch()
         log.info("启动浏览器成功")
-        log.info("设置浏览器窗口大小")
+        log.info("设置浏览器")
         browser = await browser.new_context(viewport={"width": 1920, "height": 1080}, device_scale_factor=2, locale="zh-CN")
-        log.info("设置浏览器窗口大小成功")
+        log.info("设置浏览器成功")
         page = await browser.new_page()
         ret_data = await func(page)
         log.info("关闭浏览器")
