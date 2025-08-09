@@ -1,5 +1,5 @@
 from AGbot import client, config, plugin
-from plugins import command, help, about, ai, status, mc, test, img
+from plugins import command, help, about, ai, status, mc, test, img, error_corn
 
 config.管理员QQ号 = [1176503930, 2130812665]
 config.机器人QQ号 = 1176503930
@@ -17,6 +17,7 @@ plugin.load_pulgin(status.bot)
 plugin.load_pulgin(mc.bot)
 plugin.load_pulgin(test.bot)
 plugin.load_pulgin(img.bot)
+plugin.load_pulgin(error_corn.bot)
 
 
 
