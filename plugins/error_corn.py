@@ -31,6 +31,6 @@ async def 查看错误罐头(event: MessageEvent):
         json_str = await f.read()
         data = json.loads(json_str)
     消息内容 = f"""错误追踪文件: {filename}
-触发的事件: {data["data"]}
+上报数据: {data["data"]}
 错误追踪: {data["traceback"]}"""
     await api.send_message(event, 消息内容)
