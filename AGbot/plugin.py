@@ -93,5 +93,10 @@ class Plugin:
             return wrapper
         return director
 
-    def on_message(self, data) -> Callable[..., Any]:
+    def on_message(self, message_type: str) -> Callable[..., Any]:
+        data = {
+            "message_type": message_type or "all"
+        }
         return self._on("message", data)
+    
+

@@ -3,7 +3,7 @@ import asyncio
 import traceback
 import functools
 from pathlib import Path
-import time
+from datetime import datetime
 import json
 
 from .event import Event
@@ -31,7 +31,7 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
 
 
 async def 储存错误追踪(data, traceback):
-    timestamp = time.time()
+    time = datetime.today()
     w_data = json.dumps({
         "data": data,
         "traceback": traceback,
@@ -39,12 +39,12 @@ async def 储存错误追踪(data, traceback):
     path = Path(config.数据文件夹)
     path = path / "错误追踪"
     path.mkdir(exist_ok=True, parents=True)
-    path = path / f"{timestamp}.json"
+    path = path / f"{time}.json"
     # path.touch()
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(w_data)
     log.info(f"错误追踪已储存至 {path}")
-    return timestamp
+    return time
 
 
 async def 错误处理(event: Event, error_type, error_object):
