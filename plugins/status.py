@@ -49,7 +49,7 @@ async def about(event: MessageEvent):
             使用率: {{磁盘使用率(item.mountpoint)}}%{% endfor %}""")
 
     温度模板 = jinja2.Template("""{% for name, emtries in 温度.items() %}
-        {{name}}: {{emtries[0].current}}℃ (温度墙: {{emtries[0].high}}℃){% endfor %}""")
+        {{name}}: {{emtries[0].current}}℃ (最高温度: {{emtries[0].high}}℃){% endfor %}""")
 
     消息 = f"""状态:
     CPU: 
