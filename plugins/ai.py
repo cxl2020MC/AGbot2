@@ -11,12 +11,15 @@ bot = plugin.Plugin("AI")
 
 deepseekApi_key = os.getenv("DS_API_KEY")
 
-client = AsyncOpenAI(api_key=deepseekApi_key, base_url="https://api.deepseek.com")
+client = AsyncOpenAI(
+    api_key=deepseekApi_key,
+    base_url="https://open.bigmodel.cn/api/paas/v4/"
+)
 
 chat_history = {}
 
 
-@bot.command("AI", ["ai"])
+@bot.on_message("group")
 async def ai(event: GroupMessageEvent):
     if event.message_type == "private":
         return
@@ -28,7 +31,7 @@ async def ai(event: GroupMessageEvent):
     log.info(raw_message2)
     message = {'role': 'user', 'content': raw_message2}
     chat_history[group_id].append(message)
-    
+
     response = await client.chat.completions.create(
         model="deepseek-chat",
         messages=chat_history[group_id],
@@ -41,6 +44,7 @@ async def ai(event: GroupMessageEvent):
     log.info(content)
     chat_history[group_id].append(response.choices[0])
     await api.send_message(event, content)
+
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):

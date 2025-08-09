@@ -6,6 +6,7 @@ from .event import MessageEvent
 
 from collections.abc import Callable
 from typing import Any
+from enum import Enum
 
 
 def load_pulgin(plugin):
@@ -36,6 +37,8 @@ async def 匹配命令(event: MessageEvent):
                             await command_list["函数"](event)
         # return
         
+
+# message_type = Enum("message_type", "group private all")
 
 
 class Plugin:
@@ -99,4 +102,5 @@ class Plugin:
         }
         return self._on("message", data)
     
+
 
