@@ -64,20 +64,6 @@ class Plugin:
             return wrapper
         return director
 
-    def on[F: Callable[..., Any]](self, event_type, data) -> Callable[..., Any]:
-        def director(func):
-            @functools.wraps(func)
-            async def wrapper(event: MessageEvent, *args, **kwargs):
-                try:
-                    return await func(event, *args, **kwargs)
-                except Exception as e:
-                    await utils.错误处理(event, f"事件监听器 {event_type}: {data}", e)
-            event_data = (event_type, data)
-            self.event_list.append(event_data)
-            log.debug(f"注册事件监听器: {event_type}: {data} 成功")
-            return wrapper
-        return director
-
     def 解析命令(self, 命令: str):
         command_list = shlex.split(命令)
         command_data = {"命令": command_list[0],
@@ -92,3 +78,20 @@ class Plugin:
             else:
                 command_data["参数列表"].append(参数)
         return command_data
+
+    def _on[F: Callable[..., Any]](self, event_type, data) -> Callable[..., Any]:
+        def director(func):
+            @functools.wraps(func)
+            async def wrapper(event: MessageEvent, *args, **kwargs):
+                try:
+                    return await func(event, *args, **kwargs)
+                except Exception as e:
+                    await utils.错误处理(event, f"事件监听器 {event_type}: {data}", e)
+            event_data = (event_type, data)
+            self.event_list.append(event_data)
+            log.debug(f"注册事件监听器: {event_type}: {data} 成功")
+            return wrapper
+        return director
+
+    def on_message(self, data) -> Callable[..., Any]:
+        return self._on("message", data)
