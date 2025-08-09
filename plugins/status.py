@@ -35,13 +35,14 @@ async def about(event: MessageEvent):
         磁盘写入 = 0
         磁盘读取 = 0
     温度 = psutil.sensors_temperatures()
-    系统启动时间 = datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
+    系统启动时间 = datetime.fromtimestamp(
+        psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
     Python版本 = sys.version
 
     def 磁盘使用率(路径):
         磁盘使用率 = psutil.disk_usage(路径)
-        return f"{磁盘使用率.percent}% ({磁盘使用率.used /1024/1024/1024:.2f}GB/{磁盘使用率.total/1024/1024/1024:.2f}GB)"
-    
+        return f"{磁盘使用率.percent}% ({磁盘使用率.used / 1024/1024/1024:.2f}GB/{磁盘使用率.total/1024/1024/1024:.2f}GB)"
+
     磁盘模板 = jinja2.Template("""{% for item in 磁盘分区 %}
         驱动器: {{item.device}}
             挂载点: {{item.mountpoint}}
@@ -66,5 +67,5 @@ async def about(event: MessageEvent):
     温度: {温度模板.render(温度=温度)}
     系统启动时间: {系统启动时间}
     Python版本: {Python版本}"""
-   
+
     await api.send_message(event, 消息)
