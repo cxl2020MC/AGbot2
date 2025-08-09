@@ -35,6 +35,7 @@ async def 储存错误追踪(data, traceback):
     w_data = json.dumps({
         "data": data,
         "traceback": traceback,
+        "time": time
     }, ensure_ascii=False, indent=4)
     path = Path(config.数据文件夹)
     path = path / "错误追踪"

@@ -11,7 +11,6 @@ import pathlib
 import json
 
 
-
 bot = plugin.Plugin("错误罐头")
 
 
@@ -29,8 +28,9 @@ async def 查看错误罐头(event: MessageEvent):
         return
     async with aiofiles.open(path, "r", encoding="utf-8") as f:
         json_str = await f.read()
-        data = json.loads(json_str)
+        data: dict = json.loads(json_str)
     消息内容 = f"""错误追踪文件: {filename}
-上报数据: {data["data"]}
-错误追踪: {data["traceback"]}"""
+发生时间：{data.get("time")}
+上报数据: {data.get("data")}
+错误追踪: {data.get("traceback")}"""
     await api.send_message(event, 消息内容)
