@@ -2,7 +2,7 @@ import time
 from AGbot import plugin
 from AGbot.event import MessageEvent
 from AGbot.log import logger as log
-from AGbot import broswer
+from AGbot import browser
 from AGbot import api
 from AGbot import command_tools
 
@@ -21,6 +21,6 @@ async def 网页截图(event: MessageEvent):
     no_wait = command.get_kwarg_bool("no_wait", "n")
     log.debug(url)
     log.debug(timeout)
-    base64_image = await broswer.屏幕截图(url, timeout=timeout, no_wait=no_wait)
+    base64_image = await browser.屏幕截图(url, timeout=timeout, no_wait=no_wait)
     # log.debug(base64_image)
     await api.send_message(event, f"[CQ:image,file=base64://{base64_image}]")
