@@ -1,7 +1,7 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
-from AGbot import command_tools
+from AGbot import command_utils
 from AGbot.event import MessageEvent
 
 import aiohttp
@@ -35,7 +35,7 @@ async def http_test(event: MessageEvent):
 
 @bot.command("ping", ["ping"])
 async def tcp_ping_func(event: MessageEvent):
-    命令 = command_tools.Command(event.raw_message)
+    命令 = command_utils.Command(event.raw_message)
     url = 命令.get_arg(0)
     # port = 命令["参数字典"].get("port", 443)
     # ping = tcping.Ping(url, port, 5)

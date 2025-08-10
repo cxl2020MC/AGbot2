@@ -3,7 +3,7 @@ from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
 from AGbot import config
-from AGbot import command_tools
+from AGbot import command_utils
 from AGbot.event import MessageEvent
 
 import aiofiles
@@ -16,7 +16,7 @@ bot = plugin.Plugin("错误罐头")
 
 @bot.command("查看错误罐头", ["error-corn"])
 async def 查看错误罐头(event: MessageEvent):
-    cmd = command_tools.Command(event.raw_message)
+    cmd = command_utils.Command(event.raw_message)
     filename = cmd.get_arg(0)
     if filename is None:
         await api.send_message(event, "请输入要查看的错误追踪文件名")

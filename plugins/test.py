@@ -4,7 +4,7 @@ from AGbot.event import MessageEvent
 from AGbot.log import logger as log
 from AGbot import browser
 from AGbot import api
-from AGbot import command_tools
+from AGbot import command_utils
 
 
 bot = plugin.Plugin("Test")
@@ -12,7 +12,7 @@ bot = plugin.Plugin("Test")
 
 @bot.command("网页截图", ["网页截图"])
 async def 网页截图(event: MessageEvent):
-    command = command_tools.Command(event.raw_message)
+    command = command_utils.Command(event.raw_message)
     url = command.get_arg(0)
     if str(url) in "file://":
         await api.send_message(event, "禁止使用此功能！")
