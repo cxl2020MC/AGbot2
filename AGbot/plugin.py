@@ -59,7 +59,7 @@ class Plugin:
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    await utils.错误处理(event, f"命令 {名称}", e)
+                    await utils.log_error(event, f"命令 {名称}", e)
             command_data = {"command_list": command_list,
                             "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
@@ -89,7 +89,7 @@ class Plugin:
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    await utils.错误处理(event, f"事件监听器 {event_type}: {data}", e)
+                    await utils.log_error(event, f"事件监听器 {event_type}: {data}", e)
             event_data = (event_type, data)
             self.event_list.append(event_data)
             log.debug(f"注册事件监听器: {event_type}: {data} 成功")

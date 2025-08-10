@@ -48,7 +48,7 @@ async def 储存错误追踪(data, traceback):
     return time
 
 
-async def 错误处理(event: Event, error_type, error_object):
+async def log_error(event: Event, error_type, error_object):
     exc = traceback.format_exc()
     log.error(f"发生错误 {error_type} 执行出错: {exc}")
     try:
