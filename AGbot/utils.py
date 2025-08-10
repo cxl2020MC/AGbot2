@@ -30,7 +30,7 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
     return directer
 
 
-async def 储存错误追踪(data, traceback):
+async def save_error_log(data, traceback):
     time = datetime.today()
     w_data = json.dumps({
         "data": data,
@@ -52,7 +52,7 @@ async def log_error(event: Event, error_type, error_object):
     exc = traceback.format_exc()
     log.error(f"发生错误 {error_type} 执行出错: {exc}")
     try:
-        error_id = await 储存错误追踪(event.data, exc)
+        error_id = await save_error_log(event.data, exc)
     except Exception as e2:
         error_id = None
         log.error(f"储存错误追踪失败: {repr(e2)}")
