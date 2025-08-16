@@ -31,7 +31,7 @@ def get_username(sender: dict) -> str:
 async def 群聊消息处理(data: dict):
     event = GroupMessageEvent(data)
     log.info(f"收到群 {await event.group_name}({event.group_id}) 内 {event.get_username()}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
-    if data.get("group_id") in config.群聊白名单:
+    if not event.group_id in config.群聊黑名单:
         await plugin.匹配命令(event)
 
 
