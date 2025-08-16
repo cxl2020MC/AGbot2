@@ -1,11 +1,12 @@
 import aiofiles
+import aiofiles.os
 import asyncio
 import traceback
 import functools
 from pathlib import Path
 from datetime import datetime
 import json
-import aiofiles.os
+
 
 from .event import Event
 from .log import logger as log
