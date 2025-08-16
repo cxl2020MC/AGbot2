@@ -39,7 +39,7 @@ async def 获取数据文件夹() -> Path:
 
 
 async def save_error_log(data, traceback):
-    time = datetime.today()
+    time = str(datetime.today())
     w_data = json.dumps({
         "data": data,
         "traceback": traceback,
