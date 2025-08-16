@@ -62,8 +62,9 @@ async def log_error(event: Event, error_type, error_object):
     try:
         error_id = await save_error_log(event.data, exc)
     except Exception as e2:
-        error_id = None
-        log.error(f"储存错误追踪失败: {repr(e2)}")
+        error_id = "错误追踪储存失败"
+        exc = traceback.format_exc()
+        log.error(f"储存错误追踪失败: {repr(e2)}\n{exc}")
     message = f"""发生错误:
     {error_type} 执行出错: {repr(error_object)}
 error_id: {error_id}"""
