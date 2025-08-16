@@ -32,15 +32,16 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
     return directer
 
 
-async def 获取数据文件夹() -> Path:
+async def get_data_path() -> Path:
     path = Path(config.数据文件夹)
     # path.mkdir(exist_ok=True, parents=True)
-    if await aiofiles.os.path.exists(path):
-        return path
-    await aiofiles.os.mkdir(path)
+    await create_folder(path)
+    
     return path
 
-
+async def create_folder(path):
+    await aiofiles.os.makedirs(path, exist_ok=True)
+    return path
 async def save_error_log(data, traceback):
     time = str(datetime.today())
     w_data = json.dumps({
@@ -48,9 +49,10 @@ async def save_error_log(data, traceback):
         "traceback": traceback,
         "time": time
     }, ensure_ascii=False, indent=4)
-    path = await 获取数据文件夹()
+    path = await get_data_path()
     path = path / "错误追踪"
-    path.mkdir(exist_ok=True, parents=True)
+    # path.mkdir(exist_ok=True, parents=True)
+    await create_folder(path)
     path = path / f"{time}.json"
     # path.touch()
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
