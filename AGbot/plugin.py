@@ -43,7 +43,7 @@ async def 匹配命令(event: MessageEvent):
 
 async def 匹配事件(event: MessageEvent):
     for event_type, data, func in Plugin.event_list:
-        match event_type:
+        match event.post_type:
             case "message":
                 if event.message_type == data["message_type"]:
                     log.debug(f"匹配到事件: {event_type}: {data}")

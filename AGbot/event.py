@@ -4,7 +4,7 @@ from . import api
 class Event:
     def __init__(self, data: dict) -> None:
         self.data: dict = data
-        self.type: str = data.get("post_type", "")
+        self.post_type: str = data.get("post_type", "")
         self.sub_type: str = data.get("sub_type", "")
 
 
