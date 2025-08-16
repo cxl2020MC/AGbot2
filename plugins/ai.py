@@ -58,6 +58,8 @@ async def ai2(event: GroupMessageEvent):
         messages=chat_history[event.group_id],
         stream=False
     )
+    log.debug(response)
+    await api.send_message(event, response.choices[0].message.content)
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):
