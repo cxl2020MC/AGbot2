@@ -45,8 +45,8 @@ async def save_error_log(data, traceback):
         "traceback": traceback,
         "time": time
     }, ensure_ascii=False, indent=4)
-    path = 获取数据文件夹()
-    path = await path / "错误追踪"
+    path = await 获取数据文件夹()
+    path = path / "错误追踪"
     path.mkdir(exist_ok=True, parents=True)
     path = path / f"{time}.json"
     # path.touch()
