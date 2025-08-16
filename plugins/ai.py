@@ -19,10 +19,8 @@ client = AsyncOpenAI(
 chat_history = {}
 
 
-@bot.on_message("group")
+# @bot.on_message("group")
 async def ai(event: GroupMessageEvent):
-    if event.message_type == "private":
-        return
     group_id = event.group_id
     if group_id not in chat_history:
         chat_history[group_id] = []
@@ -33,7 +31,7 @@ async def ai(event: GroupMessageEvent):
     chat_history[group_id].append(message)
 
     response = await client.chat.completions.create(
-        model="deepseek-chat",
+        model="glm-4.5-flash",
         messages=chat_history[group_id],
         stream=False
     )
@@ -45,6 +43,21 @@ async def ai(event: GroupMessageEvent):
     chat_history[group_id].append(response.choices[0])
     await api.send_message(event, content)
 
+@bot.command("ai", ["ai"])
+async def ai2(event: GroupMessageEvent):
+    message = event.raw_message[4:]
+    raw_message = ''.join(message)
+    log.info(raw_message)
+    message = {'role': 'user', 'content': raw_message}
+    if event.group_id not in chat_history:
+        chat_history[event.group_id] = []
+    chat_history[event.group_id].append(message)
+
+    response = await client.chat.completions.create(
+        model="glm-4.5-flash",
+        messages=chat_history[event.group_id],
+        stream=False
+    )
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):
