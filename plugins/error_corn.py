@@ -1,8 +1,7 @@
-from calendar import c
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
-from AGbot import config
+from AGbot import utils
 from AGbot import command_utils
 from AGbot.event import MessageEvent
 
@@ -22,7 +21,7 @@ async def 查看错误罐头(event: MessageEvent):
         await api.send_message(event, "请输入要查看的错误追踪文件名")
         return
     filename = filename + ".json"
-    path = pathlib.Path(config.数据文件夹) / "错误追踪" / filename
+    path = await utils.get_data_path() / "错误追踪" / filename
     if not path.exists():
         await api.send_message(event, "未找到该错误追踪文件")
         return
