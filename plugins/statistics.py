@@ -23,4 +23,4 @@ async def 事件统计(event: GroupMessageEvent) -> None:
 async def 统计(event: GroupMessageEvent) -> None:
     run_time = time.time() - start_time
     await api.send_message(event, f"""bot运行时间: {int(run_time/60/60/24)}天{int(run_time/60/60%24)}小时{int(run_time/60%60)}分{int(run_time%60)}秒
-群消息数: {data['group_message_count']}""")
+处理群消息数: {data['group_message_count']}""")
