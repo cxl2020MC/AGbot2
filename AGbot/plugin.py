@@ -102,7 +102,7 @@ class Plugin:
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    await utils.log_error(event, f"事件监听器 {event_type}: {data}", e)
+                    await utils.log_error(event, f"事件监听器 {event_type}: {data}", e, send_message=False)
             event_data = (event_type, data, wrapper)
             self.event_list.append(event_data)
             log.debug(f"注册事件监听器: {event_type}: {data} 成功")

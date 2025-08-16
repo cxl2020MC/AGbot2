@@ -61,7 +61,7 @@ async def save_error_log(data, traceback):
     return time
 
 
-async def log_error(event: Event, error_type, error_object):
+async def log_error(event: Event, error_type, error_object, * , send_message=True):
     exc = traceback.format_exc()
     log.error(f"发生错误 {error_type} 执行出错: {exc}")
     try:
@@ -73,4 +73,6 @@ async def log_error(event: Event, error_type, error_object):
     message = f"""发生错误:
     {error_type} 执行出错: {repr(error_object)}
 error_id: {error_id}"""
-    await api.send_message(event, message)
+    if send_message:
+        await api.send_message(event, message)
+
