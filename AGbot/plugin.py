@@ -13,6 +13,7 @@ def load_pulgin(plugin):
     log.info(f"加载插件 {plugin.name} 中...")
     Plugin.plugin_list.append(plugin)
     Plugin.command_list += plugin.command_list
+    Plugin.event_list += plugin.event_list
     log.info(f"加载插件 {plugin.name} 成功")
 
 
@@ -40,10 +41,22 @@ async def 匹配命令(event: MessageEvent):
 
 # message_type = Enum("message_type", "group private all")
 
+async def 匹配事件(event: MessageEvent):
+    for event_type, data, func in Plugin.event_list:
+        match event_type:
+            case "message":
+                if event.message_type == data["message_type"]:
+                    log.debug(f"匹配到事件: {event_type}: {data}")
+                    await func(event)
+            # case "message_type":
+            #     if event.message_type == data:
+            #         log.debug(f"匹配到事件: {event_type}: {data}")
+            #         await data["函数"](event)
 
 class Plugin:
     plugin_list = []
     command_list = []
+    event_list = []
 
     def __init__(self, name) -> None:
         self.name = name
@@ -90,7 +103,7 @@ class Plugin:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
                     await utils.log_error(event, f"事件监听器 {event_type}: {data}", e)
-            event_data = (event_type, data)
+            event_data = (event_type, data, wrapper)
             self.event_list.append(event_data)
             log.debug(f"注册事件监听器: {event_type}: {data} 成功")
             return wrapper
