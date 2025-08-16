@@ -9,10 +9,10 @@ from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
 
-deepseekApi_key = os.getenv("DS_API_KEY")
+Api_key = os.getenv("ZAI_API_KEY")
 
 client = AsyncOpenAI(
-    api_key=deepseekApi_key,
+    api_key=Api_key,
     base_url="https://open.bigmodel.cn/api/paas/v4/"
 )
 

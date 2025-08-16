@@ -5,6 +5,7 @@ import functools
 from pathlib import Path
 from datetime import datetime
 import json
+import aiofiles.os
 
 from .event import Event
 from .log import logger as log
@@ -30,6 +31,13 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
     return directer
 
 
+async def 获取数据文件夹() -> Path:
+    path = Path(config.数据文件夹)
+    # path.mkdir(exist_ok=True, parents=True)
+    await aiofiles.os.mkdir(path)
+    return path
+
+
 async def save_error_log(data, traceback):
     time = datetime.today()
     w_data = json.dumps({
@@ -37,8 +45,8 @@ async def save_error_log(data, traceback):
         "traceback": traceback,
         "time": time
     }, ensure_ascii=False, indent=4)
-    path = Path(config.数据文件夹)
-    path = path / "错误追踪"
+    path = 获取数据文件夹()
+    path = await path / "错误追踪"
     path.mkdir(exist_ok=True, parents=True)
     path = path / f"{time}.json"
     # path.touch()
