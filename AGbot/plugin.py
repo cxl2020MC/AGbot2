@@ -46,7 +46,7 @@ async def 匹配事件(event: MessageEvent):
         match event.post_type:
             case "message":
                 if event.message_type == data["message_type"]:
-                    log.debug(f"匹配到事件: {event_type}: {data}")
+                    log.debug(f"匹配到事件: {event_type} {data}")
                     await func(event)
             # case "message_type":
             #     if event.message_type == data:
