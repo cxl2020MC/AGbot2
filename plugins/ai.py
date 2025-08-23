@@ -75,6 +75,8 @@ async def ai2(event: GroupMessageEvent):
         stream=False
     )
     log.debug(response)
+    ai_message = {'role': 'assistant', 'content': response.choices[0].message.content}
+    messages.append(ai_message)
     await api.send_message(event, response.choices[0].message.content)
 
 @bot.command("清理AI聊天记录", ["clean"])
