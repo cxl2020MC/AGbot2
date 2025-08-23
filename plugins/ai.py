@@ -16,7 +16,7 @@ client = AsyncOpenAI(
     base_url="https://open.bigmodel.cn/api/paas/v4/"
 )
 
-ai_white_list = [1035082529]
+ai_white_list = [1035082529, 860769764]
 
 system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的任务是和群友聊天。
 我会提供消息发送者的名字，QQ号以及消息id，你可以使用携带了cqcode的消息进行回复。
