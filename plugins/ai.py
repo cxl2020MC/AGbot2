@@ -43,7 +43,7 @@ async def ai(event: GroupMessageEvent):
         return
     raw_message = event.raw_message
     message = {'role': 'user',
-               'content': f"{event.sender_card} ({event.user_id}): {raw_message} [{event.message_id}]"}
+               'content': f"{event.get_username()} ({event.user_id}): {raw_message} [{event.message_id}]"}
 
     messages = add_chat_history(event.group_id, message)
     log.debug(messages)
