@@ -68,6 +68,7 @@ async def ai2(event: GroupMessageEvent):
     messages = add_chat_history(event.group_id, message)
     messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)})
 
+    log.debug(messages)
     response = await client.chat.completions.create(
         model="glm-4.5-flash",
         messages=messages,
