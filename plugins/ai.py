@@ -38,7 +38,7 @@ def add_chat_history(group_id, message: dict) -> list:
 
 @bot.on_message("group")
 async def ai(event: GroupMessageEvent):
-    if event.user_id not in ai_white_list:
+    if event.group_id not in ai_white_list:
         return
     raw_message = event.raw_message
     message = {'role': 'user',
