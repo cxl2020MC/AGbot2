@@ -16,8 +16,23 @@ client = AsyncOpenAI(
     base_url="https://open.bigmodel.cn/api/paas/v4/"
 )
 
+ai_white_list = [1035082529]
+
+system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的任务是和群友聊天。
+我会提供消息发送者的名字，QQ号以及消息id，你可以使用携带了cqcode的消息进行回复。
+你当前处于的群聊为： {group_name}
+如果消息没有回复价值，你可以说不回复"""
+
 chat_history = {}
 
+
+def add_chat_history(group_id, message: dict) -> list:
+    if group_id not in chat_history:
+        chat_history[group_id] = []
+    chat_history[group_id].append(message)
+    if len(chat_history[group_id]) > 10:
+        chat_history[group_id].pop(0)
+    return chat_history[group_id]
 
 # @bot.on_message("group")
 async def ai(event: GroupMessageEvent):
@@ -45,17 +60,16 @@ async def ai(event: GroupMessageEvent):
 
 @bot.command("ai", ["ai"])
 async def ai2(event: GroupMessageEvent):
-    message = event.raw_message[4:]
-    raw_message = ''.join(message)
+    raw_message = event.raw_message[4:]
     log.info(raw_message)
-    message = {'role': 'user', 'content': raw_message}
-    if event.group_id not in chat_history:
-        chat_history[event.group_id] = []
-    chat_history[event.group_id].append(message)
+    message = {'role': 'user', 'content': f"{event.sender_card} ({event.user_id}): {raw_message} [{event.message_id}]"}
+    
+    messages = add_chat_history(event.group_id, message)
+    messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name)})
 
     response = await client.chat.completions.create(
         model="glm-4.5-flash",
-        messages=chat_history[event.group_id],
+        messages=messages,
         stream=False
     )
     log.debug(response)
