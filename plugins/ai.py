@@ -36,6 +36,7 @@ def add_chat_history(group_id, message: dict) -> list:
         chat_history[group_id].pop(0)
     return chat_history[group_id]
 
+
 @bot.on_message("group")
 async def ai(event: GroupMessageEvent):
     if event.group_id not in ai_white_list:
@@ -73,11 +74,13 @@ async def ai(event: GroupMessageEvent):
         messages=messages,
         # response_format={"type": "json_object"}
         stream=False,
-    ) # type: ignore
+    )
     log.debug(response)
     ai_message = {'role': 'assistant',
                   'content': response.choices[0].message.content}
     messages.append(ai_message)
+    if "无需回复" in str(response.choices[0].message.content):
+        return
     await api.send_message(event, response.choices[0].message.content)
 
 
