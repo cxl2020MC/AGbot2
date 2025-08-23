@@ -22,7 +22,13 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 我会提供消息发送者的名字，QQ号以及消息id，你可以使用携带了cqcode的消息进行回复。
 你当前处于的群聊为： {group_name}
 你的QQ号为: {self_id}
-如果消息没有回复价值，你可以说不回复"""
+如果消息没有回复价值，或者与你无关，你可以不回复
+
+请按照以下JSON格式进行回复：
+{
+    "message": "你的回复，如果不需要回复可以为None"
+}
+"""
 
 chat_history = {}
 
@@ -35,13 +41,11 @@ def add_chat_history(group_id, message: dict) -> list:
         chat_history[group_id].pop(0)
     return chat_history[group_id]
 
-# @bot.on_message("group")
-
-
-@bot.command("ai", ["ai"])
+@bot.on_message("group")
 async def ai(event: GroupMessageEvent):
-    raw_message = event.raw_message[4:]
-    log.info(raw_message)
+    if event.user_id not in ai_white_list:
+        return
+    raw_message = event.raw_message
     message = {'role': 'user',
                'content': f"{event.sender_card} ({event.user_id}): {raw_message} [{event.message_id}]"}
 
@@ -49,32 +53,31 @@ async def ai(event: GroupMessageEvent):
     log.debug(messages)
     messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)})
 
-    tools = [
-        {
-            "type": "function",
-            "function": {
-                "name": "send_message",
-                "description": "发送消息，返回消息id",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "message": {
-                            "type": "string",
-                            "description": "要发送的消息"
-                        }
-                    },
-                    "required": ["message"]
-                }
-            }
-        }
-    ]
+    # tools = [
+    #     {
+    #         "type": "function",
+    #         "function": {
+    #             "name": "send_message",
+    #             "description": "发送消息，返回消息id",
+    #             "parameters": {
+    #                 "type": "object",
+    #                 "properties": {
+    #                     "message": {
+    #                         "type": "string",
+    #                         "description": "要发送的消息"
+    #                     }
+    #                 },
+    #                 "required": ["message"]
+    #             }
+    #         }
+    #     }
+    # ]
 
     response = await client.chat.completions.create(
         model="glm-4.5-flash",
         messages=messages,
-        tools=tools,
-        tool_choice="auto",
-        stream=False
+        response_format={"type": "json_object"}
+        stream=False,
     ) # type: ignore
     log.debug(response)
     ai_message = {'role': 'assistant',
