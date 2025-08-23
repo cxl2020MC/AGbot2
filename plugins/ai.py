@@ -45,7 +45,7 @@ async def ai(event: GroupMessageEvent):
     message = {'role': 'user',
                'content': f"{event.get_username()} ({event.user_id}): {raw_message} [{event.message_id}]"}
 
-    messages = add_chat_history(event.group_id, message)
+    messages = add_chat_history(event.group_id, message).copy()
     log.debug(messages)
     messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)})
 
