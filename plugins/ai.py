@@ -21,6 +21,7 @@ ai_white_list = [1035082529]
 system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的任务是和群友聊天。
 我会提供消息发送者的名字，QQ号以及消息id，你可以使用携带了cqcode的消息进行回复。
 你当前处于的群聊为： {group_name}
+你的QQ号为: {self_id}
 如果消息没有回复价值，你可以说不回复"""
 
 chat_history = {}
@@ -65,7 +66,7 @@ async def ai2(event: GroupMessageEvent):
     message = {'role': 'user', 'content': f"{event.sender_card} ({event.user_id}): {raw_message} [{event.message_id}]"}
     
     messages = add_chat_history(event.group_id, message)
-    messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name)})
+    messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)})
 
     response = await client.chat.completions.create(
         model="glm-4.5-flash",

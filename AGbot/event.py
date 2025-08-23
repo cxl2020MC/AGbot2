@@ -6,6 +6,7 @@ class Event:
         self.data: dict = data
         self.post_type: str = data.get("post_type", "")
         self.sub_type: str = data.get("sub_type", "")
+        self.self_id: int | None = data.get("self_id")
 
 
 class MessageEvent(Event):
