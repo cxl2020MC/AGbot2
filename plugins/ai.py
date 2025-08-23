@@ -22,12 +22,7 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 我会提供消息发送者的名字，QQ号以及消息id，你可以使用携带了cqcode的消息进行回复。
 你当前处于的群聊为： {group_name}
 你的QQ号为: {self_id}
-如果消息没有回复价值，或者与你无关，你可以不回复
-
-请按照以下JSON格式进行回复：
-{
-    "message": "你的回复，如果不需要回复可以为None"
-}
+如果消息没有回复价值，或者与你无关，你可以说: 无需回复
 """
 
 chat_history = {}
@@ -76,7 +71,7 @@ async def ai(event: GroupMessageEvent):
     response = await client.chat.completions.create(
         model="glm-4.5-flash",
         messages=messages,
-        response_format={"type": "json_object"}
+        # response_format={"type": "json_object"}
         stream=False,
     ) # type: ignore
     log.debug(response)
