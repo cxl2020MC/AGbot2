@@ -36,48 +36,52 @@ def add_chat_history(group_id, message: dict) -> list:
     return chat_history[group_id]
 
 # @bot.on_message("group")
-async def ai(event: GroupMessageEvent):
-    group_id = event.group_id
-    if group_id not in chat_history:
-        chat_history[group_id] = []
-    message2 = event.raw_message[4:]
-    raw_message2 = ''.join(message2)
-    log.info(raw_message2)
-    message = {'role': 'user', 'content': raw_message2}
-    chat_history[group_id].append(message)
 
-    response = await client.chat.completions.create(
-        model="glm-4.5-flash",
-        messages=chat_history[group_id],
-        stream=False
-    )
-
-    log.debug(response)
-    log.debug(chat_history)
-    content = response.choices[0].message.content
-    log.info(content)
-    chat_history[group_id].append(response.choices[0])
-    await api.send_message(event, content)
 
 @bot.command("ai", ["ai"])
-async def ai2(event: GroupMessageEvent):
+async def ai(event: GroupMessageEvent):
     raw_message = event.raw_message[4:]
     log.info(raw_message)
-    message = {'role': 'user', 'content': f"{event.sender_card} ({event.user_id}): {raw_message} [{event.message_id}]"}
-    
+    message = {'role': 'user',
+               'content': f"{event.sender_card} ({event.user_id}): {raw_message} [{event.message_id}]"}
+
     messages = add_chat_history(event.group_id, message)
+    log.debug(messages)
     messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)})
 
-    log.debug(messages)
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "send_message",
+                "description": "发送消息，返回消息id",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "description": "要发送的消息"
+                        }
+                    },
+                    "required": ["message"]
+                }
+            }
+        }
+    ]
+
     response = await client.chat.completions.create(
         model="glm-4.5-flash",
         messages=messages,
+        tools=tools,
+        tool_choice="auto",
         stream=False
-    )
+    ) # type: ignore
     log.debug(response)
-    ai_message = {'role': 'assistant', 'content': response.choices[0].message.content}
+    ai_message = {'role': 'assistant',
+                  'content': response.choices[0].message.content}
     messages.append(ai_message)
     await api.send_message(event, response.choices[0].message.content)
+
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):
