@@ -42,11 +42,11 @@ async def 匹配命令(event: MessageEvent):
 # message_type = Enum("message_type", "group private all")
 
 async def 匹配事件(event: MessageEvent):
-    for event_type, data, func in Plugin.event_list:
-        match event.post_type:
-            case "message":
+    for event_types, data, func in Plugin.event_list:
+        if event.post_type in event_types:
+            if event.post_type == "message":
                 if event.message_type == data["message_type"]:
-                    log.debug(f"匹配到事件: {event_type} {data}")
+                    log.debug(f"匹配到事件: {event_types} {data}")
                     await func(event)
             # case "message_type":
             #     if event.message_type == data:
@@ -95,25 +95,25 @@ class Plugin:
                 command_data["参数列表"].append(参数)
         return command_data
 
-    def _on[F: Callable[..., Any]](self, event_type, data) -> Callable[..., Any]:
+    def _on[F: Callable[..., Any]](self, event_types: list, data) -> Callable[..., Any]:
         def director(func):
             @functools.wraps(func)
             async def wrapper(event: MessageEvent, *args, **kwargs):
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    await utils.log_error(event, f"事件监听器 {event_type}: {data}", e, send_message=False)
-            event_data = (event_type, data, wrapper)
+                    await utils.log_error(event, f"事件监听器 {event_types}: {data}", e, send_message=False)
+            event_data = (event_types, data, wrapper)
             self.event_list.append(event_data)
-            log.debug(f"注册事件监听器: {event_type}: {data} 成功")
+            log.debug(f"注册事件监听器: {event_types}: {data} 成功")
             return wrapper
         return director
 
-    def on_message(self, message_type: str) -> Callable[..., Any]:
+    def on_message(self, message_type: str = "group") -> Callable[..., Any]:
         data = {
-            "message_type": message_type or "all"
+            "message_type": message_type
         }
-        return self._on("message", data)
+        return self._on(["message"], data)
     
 
 
