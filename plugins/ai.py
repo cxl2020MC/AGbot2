@@ -78,7 +78,7 @@ async def ai(event: GroupMessageEvent):
     log.debug(response)
     ai_message = {'role': 'assistant',
                   'content': response.choices[0].message.content}
-    messages.append(ai_message)
+    add_chat_history(event.group_id, ai_message)
     if "无需回复" in str(response.choices[0].message.content):
         return
     await api.send_message(event, response.choices[0].message.content)
