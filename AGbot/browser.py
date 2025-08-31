@@ -35,7 +35,7 @@ async def main(func):
         return ret_data
 
 
-async def 屏幕截图(url, full_page=True, timeout=30000, no_wait=False):
+async def screenshot(url, full_page=True, timeout=30000, no_wait=False):
     async def func(page):
         log.info(f"开始截图: {url}")
         await page.goto(url)

@@ -18,7 +18,7 @@ def load_pulgin(plugin):
 
 
 
-async def 匹配命令(event: MessageEvent):
+async def match_command(event: MessageEvent):
     message_list = event.message
     if not message_list:
         log.warning("消息为空")
@@ -41,7 +41,7 @@ async def 匹配命令(event: MessageEvent):
 
 # message_type = Enum("message_type", "group private all")
 
-async def 匹配事件(event: MessageEvent):
+async def match_event(event: MessageEvent):
     for event_types, data, func in Plugin.event_list:
         if event.post_type in event_types:
             if event.post_type == "message":

@@ -4,15 +4,15 @@ api_url = "http://localhost:3001"
 host = "localhost"
 port = 3000
 
-机器人QQ号 = 123456789
-管理员QQ号 = [123456789]
+bot_qq = 123456789
+admin_qq = [123456789]
 
 # 群聊白名单 = []
-群聊黑名单 = []
+group_black_list = []
 
-私聊黑名单 = []
+private_black_list = []
 
-数据文件夹 = "./data/"
+data_dir = "./data/"
 
 
 playwright_chromium_endpoint = ""

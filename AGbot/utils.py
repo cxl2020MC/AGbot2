@@ -33,7 +33,7 @@ def 重试(重试次数: int, 重试间隔: int = 1, 异常类型=Exception, 错
 
 
 async def get_data_path() -> Path:
-    path = Path(config.数据文件夹)
+    path = Path(config.data_dir)
     # path.mkdir(exist_ok=True, parents=True)
     await create_folder(path)
     

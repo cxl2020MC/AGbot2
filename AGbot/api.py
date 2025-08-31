@@ -2,7 +2,7 @@ from .log import logger as log
 from . import config
 import aiohttp
 
-群信息缓存 = {}
+group_info_cache = {}
 
 
 async def post_api(action, post_data) -> dict:
@@ -17,31 +17,31 @@ async def post_api(action, post_data) -> dict:
                 raise Exception(f"API {action} 返回错误 {data}")
 
 
-async def 获取群信息(group_id):
+async def get_group_info(group_id):
     """
     获取群信息
     """
-    群信息 = 群信息缓存.get(group_id)
-    if not 群信息:
-        return await 刷新群信息缓存(group_id)
-    return 群信息
+    group_info = group_info_cache.get(group_id)
+    if not group_info:
+        return await refresh_group_info_cache(group_id)
+    return group_info
 
 
-async def 刷新群信息缓存(group_id: int):
+async def refresh_group_info_cache(group_id: int) -> dict:
     post_data = {
         "group_id": group_id,
     }
     data = await post_api("get_group_info", post_data)
-    群信息缓存.update({group_id: data["data"]})
+    group_info_cache.update({group_id: data["data"]})
     return data["data"]
 
 
-async def 删除群信息缓存():
-    群信息缓存.clear()
+async def clear_group_info_cache():
+    group_info_cache.clear()
 
 
-async def 获取群名称(group_id):
-    return (await 获取群信息(group_id)).get("group_name")
+async def get_group_name(group_id):
+    return (await get_group_info(group_id)).get("group_name")
 
 
 async def send_group_message(group_id, message) -> dict:

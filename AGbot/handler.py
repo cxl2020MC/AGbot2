@@ -7,9 +7,9 @@ from .event import GroupMessageEvent, PrivateMessageEvent
 async def main(data: dict):
     match data:
         case {"post_type": "message" | "message_sent", "message_type": "group", "sub_type": "normal"}:
-            await 群聊消息处理(data)
+            await group_message_handler(data)
         case {"post_type": "message" | "message_sent", "message_type": "private", "sub_type": "friend"}:
-            await 私聊消息处理(data)
+            await private_message_handler(data)
         case {"post_type": "notice"}:
             log.info(f"收到通知: {data.get('notice_type')}")
         case {"post_type": "notice", "notice_type": "group_recall"}:
@@ -28,16 +28,16 @@ def get_username(sender: dict) -> str:
     return sender.get("card", "") or sender.get("nickname", "")
 
 
-async def 群聊消息处理(data: dict):
+async def group_message_handler(data: dict):
     event = GroupMessageEvent(data)
     log.info(f"收到群 {await event.group_name}({event.group_id}) 内 {event.get_username()}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
-    if not event.group_id in config.群聊黑名单:
-        await plugin.匹配命令(event)
-        await plugin.匹配事件(event)
+    if not event.group_id in config.group_black_list:
+        await plugin.match_command(event)
+        await plugin.match_event(event)
 
 
-async def 私聊消息处理(data: dict):
+async def private_message_handler(data: dict):
     event = PrivateMessageEvent(data)
     log.info(
         f"收到私聊消息: {event.sender_nickname}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
-    await plugin.匹配命令(event)
+    await plugin.match_command(event)

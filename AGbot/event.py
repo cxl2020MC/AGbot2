@@ -34,7 +34,7 @@ class GroupMessageEvent(MessageEvent):
 
     @property
     async def group_name(self) -> str:
-        return await api.获取群名称(self.group_id)
+        return await api.get_group_name(self.group_id)
 
 
 class PrivateMessageEvent(MessageEvent):
