@@ -9,7 +9,7 @@ async def post_api(action, post_data) -> dict:
     async with aiohttp.ClientSession() as session:
         headers = {}
         if config.onebot_api_token:
-            headers.update({"Authorization": config.onebot_api_token})
+            headers.update({"Authorization": f"Bearer {config.onebot_api_token}"})
         async with await session.post(f"{config.onebot_api_url}/{action}", headers=headers, json=post_data) as res:
             data = await res.json()
             log.debug(f"API {action} 返回: {data}")
