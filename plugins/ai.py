@@ -5,6 +5,7 @@ from AGbot.event import GroupMessageEvent
 
 
 import os
+from collections import deque
 from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
@@ -31,10 +32,8 @@ chat_history = {}
 
 def add_chat_history(group_id, message: dict) -> list:
     if group_id not in chat_history:
-        chat_history[group_id] = []
+        chat_history[group_id] = deque(maxlen=10)
     chat_history[group_id].append(message)
-    if len(chat_history[group_id]) > 10:
-        chat_history[group_id].pop(0)
     return chat_history[group_id]
 
 
