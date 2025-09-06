@@ -1,4 +1,6 @@
-api_url = "http://localhost:3001"
+import os
+onebot_api_url = "http://localhost:3001"
+onebot_api_token = os.getenv("ONEBOT_API_TOKEN")
 
 
 host = "localhost"
