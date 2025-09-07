@@ -3,7 +3,7 @@ import sys
 
 logger.remove()
 
-log_format = "{time:YYYY-MM-DD HH:mm:ss} | <lvl>{level:<8}</lvl> | {message}"
+log_format = "{time:YYYY-MM-DD HH:mm:ss} | {level.icon} <lvl>{level:<8}</lvl> | {name}:{function}:{line} | {message}"
 
 logger.add(sys.stdout, colorize=True, format=log_format, level="DEBUG")
 logger.add("logs/app.log", rotation="50MB", retention="10 days", level="DEBUG", format=log_format, enqueue=True)
