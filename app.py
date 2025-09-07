@@ -1,5 +1,5 @@
 from AGbot import client, config, plugin
-from plugins import command, help, about, status, mc, test, img, error_corn, statistics, ai
+from plugins import command, help, about, status, mc, test, img, error_corn, statistics # , ai
 
 config.admin_qq = [1176503930, 2130812665]
 config.bot_qq = 1176503930
