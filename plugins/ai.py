@@ -10,9 +10,10 @@ from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
 
-"https://open.bigmodel.cn/api/paas/v4/"
+# "https://open.bigmodel.cn/api/paas/v4/"
 base_url = "https://api.deepseek.com"
 api_key = os.getenv("DS_API_KEY") # os.getenv("ZAI_API_KEY")
+ai_model = "deepseek-reasoner" # "glm-4.5-flash"
 
 client = AsyncOpenAI(
     api_key=api_key,
@@ -72,7 +73,7 @@ async def ai(event: GroupMessageEvent):
     # ]
 
     response = await client.chat.completions.create(
-        model="glm-4.5-flash",
+        model=ai_model,
         messages=messages,
         # response_format={"type": "json_object"}
         stream=False,
