@@ -10,11 +10,13 @@ from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
 
-Api_key = os.getenv("ZAI_API_KEY")
+"https://open.bigmodel.cn/api/paas/v4/"
+base_url = "https://api.deepseek.com"
+api_key = os.getenv("DS_API_KEY") # os.getenv("ZAI_API_KEY")
 
 client = AsyncOpenAI(
-    api_key=Api_key,
-    base_url="https://open.bigmodel.cn/api/paas/v4/"
+    api_key=api_key,
+    base_url=base_url
 )
 
 ai_white_list = [1035082529, 860769764]
