@@ -43,7 +43,7 @@ async def clear_group_info_cache():
     group_info_cache.clear()
 
 
-async def get_group_name(group_id):
+async def get_group_name(group_id) -> str | None:
     return (await get_group_info(group_id)).get("group_name")
 
 

@@ -33,7 +33,7 @@ class GroupMessageEvent(MessageEvent):
         self.sender_card: str | None = self.sender.get("card")
 
     @property
-    async def group_name(self) -> str:
+    async def group_name(self) -> str | None:
         return await api.get_group_name(self.group_id)
 
 
