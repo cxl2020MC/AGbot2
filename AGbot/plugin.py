@@ -52,7 +52,7 @@ async def match_event(event: MessageEvent):
         #             await func(event)
         if event.post_type in event_types:
             if (data.items() <= event.data.items()):
-                log.debug(f"匹配到事件监听器: {name} {event_types} {data}")
+                log.debug(f"匹配到事件: {name} {event_types} {data}")
                 await func(event)
 
 
