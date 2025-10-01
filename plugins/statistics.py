@@ -13,7 +13,7 @@ data = {
     "group_message_count": 0,
 }
 
-@bot.on_message("group")
+@bot.on_group_message()
 async def 事件统计(event: GroupMessageEvent) -> None:
     # log.info(f"{event.get_username()}在群{await api.获取群名称(event.group_id)}发送了消息")
     data["group_message_count"] += 1

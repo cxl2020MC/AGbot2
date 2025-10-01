@@ -112,11 +112,17 @@ class Plugin:
             return wrapper
         return director
 
-    def on_message(self, message_type: str = "group") -> Callable[..., Any]:
+    def on_group_message(self) -> Callable[..., Any]:
         data = {
-            "message_type": message_type
+            # "post_type": "message",
+            "message_type": "group"
         }
         return self._on(["message"], data)
     
+    def on_message(self) -> Callable[..., Any]:
+        data = {
+            # "post_type": "message",
+        }
+        return self._on(["message"], data)
 
 

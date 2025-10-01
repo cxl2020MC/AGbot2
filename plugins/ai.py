@@ -43,7 +43,7 @@ def add_chat_history(group_id, message: dict) -> list:
     return chat_history[group_id]
 
 
-@bot.on_message("group")
+@bot.on_group_message()
 async def ai(event: GroupMessageEvent):
     if event.group_id not in ai_white_list:
         return
