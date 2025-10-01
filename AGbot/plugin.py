@@ -45,13 +45,15 @@ type event_list = list[tuple[list[str], dict, Callable[..., Any]]]
 
 async def match_event(event: MessageEvent):
     for event_types, data, func in Plugin.event_list:
+        # if event.post_type in event_types:
+        #     if event.post_type == "message":
+        #         if event.message_type == data["message_type"]:
+        #             log.debug(f"匹配到事件: {event_types} {data}")
+        #             await func(event)
         if event.post_type in event_types:
-            if event.post_type == "message":
-                if event.message_type == data["message_type"]:
-                    log.debug(f"匹配到事件: {event_types} {data}")
-                    await func(event)
-        if event.post_type in event_types:
-            log.debug(data.items() <= event.data.items())
+            if (data.items() <= event.data.items()):
+                log.debug(f"匹配到事件: {event_types} {data}")
+                await func(event)
 
 
 
@@ -98,31 +100,31 @@ class Plugin:
                 command_data["参数列表"].append(参数)
         return command_data
 
-    def _on[F: Callable[..., Any]](self, event_types: list, data) -> Callable[..., Any]:
+    def _on[F: Callable[..., Any]](self, event_types: list, data, name: str | None = None) -> Callable[..., Any]:
         def director(func):
             @functools.wraps(func)
             async def wrapper(event: MessageEvent, *args, **kwargs):
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    await utils.log_error(event, f"事件监听器 {event_types}: {data}", e, send_message=False)
+                    await utils.log_error(event, f"事件监听器 {name} {event_types}: {data}", e, send_message=False)
             event_data = (event_types, data, wrapper)
             self.event_list.append(event_data)
-            log.debug(f"注册事件监听器: {event_types}: {data} 成功")
+            log.debug(f"注册事件监听器: {name} {event_types}: {data} 成功")
             return wrapper
         return director
 
-    def on_group_message(self) -> Callable[..., Any]:
+    def on_group_message(self, name: str | None = None) -> Callable[..., Any]:
         data = {
             # "post_type": "message",
             "message_type": "group"
         }
-        return self._on(["message"], data)
+        return self._on(["message"], data, f"群聊消息 {name}")
     
-    def on_message(self) -> Callable[..., Any]:
+    def on_message(self, name: str | None = None) -> Callable[..., Any]:
         data = {
             # "post_type": "message",
         }
-        return self._on(["message"], data)
+        return self._on(["message"], data, f"消息 {name}")
 
 
