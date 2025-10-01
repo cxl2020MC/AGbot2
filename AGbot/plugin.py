@@ -41,6 +41,8 @@ async def match_command(event: MessageEvent):
 
 # message_type = Enum("message_type", "group private all")
 
+type event_list = list[tuple[list[str], dict, Callable[..., Any]]]
+
 async def match_event(event: MessageEvent):
     for event_types, data, func in Plugin.event_list:
         if event.post_type in event_types:
@@ -48,10 +50,11 @@ async def match_event(event: MessageEvent):
                 if event.message_type == data["message_type"]:
                     log.debug(f"匹配到事件: {event_types} {data}")
                     await func(event)
-            # case "message_type":
-            #     if event.message_type == data:
-            #         log.debug(f"匹配到事件: {event_type}: {data}")
-            #         await data["函数"](event)
+        if event.post_type in event_types:
+            log.debug(data.items() <= event.data.items())
+
+
+
 
 class Plugin:
     plugin_list = []
@@ -61,7 +64,7 @@ class Plugin:
     def __init__(self, name) -> None:
         self.name = name
         self.command_list = []
-        self.event_list = []
+        self.event_list: event_list = []
 
     def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
         def director(func):
