@@ -94,3 +94,14 @@ async def ai(event: GroupMessageEvent):
 async def clean_history(event: GroupMessageEvent):
     chat_history.clear()
     await api.send_message(event, "AI聊天记录已清理")
+
+
+@bot.command("切换ai开启关闭", ["ai"])
+async def togger_ai(event: GroupMessageEvent):
+    if event.group_id not in ai_white_list:
+        ai_white_list.append(event.group_id)
+        await api.send_message(event, "AI聊天已开启")
+    else:
+        ai_white_list.remove(event.group_id)
+        await api.send_message(event, "AI聊天已关闭")
+    # await api.send_message(event, "AI聊天已切换")
