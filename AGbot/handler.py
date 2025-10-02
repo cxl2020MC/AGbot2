@@ -41,3 +41,5 @@ async def private_message_handler(data: dict):
     log.info(
         f"收到私聊消息: {event.sender_nickname}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
     await plugin.match_command(event)
+    await plugin.match_event(event)
+
