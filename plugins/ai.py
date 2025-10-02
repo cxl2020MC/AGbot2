@@ -75,6 +75,7 @@ async def ai(event: GroupMessageEvent):
     #     }
     # ]
 
+
     response = await client.chat.completions.create(
         model=ai_model,
         messages=messages,
