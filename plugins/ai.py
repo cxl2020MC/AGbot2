@@ -34,7 +34,9 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 [
     {{
         "type": "reply",
-        "message": "回复的消息"
+        "data": {{
+            "message": "回复的消息"
+        }}
     }}
 ]
 
@@ -99,9 +101,10 @@ async def ai(event: GroupMessageEvent):
     add_chat_history(event.group_id, ai_message)
     if not ret_msg:
         return 
-    ret_data = json.loads(ret_msg)
-    for data in ret_data:
-        if data.get("type") == "reply":
+    ret_json_data = json.loads(ret_msg)
+    for json_data in ret_json_data:
+        if json_data.get("type") == "reply":
+            data = json_data.get("data")
             log.debug(f"回复消息: {data.get('message')}")
             await api.send_message(event, data.get("message"))
 
