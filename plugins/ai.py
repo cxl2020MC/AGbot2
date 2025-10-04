@@ -89,7 +89,7 @@ async def ai(event: GroupMessageEvent):
     response = await client.chat.completions.create(
         model=ai_model,
         messages=messages,
-        response_format={"type": "json_object"}
+        response_format={"type": "json_object"},
         stream=False,
     )
     log.debug(response)
