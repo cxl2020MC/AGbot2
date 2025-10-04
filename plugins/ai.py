@@ -5,6 +5,7 @@ from AGbot.event import GroupMessageEvent
 
 
 import os
+import json
 from collections import deque
 from openai import AsyncOpenAI
 
@@ -27,8 +28,17 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 你可以使用 cq码: `[CQ:reply,id=消息id]` 表示对消息进行回复
 你当前处于的群聊为： {group_name}
 你的QQ号为: {self_id}
-如果消息没有直接@你或者提到你的名字，你不应该回复。
-你不用每条消息都回复，如果消息没有回复价值，或者与你无关，你可以说: 无需回复
+如果消息没有直接@你或者直接提到你的名字，你不应该回复。
+
+你应该使用以下 JSON 格式进行回复：
+[
+    {
+        "type": "reply",
+        "message": "回复的消息"
+    }
+]
+
+如果不需要回复，请回复一个空的列表
 """
 
 
@@ -49,7 +59,7 @@ async def ai(event: GroupMessageEvent):
         return
     raw_message = event.raw_message
     message = {'role': 'user',
-               'content': f"{event.get_username()} ({event.user_id}): {raw_message} [{event.message_id}]"}
+               'content': f"{event.get_username()} ({event.user_id}) [{event.message_id}]: {raw_message}"}
 
     messages = list(add_chat_history(event.group_id, message))
     log.debug(f"聊天记录: {messages}")
@@ -79,16 +89,21 @@ async def ai(event: GroupMessageEvent):
     response = await client.chat.completions.create(
         model=ai_model,
         messages=messages,
-        # response_format={"type": "json_object"}
+        response_format={"type": "json_object"}
         stream=False,
     )
     log.debug(response)
+    ret_msg = response.choices[0].message.content
     ai_message = {'role': 'assistant',
-                  'content': response.choices[0].message.content}
+                  'content': ret_msg}
     add_chat_history(event.group_id, ai_message)
-    if "无需回复" in str(response.choices[0].message.content):
-        return
-    await api.send_message(event, response.choices[0].message.content)
+    if not ret_msg:
+        return 
+    ret_data = json.loads(ret_msg)
+    for data in ret_data:
+        if data.get("type") == "reply":
+            log.debug(f"回复消息: {data.get('message')}")
+            await api.send_message(event, data.get("message"))
 
 
 @bot.command("清理AI聊天记录", ["clean"])
