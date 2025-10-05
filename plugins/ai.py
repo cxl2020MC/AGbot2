@@ -33,9 +33,9 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 你应该使用以下 JSON 格式进行回复：
 [
     {{
-        "type": "reply",
+        "action": "send_message",
         "data": {{
-            "message": "回复的消息"
+            "message": "发送的消息"
         }}
     }}
 ]
@@ -103,9 +103,9 @@ async def ai(event: GroupMessageEvent):
         return 
     ret_json_data = json.loads(ret_msg)
     for json_data in ret_json_data:
-        if json_data.get("type") == "reply":
+        if json_data.get("action") == "send_message":
             data = json_data.get("data")
-            log.debug(f"回复消息: {data.get('message')}")
+            log.debug(f"发送消息: {data.get('message')}")
             await api.send_message(event, data.get("message"))
 
 
