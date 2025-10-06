@@ -25,7 +25,7 @@ client = AsyncOpenAI(
 ai_white_list = [1035082529, 860769764]
 
 system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的任务是和群友聊天。
-我会提供消息发送者的名字，QQ号，群头衔以及消息id，用花括号括起来的是群头衔，用中括号括起来的是消息id，你可以使用携带了cqcode的消息进行回复。
+我会提供消息发送者的名字，QQ号，群头衔以及消息id，用小括号括起来的是QQ号，用花括号括起来的是群头衔，用中括号括起来的是消息id，你可以使用携带了cqcode的消息进行回复。
 你可以使用 cq码: `[CQ:reply,id=消息id]` 表示对消息进行回复
 你当前处于的群聊为： {group_name}
 你的QQ号为: {self_id}
@@ -52,26 +52,26 @@ action字段有以下几种:
 """
 
 
-@dataclass
-class ChatMessage:
-    name: str
-    card: str | None
-    user_id: int | None
-    message_id: int | None
-    content: str
-    role: str = "user"  # "user" or "assistant"
+# @dataclass
+# class ChatMessage:
+#     name: str
+#     card: str | None
+#     user_id: int | None
+#     message_id: int | None
+#     content: str
+#     role: str = "user"  # "user" or "assistant"
 
 
-type chat_historys_type = dict[int, deque[dict[str, ChatMessage]]]
+type chat_historys_type = dict[int, deque[str]]
 
-chat_historys: chat_historys_type = {}
+group_chat_historys: chat_historys_type = {}
 
 
-def add_chat_history(group_id, message: dict) -> deque:
-    if group_id not in chat_historys:
-        chat_historys[group_id] = deque(maxlen=10)
-    chat_historys[group_id].append(message)
-    return chat_historys[group_id]
+def add_chat_history(group_id, message: str) -> deque[str]:
+    if group_id not in group_chat_historys:
+        group_chat_historys[group_id] = deque(maxlen=10)
+    group_chat_historys[group_id].append(message)
+    return group_chat_historys[group_id]
 
 
 @bot.on_group_message("ai回复")
@@ -79,48 +79,28 @@ async def ai(event: GroupMessageEvent):
     if event.group_id not in ai_white_list:
         return
 
-    message = ChatMessage(event.get_username(), event.sender_card,
-                          event.user_id, event.message_id, event.raw_message)
-    log.debug(message)
     raw_message = event.raw_message
-    message = {'role': 'user',
-               'content': f"{event.get_username()} ({event.user_id}) [{event.message_id}]: {raw_message}"}
+    message = f"{event.get_username()} {{{event.sender_card}}} ({event.user_id}) [{event.message_id}]: {raw_message}"
 
-    messages = list(add_chat_history(event.group_id, message))
-    log.debug(f"聊天记录: {messages}")
-    messages.insert(0, {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)})
+    group_messages = add_chat_history(event.group_id, message)
+    log.debug(f"聊天记录: {group_messages}")
+    system_prompt = {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)}
+    # group_messages.insert(0, )
 
-    # tools = [
-    #     {
-    #         "type": "function",
-    #         "function": {
-    #             "name": "send_message",
-    #             "description": "发送消息，返回消息id",
-    #             "parameters": {
-    #                 "type": "object",
-    #                 "properties": {
-    #                     "message": {
-    #                         "type": "string",
-    #                         "description": "要发送的消息"
-    #                     }
-    #                 },
-    #                 "required": ["message"]
-    #             }
-    #         }
-    #     }
-    # ]
+    group_message_str = "\n".join(group_messages)
+
+    chat_historys: list = [{'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)},
+                    {"role": "user", "content": group_message_str}]
 
     response = await client.chat.completions.create(
         model=ai_model,
-        messages=messages,
+        messages=chat_historys,
         response_format={"type": "json_object"},
         stream=False,
     )
     log.debug(response)
     ret_msg = response.choices[0].message.content
-    ai_message = {'role': 'assistant',
-                  'content': ret_msg}
-    add_chat_history(event.group_id, ai_message)
+
     if not ret_msg:
         return
     ret_json_data = json.loads(ret_msg)
@@ -128,12 +108,14 @@ async def ai(event: GroupMessageEvent):
         if json_data.get("action") == "send_message":
             data = json_data.get("data")
             log.debug(f"发送消息: {data.get('message')}")
-            await api.send_message(event, data.get("message"))
+            api_ret_data = await api.send_message(event, data.get("message"))
+            add_chat_history(
+                event.group_id, f"你 [{api_ret_data.get("data").get("message_id")}]: {data.get("message")}")
 
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):
-    chat_historys.clear()
+    group_chat_historys.clear()
     await api.send_message(event, "AI聊天记录已清理")
 
 
