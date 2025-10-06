@@ -7,6 +7,7 @@ from AGbot.event import GroupMessageEvent
 import os
 import json
 from collections import deque
+from dataclasses import dataclass
 from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
@@ -50,7 +51,15 @@ action字段有以下几种:
 如果不需要做任何操作，请回复一个空的列表
 """
 
-type chat_historys_type = dict[int, deque[dict[str, str]]]
+# @dataclass
+# class ChatMessage:
+#     name: str
+#     qq: int
+#     message_id: int
+#     content: str
+#     # role: str = "user"
+
+type chat_historys_type = dict[int, deque[dict[str, dict[str, str]]]]
 
 chat_historys: chat_historys_type = {}
 
