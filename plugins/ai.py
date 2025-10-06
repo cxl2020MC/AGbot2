@@ -50,16 +50,16 @@ action字段有以下几种:
 如果不需要做任何操作，请回复一个空的列表
 """
 
+type chat_historys_type = dict[int, deque[dict[str, str]]]
+
+chat_historys: chat_historys_type = {}
 
 
-chat_history = {}
-
-
-def add_chat_history(group_id, message: dict) -> list:
-    if group_id not in chat_history:
-        chat_history[group_id] = deque(maxlen=10)
-    chat_history[group_id].append(message)
-    return chat_history[group_id]
+def add_chat_history(group_id, message: dict) -> deque:
+    if group_id not in chat_historys:
+        chat_historys[group_id] = deque(maxlen=10)
+    chat_historys[group_id].append(message)
+    return chat_historys[group_id]
 
 
 @bot.on_group_message("ai回复")
@@ -118,7 +118,7 @@ async def ai(event: GroupMessageEvent):
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):
-    chat_history.clear()
+    chat_historys.clear()
     await api.send_message(event, "AI聊天记录已清理")
 
 
