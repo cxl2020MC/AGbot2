@@ -34,7 +34,7 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 action 字段代表需要进行的操作，data 字段代表操作需要的参数。
 action字段有以下几种:
 1. send_message: 发送消息
-参数: message: string
+参数: message: string 要发送的信息
 
 
 以下是示列JSON输出:
