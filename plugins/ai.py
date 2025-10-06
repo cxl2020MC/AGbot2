@@ -14,8 +14,8 @@ bot = plugin.Plugin("AI")
 
 # "https://open.bigmodel.cn/api/paas/v4/"
 base_url = "https://api.deepseek.com"
-api_key = os.getenv("DS_API_KEY") # os.getenv("ZAI_API_KEY")
-ai_model = "deepseek-reasoner" # "glm-4.5-flash"
+api_key = os.getenv("DS_API_KEY")  # os.getenv("ZAI_API_KEY")
+ai_model = "deepseek-reasoner"  # "glm-4.5-flash"
 
 client = AsyncOpenAI(
     api_key=api_key,
@@ -25,7 +25,7 @@ client = AsyncOpenAI(
 ai_white_list = [1035082529, 860769764]
 
 system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的任务是和群友聊天。
-我会提供消息发送者的名字，QQ号以及消息id，消息id我会用中括号括起来，你可以使用携带了cqcode的消息进行回复。
+我会提供消息发送者的名字，QQ号，群头衔以及消息id，用花括号括起来的是群头衔，用中括号括起来的是消息id，你可以使用携带了cqcode的消息进行回复。
 你可以使用 cq码: `[CQ:reply,id=消息id]` 表示对消息进行回复
 你当前处于的群聊为： {group_name}
 你的QQ号为: {self_id}
@@ -51,15 +51,18 @@ action字段有以下几种:
 如果不需要做任何操作，请回复一个空的列表
 """
 
-# @dataclass
-# class ChatMessage:
-#     name: str
-#     qq: int
-#     message_id: int
-#     content: str
-#     # role: str = "user"
 
-type chat_historys_type = dict[int, deque[dict[str, dict[str, str]]]]
+@dataclass
+class ChatMessage:
+    name: str
+    card: str | None
+    user_id: int | None
+    message_id: int | None
+    content: str
+    role: str = "user"  # "user" or "assistant"
+
+
+type chat_historys_type = dict[int, deque[dict[str, ChatMessage]]]
 
 chat_historys: chat_historys_type = {}
 
@@ -75,6 +78,10 @@ def add_chat_history(group_id, message: dict) -> deque:
 async def ai(event: GroupMessageEvent):
     if event.group_id not in ai_white_list:
         return
+
+    message = ChatMessage(event.get_username(), event.sender_card,
+                          event.user_id, event.message_id, event.raw_message)
+    log.debug(message)
     raw_message = event.raw_message
     message = {'role': 'user',
                'content': f"{event.get_username()} ({event.user_id}) [{event.message_id}]: {raw_message}"}
@@ -103,7 +110,6 @@ async def ai(event: GroupMessageEvent):
     #     }
     # ]
 
-
     response = await client.chat.completions.create(
         model=ai_model,
         messages=messages,
@@ -116,7 +122,7 @@ async def ai(event: GroupMessageEvent):
                   'content': ret_msg}
     add_chat_history(event.group_id, ai_message)
     if not ret_msg:
-        return 
+        return
     ret_json_data = json.loads(ret_msg)
     for json_data in ret_json_data:
         if json_data.get("action") == "send_message":
