@@ -25,7 +25,7 @@ client = AsyncOpenAI(
 ai_white_list = [1035082529, 860769764]
 
 system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的任务是和群友聊天。
-我会提供消息发送者的名字，QQ号，群头衔以及消息id，用小括号括起来的是QQ号，用花括号括起来的是群头衔，用中括号括起来的是消息id，你可以使用携带了cqcode的消息进行回复。
+我会提供消息发送者的名字，QQ号，以及消息id，用小括号括起来的是QQ号，用中括号括起来的是消息id，你可以使用携带了cqcode的消息进行回复。
 你可以使用 cq码: `[CQ:reply,id=消息id]` 表示对消息进行回复
 你当前处于的群聊为： {group_name}
 你的QQ号为: {self_id}
@@ -33,7 +33,7 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 
 你只需要处理最底下的消息。
 
-回复的JSON是一个列表，列表中每个元素是一个字典，字典中包含一个 action 字段，和一个 data 字段。
+回复的JSON 包含一个 action 字段，和一个 data 字段。
 action 字段代表需要进行的操作，data 字段代表操作需要的参数。
 action字段有以下几种:
 1. send_message: 发送消息
@@ -41,16 +41,13 @@ action字段有以下几种:
 
 
 以下是示列JSON输出:
-[
-    {{
-        "action": "send_message",
-        "data": {{
-            "message": "发送的消息"
-        }}
+{{
+    "action": "send_message",
+    "data": {{
+        "message": "发送的消息"
     }}
-]
-
-如果不需要做任何操作，请回复一个空的列表
+}}
+如果你不需要进行任何操作，请返回一个空的JSON。
 """
 
 
@@ -82,16 +79,15 @@ async def ai(event: GroupMessageEvent):
         return
 
     raw_message = event.raw_message
-    message = f"{event.get_username()} {{{event.sender_card}}} ({event.user_id}) [{event.message_id}]: {raw_message}"
+    message = f"{event.get_username()} ({event.user_id}) [{event.message_id}]: {raw_message}"
 
     group_messages = add_chat_history(event.group_id, message)
     log.debug(f"聊天记录: {group_messages}")
     system_prompt = {'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)}
-    # group_messages.insert(0, )
 
     group_message_str = "\n".join(group_messages)
 
-    chat_historys: list = [{'role': 'system', 'content': system_format.format(group_name=await event.group_name, self_id=event.self_id)},
+    chat_historys: list = [system_prompt,
                     {"role": "user", "content": group_message_str}]
 
     response = await client.chat.completions.create(
@@ -106,13 +102,12 @@ async def ai(event: GroupMessageEvent):
     if not ret_msg:
         return
     ret_json_data = json.loads(ret_msg)
-    for json_data in ret_json_data:
-        if json_data.get("action") == "send_message":
-            data = json_data.get("data")
-            log.debug(f"发送消息: {data.get('message')}")
-            api_ret_data = await api.send_message(event, data.get("message"))
-            add_chat_history(
-                event.group_id, f"你 [{api_ret_data.get("data").get("message_id")}]: {data.get("message")}")
+    if ret_json_data.get("action") == "send_message":
+        data = ret_json_data.get("data")
+        log.debug(f"发送消息: {data.get('message')}")
+        api_ret_data = await api.send_message(event, data.get("message"))
+        add_chat_history(
+            event.group_id, f"你 [{api_ret_data.get("data").get("message_id")}]: {data.get("message")}")
 
 
 @bot.command("清理AI聊天记录", ["clean"])
