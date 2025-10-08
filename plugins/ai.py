@@ -99,6 +99,7 @@ async def ai(event: GroupMessageEvent):
     )
     log.debug(response)
     ret_msg = response.choices[0].message.content
+    log.debug(ret_msg)
 
     if not ret_msg:
         return
