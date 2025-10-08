@@ -33,14 +33,14 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 
 你只需要处理最底下的消息。
 
-回复的JSON 包含一个 action 字段，一个 data 字段，和一个 continue 字段。
+回复的 JSON 包含一个 action 字段，一个 data 字段，和一个 continue 字段。
 action 字段代表需要进行的操作，data 字段代表操作需要的参数 continue 字段代表是否继续处理消息。
 action字段有以下几种:
 1. send_message: 发送消息
 参数: message: string 要发送的信息
 
 
-以下是示列JSON输出:
+以下是示列 JSON 输出:
 {{
     "action": "send_message",
     "data": {{
