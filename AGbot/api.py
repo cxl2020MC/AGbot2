@@ -65,8 +65,10 @@ async def send_private_message(user_id, message) -> dict:
     return await post_api("send_private_msg", post_data)
 
 
-async def send_message(event, message):
+async def send_message(event, message) -> dict:
     if event.data.get("group_id"):
         return await send_group_message(event.data.get("group_id"), message)
     elif event.data.get("user_id"):
         return await send_private_message(event.data.get("user_id"), message)
+    else:
+        raise Exception("无法发送消息，缺少群聊或私聊信息")

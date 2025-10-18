@@ -111,7 +111,7 @@ async def ai(event: GroupMessageEvent):
         log.debug(f"发送消息: {data.get('message')}")
         api_ret_data = await api.send_message(event, data.get("message"))
         add_chat_history(
-            event.group_id, f"你 [{api_ret_data.get("data").get("message_id")}]: {data.get("message")}")
+            event.group_id, f"你 [{api_ret_data.get("data", {}).get("message_id")}]: {data.get("message")}")
 
 
 @bot.command("清理AI聊天记录", ["clean"])
