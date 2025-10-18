@@ -9,21 +9,17 @@ browser = None
 
 async def remote_main(func, timeout: float = 60000):
     async with async_playwright() as p:
-        global browser
-        if not browser:
-            log.info("连接浏览器")
-            chromium = p.chromium
-            browser = await chromium.connect(config.playwright_chromium_endpoint, timeout=timeout)
-            log.info("连接浏览器成功")
-            log.info("设置浏览器")
-            browser = await browser.new_context(viewport={"width": 1920, "height": 1080}, device_scale_factor=2, locale="zh-CN")
-            log.info("设置浏览器成功")
-        else:
-            log.info("浏览器已连接")
+        log.info("连接浏览器")
+        chromium = p.chromium
+        browser = await chromium.connect(config.playwright_chromium_endpoint, timeout=timeout)
+        log.info("连接浏览器成功")
+        log.info("设置浏览器")
+        browser = await browser.new_context(viewport={"width": 1920, "height": 1080}, device_scale_factor=2, locale="zh-CN")
+        log.info("设置浏览器成功")
         page = await browser.new_page()
         ret_data = await func(page)
         await page.close()
-        # await browser.close()
+        await browser.close()
         return ret_data
 
 
@@ -37,6 +33,7 @@ async def main(func):
         log.info("设置浏览器成功")
         page = await browser.new_page()
         ret_data = await func(page)
+        await page.close()
         log.info("关闭浏览器")
         await browser.close()
         return ret_data
