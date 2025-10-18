@@ -22,7 +22,7 @@ async def remote_main(func, timeout: float = 60000):
             log.info("浏览器已连接")
         page = await browser.new_page()
         ret_data = await func(page)
-        # await page.close()
+        await page.close()
         return ret_data
 
 
