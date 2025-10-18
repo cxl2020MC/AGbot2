@@ -4,7 +4,7 @@ import base64
 from . import config
 from .log import logger as log
 
-browser = None
+# browser = None
 
 
 async def remote_main(func, timeout: float = 60000):
