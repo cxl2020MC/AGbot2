@@ -99,6 +99,7 @@ async def ai(event: GroupMessageEvent):
     ]
 
     async def chat():
+        log.debug(f"当前消息的消息记录: {chat_historys}")
         response = await client.chat.completions.create(
             model=ai_model,
             messages=chat_historys,
@@ -107,7 +108,8 @@ async def ai(event: GroupMessageEvent):
         )
         log.debug(response)
         ret_msg = response.choices[0].message.content
-        log.debug(ret_msg)
+        ai_reasoning_content = response.choices[0].message.reasoning_content # type: ignore
+        log.debug(f"AI深度思考结果: {ai_reasoning_content} \nAI回复: {ret_msg}")
 
         if not ret_msg:
             return
