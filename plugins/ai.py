@@ -7,6 +7,7 @@ from AGbot.event import GroupMessageEvent
 import os
 import json
 from collections import deque
+from dataclasses import dataclass
 from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
@@ -109,7 +110,7 @@ async def ai(event: GroupMessageEvent):
     
         if ret_json_data.get("continue"):
             chat_historys.append({"role": "assistant", "content": ret_msg})
-            chat_historys.append({"role": "user", "content": f"你刚刚调用了api，返回了: {api_ret_data}"})
+            chat_historys.append({"role": "user", "content": f"你刚刚调用了api {ret_json_data.get('action')}，返回了: {api_ret_data}"})
             await chat()
     await chat()
 
