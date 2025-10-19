@@ -31,14 +31,24 @@ system_format = """你的名字叫做早喵，是一只猫娘，你的主人/开
 你的QQ号为: {self_id}
 如果消息没有直接@你或者直接提到你的名字，你不应该回复。
 
-你只需要处理最底下的消息。
+你只需要处理最后一条消息。
 
-回复的 JSON 包含一个 action 字段，一个 data 字段，和一个 continue 字段。
-action 字段代表需要进行的操作，data 字段代表操作需要的参数 continue 字段代表是否继续处理消息。
-action字段有以下几种:
-1. send_message: 发送消息
-参数: message: string 要发送的信息
-你可以通过设置 continue 字段为 true 来继续处理消息（比如发送多条消息），或者设置为 false 来停止处理消息。
+## 回复的 JSON 字段
+
+- action: string
+    包含需要进行的操作
+    有以下几种:
+    1. send_message: 发送消息
+        参数: 
+        - message: string 要发送的信息
+- data: dict
+    包含操作需要的参数
+- continue: bool
+    为 true 时，我会把当前操作返回的数据作为输入，继续处理消息。
+    为 false 时，我会停止处理消息。
+    你可以使用这个字段来继续对话，或者进行其他操作。
+    比如先发送一条消息，再发送第二条消息。
+
 
 以下是示列 JSON 输出:
 {{
@@ -110,7 +120,7 @@ async def ai(event: GroupMessageEvent):
     
         if ret_json_data.get("continue"):
             chat_historys.append({"role": "assistant", "content": ret_msg})
-            chat_historys.append({"role": "user", "content": f"你刚刚调用了api {ret_json_data.get('action')}，返回了: {api_ret_data}"})
+            chat_historys.append({"role": "user", "content": f"你刚刚调用了api {ret_json_data.get('action')}，返回了: {api_ret_data} 你可以继续回复 JSON 来进行其他操作"})
             await chat()
     await chat()
 
