@@ -38,7 +38,7 @@ action 字段代表需要进行的操作，data 字段代表操作需要的参�
 action字段有以下几种:
 1. send_message: 发送消息
 参数: message: string 要发送的信息
-
+你可以通过设置 continue 字段为 true 来继续处理消息（比如发送多条消息），或者设置为 false 来停止处理消息。
 
 以下是示列 JSON 输出:
 {{
