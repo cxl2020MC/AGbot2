@@ -1,7 +1,7 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
-from AGbot.event import GroupMessageEvent
+from AGbot.types.message import GroupMessageEvent
 
 import time
 

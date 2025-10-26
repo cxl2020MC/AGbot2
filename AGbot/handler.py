@@ -1,7 +1,7 @@
 from .log import logger as log
 from . import plugin
 from . import config
-from .event import GroupMessageEvent, PrivateMessageEvent
+from .types.message import GroupMessageEvent, PrivateMessageEvent
 
 
 async def main(data: dict):

@@ -1,6 +1,6 @@
 import time
 from AGbot import plugin
-from AGbot.event import MessageEvent
+from AGbot.types.message import MessageEvent
 from AGbot.log import logger as log
 from AGbot import browser
 from AGbot import api
