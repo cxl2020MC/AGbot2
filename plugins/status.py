@@ -6,6 +6,7 @@ from AGbot.event import MessageEvent
 import jinja2
 import psutil
 import sys
+import platform
 from datetime import datetime
 
 bot = plugin.Plugin("状态")
@@ -34,7 +35,10 @@ async def about(event: MessageEvent):
     else:
         磁盘写入 = 0
         磁盘读取 = 0
-    温度 = psutil.sensors_temperatures()
+    if platform.system() == "Linux":
+        温度 = psutil.sensors_temperatures() # type: ignore
+    else:
+        温度 = {}
     系统启动时间 = datetime.fromtimestamp(
         psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
     Python版本 = sys.version
@@ -43,14 +47,22 @@ async def about(event: MessageEvent):
         磁盘使用率 = psutil.disk_usage(路径)
         return f"{磁盘使用率.percent}% ({磁盘使用率.used / 1024/1024/1024:.2f}GB/{磁盘使用率.total/1024/1024/1024:.2f}GB)"
 
-    磁盘模板 = jinja2.Template("""{% for item in 磁盘分区 %}
-        驱动器: {{item.device}}
-            挂载点: {{item.mountpoint}}
-            文件系统: {{item.fstype}}
-            使用率: {{磁盘使用率(item.mountpoint)}}%{% endfor %}""")
+    def 格式化磁盘信息():
+        磁盘信息 = []
+        for item in 磁盘分区:
+            磁盘信息.append(f"""
+        驱动器: {item.device}
+            挂载点: {item.mountpoint}
+            文件系统: {item.fstype}
+            使用率: {磁盘使用率(item.mountpoint)}""")
+        return "".join(磁盘信息)
 
-    温度模板 = jinja2.Template("""{% for name, emtries in 温度.items() %}
-        {{name}}: {{emtries[0].current}}℃ (最高温度: {{emtries[0].high}}℃){% endfor %}""")
+    def 格式化温度信息():
+        温度信息 = []
+        for name, entries in 温度.items():
+            温度信息.append(f"""
+        {name}: {entries[0].current}℃ (最高温度: {entries[0].high}℃)""")
+        return "".join(温度信息)
 
     消息 = f"""状态:
     CPU: 
@@ -61,10 +73,10 @@ async def about(event: MessageEvent):
     系统load: {" ".join([str(round(item, 2)) for item in 系统load])}
     内存: {内存.percent}% ({内存.used/1024/1024/1024:.2f}GB/{内存.total/1024/1024/1024:.2f}GB)
     交换分区: {交换分区.percent}% ({交换分区.used/1024/1024/1024:.2f}GB/{交换分区.total/1024/1024/1024:.2f}GB)
-    磁盘: {磁盘模板.render(磁盘分区=磁盘分区, 磁盘使用率=磁盘使用率)}
+    磁盘: {格式化磁盘信息()}
     网络IO: 发送: {网络发送/1024/1024/1024:.2f}GB / 接收: {网络接收/1024/1024/1024:.2f}GB
     磁盘IO: 读取: {磁盘读取/1024/1024/1024:.2f}GB / 写入: {磁盘写入/1024/1024/1024:.2f}GB
-    温度: {温度模板.render(温度=温度)}
+    温度: {格式化温度信息()}
     系统启动时间: {系统启动时间}
     Python版本: {Python版本}"""
 
