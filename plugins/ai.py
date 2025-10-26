@@ -67,7 +67,7 @@ system_format = """# 角色设定
 """
 
 
-chat_histories_type = dict[int, deque[str]]
+type chat_histories_type = dict[int, deque[str]]
 
 group_chat_histories: chat_histories_type = {}
 
