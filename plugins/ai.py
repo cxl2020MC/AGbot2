@@ -67,16 +67,16 @@ system_format = """# 角色设定
 """
 
 
-type chat_historys_type = dict[int, deque[str]]
+chat_histories_type = dict[int, deque[str]]
 
-group_chat_historys: chat_historys_type = {}
+group_chat_histories: chat_histories_type = {}
 
 
 def add_chat_history(group_id, message: str) -> deque[str]:
-    if group_id not in group_chat_historys:
-        group_chat_historys[group_id] = deque(maxlen=10)
-    group_chat_historys[group_id].append(message)
-    return group_chat_historys[group_id]
+    if group_id not in group_chat_histories:
+        group_chat_histories[group_id] = deque(maxlen=10)
+    group_chat_histories[group_id].append(message)
+    return group_chat_histories[group_id]
 
 
 @bot.on_group_message("ai回复")
@@ -107,39 +107,39 @@ async def ai(event: GroupMessageEvent):
             stream=False,
         )
         log.debug(response)
-        ret_msg = response.choices[0].message.content
-        ai_reasoning_content = response.choices[0].message.reasoning_content # type: ignore
-        log.debug(f"AI深度思考结果: {ai_reasoning_content} \nAI回复: {ret_msg}")
+        response_message = response.choices[0].message.content
+        reasoning_content = response.choices[0].message.reasoning_content # type: ignore
+        log.debug(f"AI深度思考结果: {reasoning_content} \nAI回复: {response_message}")
 
-        if not ret_msg:
+        if not response_message:
             return
-        ret_json_data = json.loads(ret_msg)
-        if not ret_json_data:
+        response_json = json.loads(response_message)
+        if not response_json:
             log.debug("返回数据为空")
             return
-        api_ret_data = None
-        if ret_json_data.get("action") == "send_message":
-            data = ret_json_data.get("data")
+        api_response = None
+        if response_json.get("action") == "send_message":
+            data = response_json.get("data")
             log.debug(f"发送消息: {data.get('message')}")
-            api_ret_data = await api.send_message(event, data.get("message"))
+            api_response = await api.send_message(event, data.get("message"))
             add_chat_history(
-                event.group_id, f"你 [{api_ret_data.get("data", {}).get("message_id")}]: {data.get("message")}")
+                event.group_id, f"你 [{api_response.get("data", {}).get("message_id")}]: {data.get("message")}")
     
-        if ret_json_data.get("continue"):
-            chat_historys.append({"role": "assistant", "content": ret_msg})
-            chat_historys.append({"role": "user", "content": f"你刚刚调用了api {ret_json_data.get('action')}，返回了: {api_ret_data} 你可以继续回复 JSON 来进行其他操作"})
+        if response_json.get("continue"):
+            chat_historys.append({"role": "assistant", "content": response_message})
+            chat_historys.append({"role": "user", "content": f"你刚刚调用了api {response_json.get('action')}，返回了: {api_response} 你可以继续回复 JSON 来进行其他操作"})
             await chat()
     await chat()
 
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):
-    group_chat_historys.clear()
+    group_chat_histories.clear()
     await api.send_message(event, "AI聊天记录已清理")
 
 
 @bot.command("切换ai开启关闭", ["ai"])
-async def togger_ai(event: GroupMessageEvent):
+async def toggle_ai(event: GroupMessageEvent):
     if event.group_id not in ai_white_list:
         if event.group_id:
             ai_white_list.append(event.group_id)
