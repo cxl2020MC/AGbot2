@@ -42,6 +42,7 @@ async def private_message_handler(data: dict):
     event = PrivateMessageEvent(data)
     log.info(
         f"收到私聊消息: {event.sender_nickname}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
-    await plugin.match_command(event)
-    await plugin.match_event(event)
+    async with asyncio.TaskGroup() as tg:
+        tg.create_task(plugin.match_command(event))
+        tg.create_task(plugin.match_event(event))
 
