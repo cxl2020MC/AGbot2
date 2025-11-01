@@ -8,7 +8,7 @@ from datetime import datetime
 import json
 
 
-from .types.message import Event
+from .types.message_event import Event
 from .log import logger as log
 from . import config
 from . import api

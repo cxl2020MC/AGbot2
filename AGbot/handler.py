@@ -2,7 +2,7 @@ import asyncio
 from .log import logger as log
 from . import plugin
 from . import config
-from .types.message import GroupMessageEvent, PrivateMessageEvent
+from .types.message_event import GroupMessageEvent, PrivateMessageEvent
 
 
 async def main(data: dict):

@@ -2,7 +2,7 @@ import functools
 import shlex
 from .log import logger as log
 from . import utils
-from .types.message import MessageEvent
+from .types.message_event import MessageEvent
 
 from collections.abc import Callable
 from typing import Any
