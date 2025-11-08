@@ -19,3 +19,5 @@ plugin.load_plugin(test.bot)
 plugin.load_plugin(img.bot)
 plugin.load_plugin(error_corn.bot)
 plugin.load_plugin(statistics.bot)
+
+client.run()
