@@ -2,6 +2,7 @@ import asyncio
 from .log import logger as log
 from . import plugin
 from . import config
+from .types.event import Event
 from .types.message_event import GroupMessageEvent, PrivateMessageEvent
 
 

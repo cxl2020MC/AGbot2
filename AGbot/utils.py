@@ -61,6 +61,11 @@ async def save_error_log(data, traceback):
     return time
 
 
+async def get_error_log_str(error_type):
+    exc = traceback.format_exc()
+    log.error(f"发生错误 {error_type} 执行出错: {exc}")
+    return exc
+
 async def log_error(event: Event, error_type, error_object, * , send_message=True):
     exc = traceback.format_exc()
     log.error(f"发生错误 {error_type} 执行出错: {exc}")

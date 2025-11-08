@@ -1,13 +1,15 @@
 from AGbot import plugin
 from AGbot.log import logger as log
 from AGbot import api
+from AGbot import utils
 from AGbot.types.message_event import GroupMessageEvent
 
 
 import os
 import json
+import asyncio
 from collections import deque
-from dataclasses import dataclass
+# from dataclasses import dataclass
 from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
@@ -22,7 +24,7 @@ client = AsyncOpenAI(
     base_url=BASE_URL
 )
 
-AI_WHITE_LIST = [1035082529, 860769764]
+ai_white_list = [1035082529, 860769764]
 
 SYSTEM_FORMAT = """# 角色设定
 你是早喵，是一只可爱猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的主要任务是与群友愉快地聊天。
@@ -71,6 +73,8 @@ type ChatHistoriesType = dict[int, deque[str]]
 
 group_chat_histories: ChatHistoriesType = {}
 
+message_queues: dict[int, asyncio.Queue[tuple[str, str]]] = {}
+
 
 def add_chat_history(group_id, message: str) -> deque[str]:
     if group_id not in group_chat_histories:
@@ -79,9 +83,16 @@ def add_chat_history(group_id, message: str) -> deque[str]:
     return group_chat_histories[group_id]
 
 
+def add_message_queue(group_id):
+    if group_id not in message_queues:
+        log.info(f"添加消息队列: {group_id}")
+        message_queues[group_id] = asyncio.Queue()
+        asyncio.create_task(handle_ai_message(group_id))
+
+
 @bot.on_group_message("ai回复")
-async def handle_ai_message(event: GroupMessageEvent):
-    if event.group_id not in AI_WHITE_LIST:
+async def ai(event: GroupMessageEvent):
+    if event.group_id not in ai_white_list:
         return
 
     raw_message = event.raw_message
@@ -98,7 +109,7 @@ async def handle_ai_message(event: GroupMessageEvent):
         {"role": "user", "content": group_message_str}
     ]
 
-    async def chat():
+    async def chat_with_ai():
         log.debug(f"当前消息的消息记录: {chat_history}")
         response = await client.chat.completions.create(
             model=AI_MODEL,
@@ -124,13 +135,18 @@ async def handle_ai_message(event: GroupMessageEvent):
             api_response = await api.send_message(event, data.get("message"))
             add_chat_history(
                 event.group_id, f"你 [{api_response.get("data", {}).get("message_id")}]: {data.get("message")}")
-    
-        if response_json.get("continue"):
-            chat_history.append({"role": "assistant", "content": response_message})
-            chat_history.append({"role": "user", "content": f"你刚刚调用了api {response_json.get('action')}，返回了: {api_response} 你可以继续回复 JSON 来进行其他操作"})
-            await chat()
-    await chat()
 
+        if response_json.get("continue"):
+            chat_history.append(
+                {"role": "assistant", "content": response_message})
+            chat_history.append(
+                {"role": "user", "content": f"你刚刚调用了api {response_json.get('action')}，返回了: {api_response} 你可以继续回复 JSON 来进行其他操作"})
+            await chat_with_ai()
+    await chat_with_ai()
+
+
+async def use_ai(message: tuple[str, GroupMessageEvent | dict]):
+    pass
 
 @bot.command("清理AI聊天记录", ["clean"])
 async def clean_history(event: GroupMessageEvent):
@@ -140,11 +156,22 @@ async def clean_history(event: GroupMessageEvent):
 
 @bot.command("切换ai开启关闭", ["ai"])
 async def toggle_ai(event: GroupMessageEvent):
-    if event.group_id not in AI_WHITE_LIST:
+    if event.group_id not in ai_white_list:
         if event.group_id:
-            AI_WHITE_LIST.append(event.group_id)
+            ai_white_list.append(event.group_id)
             await api.send_message(event, "AI聊天已开启")
     else:
-        AI_WHITE_LIST.remove(event.group_id)
+        ai_white_list.remove(event.group_id)
         await api.send_message(event, "AI聊天已关闭")
+
+
+async def handle_ai_message(group_id):
+    message_queue = message_queues[group_id]
+    while True:
+        try:
+            message = await message_queue.get()
+            await ai(message)
+            message_queue.task_done()
+        except Exception as e:
+            await utils.get_error_log_str("AI消息处理器")
 
