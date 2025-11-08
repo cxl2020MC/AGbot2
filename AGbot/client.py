@@ -12,15 +12,16 @@ async def main(request):
 
     return web.json_response({"status": "OK"})
 
-async def _app_run_message_print(app: web.Application):
+async def on_app_startup(app: web.Application):
+    """Application startup callback function"""
     log.success("http服务器已启动")
 
 app = web.Application()
 app.add_routes([web.post('/', main)])
 
-app.on_startup.append(_app_run_message_print)
+app.on_startup.append(on_app_startup)
 
 def run():
-    log.info(f"启动http服务器: {config.host}:{config.port}")
-    web.run_app(app, host=config.host, port=config.port)
+    log.info(f"启动http服务器: {config.HOST}:{config.PORT}")
+    web.run_app(app, host=config.HOST, port=config.PORT)
 

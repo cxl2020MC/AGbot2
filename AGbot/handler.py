@@ -33,7 +33,7 @@ def get_username(sender: dict) -> str:
 async def group_message_handler(data: dict):
     event = GroupMessageEvent(data)
     log.info(f"收到群 {await event.group_name}({event.group_id}) 内 {event.get_username()}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
-    if event.group_id not in config.group_black_list:
+    if event.group_id not in config.GROUP_BLACK_LIST:
         async with asyncio.TaskGroup() as tg:
             tg.create_task(plugin.match_command(event))
             tg.create_task(plugin.match_event(event))
@@ -46,4 +46,3 @@ async def private_message_handler(data: dict):
     async with asyncio.TaskGroup() as tg:
         tg.create_task(plugin.match_command(event))
         tg.create_task(plugin.match_event(event))
-

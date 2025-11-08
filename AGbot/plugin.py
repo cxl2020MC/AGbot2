@@ -9,7 +9,7 @@ from typing import Any
 from enum import Enum
 
 
-def load_pulgin(plugin):
+def load_plugin(plugin):
     log.info(f"加载插件 {plugin.name} 中...")
     Plugin.plugin_list.append(plugin)
     Plugin.command_list += plugin.command_list
@@ -40,7 +40,7 @@ async def match_command(event: MessageEvent):
 
 # message_type = Enum("message_type", "group private all")
 
-type event_list = list[tuple[str | None, list[str], dict, Callable[..., Any]]]
+type EventList = list[tuple[str | None, list[str], dict, Callable[..., Any]]]
 
 
 async def match_event(event: MessageEvent):
@@ -59,9 +59,9 @@ class Plugin:
     def __init__(self, name) -> None:
         self.name = name
         self.command_list = []
-        self.event_list: event_list = []
+        self.event_list: EventList = []
 
-    def command[F: Callable[..., Any]](self, 名称, command_list: list) -> Callable[..., Any]:
+    def command[F: Callable[..., Any]](self, name, command_list: list) -> Callable[..., Any]:
         def director(func):
             log.debug(f"注册命令: {command_list}")
 
@@ -70,16 +70,16 @@ class Plugin:
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    await utils.log_error(event, f"命令 {名称}", e)
+                    await utils.log_error(event, f"命令 {name}", e)
             command_data = {"command_list": command_list,
-                            "命令名称": 名称, "插件名称": self.name, "函数": wrapper}
+                            "命令名称": name, "插件名称": self.name, "函数": wrapper}
             self.command_list.append(command_data)
             log.debug(f"注册命令: {command_list} 成功")
             return wrapper
         return director
 
-    def 解析命令(self, 命令: str):
-        command_list = shlex.split(命令)
+    def parse_command(self, command_str: str):
+        command_list = shlex.split(command_str)
         command_data = {"命令": command_list[0],
                         "参数列表": [], "参数字典": {}, "指定参数": []}
         for 参数 in command_list[1:]:

@@ -37,7 +37,7 @@ class Command:
             return default
 
 
-class 命令输入错误(Exception):
+class CommandInputError(Exception):
     pass
 
 

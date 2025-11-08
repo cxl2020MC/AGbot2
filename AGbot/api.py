@@ -2,15 +2,15 @@ from .log import logger as log
 from . import config
 import aiohttp
 
-group_info_cache = {}
+GROUP_INFO_CACHE = {}
 
 
 async def post_api(action, post_data) -> dict:
     async with aiohttp.ClientSession() as session:
         headers = {}
-        if config.onebot_api_token:
-            headers.update({"Authorization": f"Bearer {config.onebot_api_token}"})
-        async with await session.post(f"{config.onebot_api_url}/{action}", headers=headers, json=post_data) as res:
+        if config.ONEBOT_API_TOKEN:
+            headers.update({"Authorization": f"Bearer {config.ONEBOT_API_TOKEN}"})
+        async with await session.post(f"{config.ONEBOT_API_URL}/{action}", headers=headers, json=post_data) as res:
             data = await res.json()
             log.debug(f"API {action} 返回: {data}")
             if data.get("status") == "ok":
@@ -24,7 +24,7 @@ async def get_group_info(group_id):
     """
     获取群信息
     """
-    group_info = group_info_cache.get(group_id)
+    group_info = GROUP_INFO_CACHE.get(group_id)
     if not group_info:
         return await refresh_group_info_cache(group_id)
     return group_info
@@ -35,12 +35,12 @@ async def refresh_group_info_cache(group_id: int) -> dict:
         "group_id": group_id,
     }
     data = await post_api("get_group_info", post_data)
-    group_info_cache.update({group_id: data["data"]})
+    GROUP_INFO_CACHE.update({group_id: data["data"]})
     return data["data"]
 
 
 async def clear_group_info_cache():
-    group_info_cache.clear()
+    GROUP_INFO_CACHE.clear()
 
 
 async def get_group_name(group_id) -> str | None:

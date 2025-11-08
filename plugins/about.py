@@ -6,7 +6,7 @@ from AGbot.types.message_event import MessageEvent
 bot = plugin.Plugin("关于")
 
 @bot.command("关于", ["about", "关于"])
-async def about(event: MessageEvent):
+async def about_command(event: MessageEvent):
     log.info("收到关于命令")
 
     await api.send_message(event, f"""关于AGbot2

@@ -1,20 +1,20 @@
 import os
-onebot_api_url = "http://localhost:3001"
-onebot_api_token = os.getenv("ONEBOT_API_TOKEN")
+ONEBOT_API_URL = "http://localhost:3001"
+ONEBOT_API_TOKEN = os.getenv("ONEBOT_API_TOKEN")
 
 
-host = "localhost"
-port = 3000
+HOST = "localhost"
+PORT = 3000
 
-bot_qq = 123456789
-admin_qq = [123456789]
+BOT_QQ = 123456789
+ADMIN_QQ = [123456789]
 
 # 群聊白名单 = []
-group_black_list = []
+GROUP_BLACK_LIST = []
 
-private_black_list = []
+PRIVATE_BLACK_LIST = []
 
-data_dir = "./data/"
+DATA_DIR = "./data/"
 
 
-playwright_chromium_endpoint = ""
+PLAYWRIGHT_CHROMIUM_ENDPOINT = ""
