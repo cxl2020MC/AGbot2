@@ -3,7 +3,7 @@ from AGbot.log import logger as log
 from AGbot import api
 from AGbot.types.message_event import MessageEvent
 
-import jinja2
+# import jinja2
 import psutil
 import sys
 import platform
