@@ -5,6 +5,7 @@ from . import utils
 from .types.event import Event
 from .types.message_event import MessageEvent
 
+from dataclasses import dataclass
 from collections.abc import Callable
 from typing import Any
 
@@ -38,16 +39,23 @@ async def match_command(event: MessageEvent):
         # return
 
 
+type EventList = list[EventListObject]
 
-type EventList = list[tuple[str | None, list[str], dict, Callable[..., Any]]]
+
+@dataclass
+class EventListObject():
+    func: Callable[..., Any]
+    name: str | None = None
+    event_types:  list[Event] = []
+    data: dict = {}
 
 
 async def match_event(event: MessageEvent):
-    for name, event_types, data, func in Plugin.event_list:
-        if event.post_type in event_types:
-            if (data.items() <= event.data.items()):
-                log.debug(f"匹配到事件: {name} {event_types} {data}")
-                await func(event)
+    for i in Plugin.event_list:
+        if event.post_type in i.event_types:
+            if (i.data.items() <= event.data.items()):
+                log.debug(f"匹配到事件: {i.name} {i.event_types} {i.data}")
+                await i.func(event)
 
 
 class Plugin:
@@ -100,7 +108,7 @@ class Plugin:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
                     await utils.log_error(event, f"事件监听器 {name} {event_types}: {data}", e, send_message=False)
-            event_data = (name, event_types, data, wrapper)
+            event_data = EventListObject(wrapper, name, event_types, data)
             self.event_list.append(event_data)
             log.debug(f"注册事件监听器: {name} {event_types}: {data} 成功")
             return wrapper
