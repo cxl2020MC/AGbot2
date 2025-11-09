@@ -43,7 +43,7 @@ type EventList = list[EventListObject]
 
 
 @dataclass
-class EventListObject():
+class EventListObject:
     func: Callable[..., Any]
     name: str | None = None
     event_types:  list[Event] = []
