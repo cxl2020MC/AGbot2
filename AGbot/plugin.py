@@ -5,7 +5,7 @@ from . import utils
 from .types.event import Event
 from .types.message_event import MessageEvent
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from collections.abc import Callable
 from typing import Any
 
@@ -46,7 +46,7 @@ type EventList = list[EventListObject]
 class EventListObject:
     func: Callable[..., Any]
     name: str | None = None
-    event_types:  list[str] = []
+    event_types = field(default_factory=list)
     data: dict = {}
 
 
