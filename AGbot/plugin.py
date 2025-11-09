@@ -46,8 +46,8 @@ type EventList = list[EventListObject]
 class EventListObject:
     func: Callable[..., Any]
     name: str | None = None
-    event_types = field(default_factory=list)
-    data: dict = {}
+    event_types:list[str] = field(default_factory=list)
+    data: dict = field(default_factory=dict)
 
 
 async def match_event(event: MessageEvent):
