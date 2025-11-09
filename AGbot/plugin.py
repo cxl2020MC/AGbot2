@@ -44,17 +44,24 @@ type EventList = list[EventListObject]
 
 @dataclass
 class EventListObject:
+    event_type: Event
     func: Callable[..., Any]
     name: str | None = None
-    event_types:list[str] = field(default_factory=list)
     data: dict = field(default_factory=dict)
 
 
-async def match_event(event: MessageEvent):
+# async def match_event(event: MessageEvent):
+#     for i in Plugin.event_list:
+#         if event.post_type in i.event_types:
+#             if (i.data.items() <= event.data.items()):
+#                 log.debug(f"匹配到事件: {i.name} {i.event_types} {i.data}")
+#                 await i.func(event)
+
+async def match_event(event: MessageEvent, Event: Event):
     for i in Plugin.event_list:
-        if event.post_type in i.event_types:
+        if Event & i.event_type:
             if (i.data.items() <= event.data.items()):
-                log.debug(f"匹配到事件: {i.name} {i.event_types} {i.data}")
+                log.debug(f"匹配到事件: {i.name} {i.event_type} {i.data}")
                 await i.func(event)
 
 
@@ -100,29 +107,25 @@ class Plugin:
                 command_data["参数列表"].append(参数)
         return command_data
 
-    def _on[F: Callable[..., Any]](self, event_types: list, data, name: str | None = None) -> Callable[..., Any]:
+    def on(self, name, event_type: Event, data: dict = {}):
         def director(func):
             @functools.wraps(func)
             async def wrapper(event: MessageEvent, *args, **kwargs):
                 try:
                     return await func(event, *args, **kwargs)
                 except Exception as e:
-                    await utils.log_error(event, f"事件监听器 {name} {event_types}: {data}", e, send_message=False)
-            event_data = EventListObject(wrapper, name, event_types, data)
+                    await utils.log_error(event, f"事件监听器 {name} {event_type}: {data}", e, send_message=False)
+            event_data = EventListObject(event_type, wrapper, name, data)
             self.event_list.append(event_data)
-            log.debug(f"注册事件监听器: {name} {event_types}: {data} 成功")
+            log.debug(f"注册事件监听器: {name} {event_type}: {data} 成功")
             return wrapper
         return director
 
     def on_group_message(self, name: str | None = None) -> Callable[..., Any]:
-        data = {
-            # "post_type": "message",
-            "message_type": "group"
-        }
-        return self._on(["message"], data, f"群聊消息[{name}]")
+        return self.on(f"群聊消息[{name}]", Event.GroupMessage)
 
     def on_message(self, name: str | None = None) -> Callable[..., Any]:
         data = {
             # "post_type": "message",
         }
-        return self._on(["message"], data, f"消息[{name}]")
+        return self.on(f"消息[{name}]", Event.Message)
