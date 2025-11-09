@@ -2,11 +2,11 @@ import functools
 import shlex
 from .log import logger as log
 from . import utils
+from .types.event import Event
 from .types.message_event import MessageEvent
 
 from collections.abc import Callable
 from typing import Any
-from enum import Enum
 
 
 def load_plugin(plugin):
@@ -38,7 +38,6 @@ async def match_command(event: MessageEvent):
         # return
 
 
-# message_type = Enum("message_type", "group private all")
 
 type EventList = list[tuple[str | None, list[str], dict, Callable[..., Any]]]
 
