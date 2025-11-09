@@ -61,7 +61,7 @@ async def match_event(event: MessageEvent, Event: Event):
     for i in Plugin.event_list:
         if Event & i.event_type:
             if (i.data.items() <= event.data.items()):
-                log.debug(f"匹配到事件: {i.name} {i.event_type} {i.data}")
+                log.debug(f"匹配到事件: {i.name} {i.event_type}: {i.data}")
                 await i.func(event)
 
 
