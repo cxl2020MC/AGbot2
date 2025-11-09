@@ -21,6 +21,6 @@ async def 网页截图(event: MessageEvent):
     no_wait = command.get_kwarg_bool("no_wait", "n")
     log.debug(url)
     log.debug(timeout)
-    base64_image = await browser.screenshot(url, timeout=timeout, no_wait=no_wait)
+    base64_image = await browser.screenshot(url, timeout_ms=timeout, no_wait=no_wait)
     # log.debug(base64_image)
     await api.send_message(event, f"[CQ:image,file=base64://{base64_image}]")
