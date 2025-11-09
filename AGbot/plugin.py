@@ -46,7 +46,7 @@ type EventList = list[EventListObject]
 class EventListObject:
     func: Callable[..., Any]
     name: str | None = None
-    event_types:  list[Event] = []
+    event_types:  list[str] = []
     data: dict = {}
 
 
