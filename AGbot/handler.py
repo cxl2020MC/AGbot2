@@ -36,7 +36,7 @@ async def group_message_handler(data: dict):
     if event.group_id not in config.GROUP_BLACK_LIST:
         async with asyncio.TaskGroup() as tg:
             tg.create_task(plugin.match_command(event))
-            tg.create_task(plugin.match_event(event))
+            tg.create_task(plugin.match_event(event, Event.GroupMessage))
 
 
 async def private_message_handler(data: dict):
@@ -45,4 +45,4 @@ async def private_message_handler(data: dict):
         f"收到私聊消息: {event.sender_nickname}({event.user_id}) 的消息: {event.raw_message} [{event.message_id}]")
     async with asyncio.TaskGroup() as tg:
         tg.create_task(plugin.match_command(event))
-        tg.create_task(plugin.match_event(event))
+        tg.create_task(plugin.match_event(event, plugin.Event.PrivateMessage))
