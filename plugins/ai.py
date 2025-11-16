@@ -29,7 +29,7 @@ SYSTEM_FORMAT = """# 角色设定
 
 ## 基本信息
 - 当前群聊：{group_name}
-- 你的QQ号：{self_id}
+- 你的QQ号: {self_id}
 - 消息格式说明：
   - 用户名 (QQ号) [消息ID]: 消息内容
 

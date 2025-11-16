@@ -12,6 +12,7 @@ from collections import deque
 # from dataclasses import dataclass
 from openai import AsyncOpenAI
 
+
 bot = plugin.Plugin("AI")
 
 # "https://open.bigmodel.cn/api/paas/v4/"
@@ -31,7 +32,7 @@ SYSTEM_FORMAT = """# 角色设定
 
 ## 基本信息
 - 当前群聊：{group_name}
-- 你的QQ号：{self_id}
+- 你的QQ号: {self_id}
 - 消息格式说明：
   - 用户名 (QQ号) [消息ID]: 消息内容
 
@@ -85,7 +86,7 @@ def add_chat_history(group_id, message: str) -> deque[str]:
 
 def add_message_queue(group_id):
     if group_id not in message_queues:
-        log.info(f"添加消息队列: {group_id}")
+        log.debug(f"添加消息队列: {group_id}")
         message_queues[group_id] = asyncio.Queue()
         asyncio.create_task(handle_ai_message(group_id))
 
