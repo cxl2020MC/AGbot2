@@ -146,7 +146,7 @@ async def ai(event: GroupMessageEvent):
     await chat_with_ai()
 
 
-async def use_ai(message: tuple[str, GroupMessageEvent | dict]):
+async def use_ai(system_prompt, message: ChatHistoriesType):
     pass
 
 @bot.command("清理AI聊天记录", ["clean"])
@@ -176,3 +176,14 @@ async def handle_ai_message(group_id):
         except Exception as e:
             await utils.get_error_log_str("AI消息处理器")
 
+class AIHandler:
+    def __init__(self, group_id):
+        self.group_id = group_id
+        self.message_queue: asyncio.Queue[dict] = asyncio.Queue()
+        add_message_queue(group_id)
+
+    async def handle_message(self, message):
+        await self.message_queue.put(message)
+    
+    
+    

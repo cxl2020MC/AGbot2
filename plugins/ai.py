@@ -124,10 +124,12 @@ async def handle_ai_message(event: GroupMessageEvent):
             api_response = await api.send_message(event, data.get("message"))
             add_chat_history(
                 event.group_id, f"你 [{api_response.get("data", {}).get("message_id")}]: {data.get("message")}")
-    
+
         if response_json.get("continue"):
-            chat_history.append({"role": "assistant", "content": response_message})
-            chat_history.append({"role": "user", "content": f"你刚刚调用了api {response_json.get('action')}，返回了: {api_response} 你可以继续回复 JSON 来进行其他操作"})
+            chat_history.append(
+                {"role": "assistant", "content": response_message})
+            chat_history.append(
+                {"role": "user", "content": f"你刚刚调用了api {response_json.get('action')}，返回了: {api_response} 你可以继续回复 JSON 来进行其他操作"})
             await chat()
     await chat()
 
@@ -147,4 +149,3 @@ async def toggle_ai(event: GroupMessageEvent):
     else:
         AI_WHITE_LIST.remove(event.group_id)
         await api.send_message(event, "AI聊天已关闭")
-
