@@ -190,7 +190,7 @@ class AIHandler:
         while True:
             try:
                 message = await message_queue.get()
-                await ai(message)
+                await self.ai(message)
                 message_queue.task_done()
             except Exception as e:
                 await utils.get_error_log_str("AI消息处理器")
