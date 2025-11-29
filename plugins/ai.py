@@ -44,8 +44,6 @@ SYSTEM_FORMAT = """# 角色设定
 2. 每次只处理最后一条消息
 3. 可以使用CQ码进行回复，如 `[CQ:reply,id=消息id]` 表示回复特定消息
 
-你可以使用工具函数 `send_group_message` 来发送或回复信息
-
 如果你不需要进行任何操作，你可以返回空回复
 """
 
@@ -169,24 +167,6 @@ class AIHandler:
             if not response_message:
                 log.debug("返回数据为空")
                 return
-            # response_json = json.loads(response_message)
-            # if not response_json:
-            #     log.debug("返回数据为空")
-            #     return
-            # api_response = None
-            # if response_json.get("action") == "send_message":
-            #     data = response_json.get("data")
-            #     log.debug(f"发送消息: {data.get('message')}")
-            #     api_response = await api.send_message(event, data.get("message"))
-            #     self.add_chat_history(
-            #         f"你 [{api_response.get("data", {}).get("message_id")}]: {data.get("message")}")
-
-            # if response_json.get("continue"):
-            #     chat_history.append(
-            #         {"role": "assistant", "content": response_message})
-            #     chat_history.append(
-            #         {"role": "user", "content": f"你刚刚调用了api {response_json.get('action')}，返回了: {api_response} 你可以继续回复 JSON 来进行其他操作"})
-            #     await chat_with_ai()
         await chat_with_ai()
 
     async def handle_ai_message(self):
