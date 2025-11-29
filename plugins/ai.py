@@ -87,6 +87,7 @@ class AIHandler:
         self.group_id = group_id
         self.message_queue: asyncio.Queue[dict] = asyncio.Queue()
         self.message_histories: deque[dict] = deque(maxlen=10)
+        asyncio.create_task(self.handle_ai_message())
 
     def add_chat_history(self, message_dict: dict) -> deque[dict]:
         self.message_histories.append(message_dict)
