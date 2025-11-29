@@ -16,12 +16,12 @@ from openai import AsyncOpenAI
 
 bot = plugin.Plugin("AI")
 
-# "https://api.deepseek.com"
-# os.getenv("DS_API_KEY")
-# "deepseek-reasoner"
-BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
-API_KEY = os.getenv("ZAI_API_KEY")
-AI_MODEL = "glm-4-flash-250414" # "glm-4.5-flash"
+BASE_URL = "https://api.deepseek.com"
+API_KEY = os.getenv("DS_API_KEY")
+AI_MODEL = "deepseek-reasoner"
+# BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
+# API_KEY = os.getenv("ZAI_API_KEY")
+# AI_MODEL = "glm-4.5-flash"
 
 client = AsyncOpenAI(
     api_key=API_KEY,
