@@ -85,7 +85,7 @@ async def toggle_ai(event: GroupMessageEvent):
 class AIHandler:
     def __init__(self, group_id):
         self.group_id = group_id
-        self.message_queue: asyncio.Queue[dict] = asyncio.Queue()
+        self.message_queue: asyncio.Queue[GroupMessageEvent] = asyncio.Queue()
         self.message_histories: deque[dict] = deque(maxlen=10)
         asyncio.create_task(self.handle_ai_message())
 
