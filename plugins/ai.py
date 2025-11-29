@@ -44,7 +44,7 @@ SYSTEM_FORMAT = """# 角色设定
 2. 每次只处理最后一条消息
 3. 可以使用CQ码进行回复，如 `[CQ:reply,id=消息id]` 表示回复特定消息
 
-发送消息使用函数调用`send_group_message`
+你可以使用工具函数 `send_group_message` 来发送或回复信息
 
 如果你不需要进行任何操作，你可以返回空回复
 """
