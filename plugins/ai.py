@@ -144,15 +144,15 @@ class AIHandler:
 
             response_message = response.choices[0].message.content
             # 深度思考结果
-            reasoning_content = getattr(response.choices[0].message, "reasoning_content", None)
+            reasoning_content = getattr(
+                response.choices[0].message, "reasoning_content", None)
             log.debug(
                 f"AI深度思考结果: {reasoning_content} \nAI回复: {response_message}")
-            
+
             self.add_chat_history(message.to_dict())
-            
+
             if message.tool_calls:
                 for tool_call in message.tool_calls:
-                    self.add_chat_history(tool_call.to_dict())
                     if isinstance(tool_call, ChatCompletionMessageFunctionToolCall):
                         match tool_call.function.name:
                             case "send_group_message":
@@ -165,7 +165,7 @@ class AIHandler:
                                 })
                     else:
                         log.warning(f"未知的tool_call: {tool_call}")
-            
+
             if not response_message:
                 log.debug("返回数据为空")
                 return
@@ -198,3 +198,4 @@ class AIHandler:
                 message_queue.task_done()
             except Exception as e:
                 await utils.get_error_log_str("AI消息处理器")
+
