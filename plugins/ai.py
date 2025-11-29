@@ -105,32 +105,31 @@ class AIHandler:
         log.debug(f"聊天记录: {group_messages}")
         system_prompt = {'role': 'system', 'content': SYSTEM_FORMAT.format(group_name=await event.group_name, self_id=event.self_id)}
 
-        chat_history: list = [
-            system_prompt,
-            *group_messages
-        ]
+        async def chat_with_ai():
+            chat_history: list = [
+                system_prompt,
+                *group_messages
+            ]
 
-        tools: list = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "send_group_message",
-                    "description": "向当前群聊发送消息",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "message": {
-                                "type": "string",
-                                "description": "消息内容"
-                            }
-                        },
-                        "required": ["message"]
+            tools: list = [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "send_group_message",
+                        "description": "向当前群聊发送消息",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "消息内容"
+                                }
+                            },
+                            "required": ["message"]
+                        }
                     }
                 }
-            }
-        ]
-
-        async def chat_with_ai():
+            ]
             log.debug(f"当前消息的消息记录: {chat_history}")
             response = await client.chat.completions.create(
                 model=AI_MODEL,
