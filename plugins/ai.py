@@ -166,11 +166,20 @@ class AIHandler:
                                 })
                     else:
                         log.warning(f"未知的tool_call: {tool_call}")
+            else:
+                log.debug("没有函数调用")
+                return True
 
             if not response_message:
                 log.debug("返回数据为空")
                 return
-        await chat_with_ai()
+        
+        for i in range(5):
+            if await chat_with_ai():
+                break
+            else:
+                log.debug("重试")
+            
 
     async def handle_ai_message(self):
         message_queue = self.message_queue
