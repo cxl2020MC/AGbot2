@@ -145,7 +145,7 @@ class AIHandler:
             reasoning_content = getattr(
                 response.choices[0].message, "reasoning_content", None)
             log.debug(
-                f"AI深度思考结果: {reasoning_content} \nAI回复: {response_message}")
+                f"AI深度思考结果: {reasoning_content} \nAI回复: {response_message}\n函数调用: {message.tool_calls}")
 
             self.add_chat_history(message.to_dict())
 
