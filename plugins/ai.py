@@ -21,7 +21,7 @@ bot = plugin.Plugin("AI")
 # "deepseek-reasoner"
 BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
 API_KEY = os.getenv("ZAI_API_KEY")
-AI_MODEL = "glm-4.5-flash"
+AI_MODEL = "glm-4-flash-250414" # "glm-4.5-flash"
 
 client = AsyncOpenAI(
     api_key=API_KEY,
