@@ -177,7 +177,7 @@ class AIHandler:
             if await chat_with_ai():
                 break
             else:
-                log.debug("重试")
+                log.debug(f"任务未完成，第 {i+1} 次请求")
             
 
     async def handle_ai_message(self):
