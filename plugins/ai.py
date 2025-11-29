@@ -141,10 +141,10 @@ class AIHandler:
             )
             log.debug(response)
             message = response.choices[0].message
+
             response_message = response.choices[0].message.content
             # 深度思考结果
-
-            reasoning_content = response.choices[0].message.reasoning_content            # type: ignore
+            reasoning_content = getattr(response.choices[0].message, "reasoning_content", None)
             log.debug(
                 f"AI深度思考结果: {reasoning_content} \nAI回复: {response_message}")
 
