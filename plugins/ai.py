@@ -148,7 +148,7 @@ class AIHandler:
             log.debug(
                 f"AI深度思考结果: {reasoning_content} \nAI回复: {response_message}")
             
-
+            self.add_chat_history(message.to_dict())
             
             if message.tool_calls:
                 for tool_call in message.tool_calls:
