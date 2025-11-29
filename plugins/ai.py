@@ -57,6 +57,9 @@ group_chat: dict[int, AIHandler] = {}
 async def ai(event: GroupMessageEvent):
     if event.group_id not in ai_white_list:
         return
+    if event.self_id == event.user_id:
+        log.debug("忽略自己发送的消息")
+        return
     if event.group_id not in group_chat:
         log.debug(f"AI聊天群组对象不存在，创建AI聊天群组对象: {event.group_id}")
         group_chat[event.group_id] = AIHandler(event.group_id)
