@@ -147,10 +147,6 @@ class AIHandler:
             reasoning_content = getattr(response.choices[0].message, "reasoning_content", None)
             log.debug(
                 f"AI深度思考结果: {reasoning_content} \nAI回复: {response_message}")
-
-            if not response_message:
-                log.debug("返回数据为空")
-                return
             
             if message.tool_calls:
                 for tool_call in message.tool_calls:
@@ -166,6 +162,10 @@ class AIHandler:
                                 })
                     else:
                         log.warning(f"未知的tool_call: {tool_call}")
+            
+            if not response_message:
+                log.debug("返回数据为空")
+                return
             # response_json = json.loads(response_message)
             # if not response_json:
             #     log.debug("返回数据为空")
