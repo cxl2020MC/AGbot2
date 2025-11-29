@@ -136,6 +136,7 @@ class AIHandler:
                 messages=chat_history,
                 # response_format={"type": "json_object"},
                 tools=tools,
+                tool_choice="auto",
                 stream=False,
             )
             log.debug(response)
