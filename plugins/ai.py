@@ -131,6 +131,7 @@ class AIHandler:
                 }
             ]
             log.debug(f"当前消息的消息记录: {chat_history}")
+            log.debug(json.dumps(chat_history, ensure_ascii=False, indent=3),)
             response = await client.chat.completions.create(
                 model=AI_MODEL,
                 messages=chat_history,
