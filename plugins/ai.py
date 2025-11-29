@@ -11,7 +11,7 @@ import asyncio
 from collections import deque
 # from dataclasses import dataclass
 from openai import AsyncOpenAI
-# from openai.types.chat import chat_completion_tool_union_param
+from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall
 
 
 bot = plugin.Plugin("AI")
@@ -154,18 +154,18 @@ class AIHandler:
             
             if message.tool_calls:
                 for tool_call in message.tool_calls:
-
-                    if tool_call.function.name == "get_weather":
-                        # 解析参数并调用函数
-                        args = json.loads(tool_call.function.arguments)
-                        weather_result = get_weather(args.get("city"))
-                        
-                        # 将函数结果返回给模型
-                        self.add_chat_history({
-                            "role": "tool",
-                            "content": json.dumps(weather_result, ensure_ascii=False),
-                            "tool_call_id": tool_call.id
-                        })
+                    if isinstance(tool_call, ChatCompletionMessageFunctionToolCall):
+                        match tool_call.function.name:
+                            case "send_group_message":
+                                args = json.loads(tool_call.function.arguments)
+                                result = await api.send_message(event, args.get("message"))
+                                self.add_chat_history({
+                                    "role": "tool",
+                                    "content": json.dumps(result, ensure_ascii=False),
+                                    "tool_call_id": tool_call.id
+                                })
+                    else:
+                        log.warning(f"未知的tool_call: {tool_call}")
             # response_json = json.loads(response_message)
             # if not response_json:
             #     log.debug("返回数据为空")
