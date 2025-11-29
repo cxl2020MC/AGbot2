@@ -167,7 +167,7 @@ class AIHandler:
                     else:
                         log.warning(f"未知的tool_call: {tool_call}")
             else:
-                log.debug("没有函数调用")
+                log.debug("没有函数调用，任务完成")
                 return True
 
             if not response_message:
