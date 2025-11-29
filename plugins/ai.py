@@ -28,7 +28,7 @@ client = AsyncOpenAI(
     base_url=BASE_URL
 )
 
-ai_white_list = [1035082529, 860769764]
+ai_white_list = [1035082529, 860769764, 1053371582]
 
 SYSTEM_FORMAT = """# 角色设定
 你是早喵，是一只可爱猫娘，你的主人/开发者是: 陈鑫磊 (1176503930) ，你的主要任务是与群友愉快地聊天。
