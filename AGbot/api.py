@@ -5,11 +5,12 @@ import aiohttp
 GROUP_INFO_CACHE = {}
 
 
-async def post_api(action, post_data) -> dict:
+async def post_api(action: str, post_data: dict) -> dict:
     async with aiohttp.ClientSession() as session:
         headers = {}
         if config.ONEBOT_API_TOKEN:
-            headers.update({"Authorization": f"Bearer {config.ONEBOT_API_TOKEN}"})
+            headers.update(
+                {"Authorization": f"Bearer {config.ONEBOT_API_TOKEN}"})
         async with await session.post(f"{config.ONEBOT_API_URL}/{action}", headers=headers, json=post_data) as res:
             data = await res.json()
             log.debug(f"API {action} 返回: {data}")
@@ -20,7 +21,7 @@ async def post_api(action, post_data) -> dict:
                 raise Exception(f"API {action} 返回错误 {data}")
 
 
-async def get_group_info(group_id):
+async def get_group_info(group_id: int):
     """
     获取群信息
     """
@@ -43,11 +44,11 @@ async def clear_group_info_cache():
     GROUP_INFO_CACHE.clear()
 
 
-async def get_group_name(group_id) -> str | None:
+async def get_group_name(group_id: int) -> str | None:
     return (await get_group_info(group_id)).get("group_name")
 
 
-async def send_group_message(group_id, message) -> dict:
+async def send_group_message(group_id: int, message) -> dict:
     post_data = {
         "group_id": group_id,
         "message": message
@@ -56,7 +57,7 @@ async def send_group_message(group_id, message) -> dict:
     return await post_api("send_group_msg", post_data)
 
 
-async def send_private_message(user_id, message) -> dict:
+async def send_private_message(user_id: int, message) -> dict:
     post_data = {
         "user_id": user_id,
         "message": message

@@ -36,13 +36,16 @@ async def get_data_path() -> Path:
     path = Path(config.DATA_DIR)
     # path.mkdir(exist_ok=True, parents=True)
     await create_folder(path)
-    
+
     return path
+
 
 async def create_folder(path):
     await aiofiles.os.makedirs(path, exist_ok=True)
     return path
-async def save_error_log(data, traceback_str):
+
+
+async def save_error_log(data: dict | None, traceback_str: str):
     time_str = str(datetime.today())
     w_data = json.dumps({
         "data": data,
@@ -61,12 +64,13 @@ async def save_error_log(data, traceback_str):
     return time_str
 
 
-async def get_error_log_str(error_type):
+def get_error_log_str(error_type):
     exc = traceback.format_exc()
     log.error(f"发生错误 {error_type} 执行出错: {exc}")
     return exc
 
-async def log_error(event: Event, error_type, error_object, * , send_message=True):
+
+async def log_error(event: Event, error_type, error_object, *, send_message=True):
     exc = traceback.format_exc()
     log.error(f"发生错误 {error_type} 执行出错: {exc}")
     try:
@@ -80,3 +84,23 @@ async def log_error(event: Event, error_type, error_object, * , send_message=Tru
 error_id: {error_id}"""
     if send_message:
         await api.send_message(event, message)
+
+
+async def log_error_v2(error_type, error_object, event: Event | None = None, *, send_message=True):
+    exc = get_error_log_str(error_type)
+    try:
+        if event:
+            event_data = event.data
+        else:
+            event_data = None
+        error_id = await save_error_log(event_data, exc)
+    except Exception as e2:
+        error_id = "错误追踪储存失败"
+        exc = traceback.format_exc()
+        log.error(f"储存错误追踪失败: {repr(e2)}\n{exc}")
+    message = f"""发生错误:
+    {error_type} 执行出错: {repr(error_object)}
+error_id: {error_id}"""
+    if send_message and event:
+        await api.send_message(event, message)
+        await api.send_private_message(config.ADMIN_QQ, message)

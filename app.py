@@ -1,7 +1,8 @@
 from AGbot import client, config, plugin
 from plugins import command, help, about, status, mc, test, img, error_corn, statistics, ai
 
-config.ADMIN_QQ = [1176503930, 2130812665]
+config.ADMIN_QQ = 1176503930
+config.ADMIN_QQ_LIST = [1176503930, 2130812665]
 config.BOT_QQ = 1176503930
 
 config.PLAYWRIGHT_CHROMIUM_ENDPOINT = "ws://localhost:3456/cxl2020mc"

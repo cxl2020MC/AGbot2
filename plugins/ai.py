@@ -190,5 +190,6 @@ class AIHandler:
                 await self.ai(message)
                 message_queue.task_done()
             except Exception as e:
-                await utils.get_error_log_str("AI消息处理器")
+                # utils.get_error_log_str("AI消息处理器")
+                await utils.log_error_v2("AI消息处理器", e)
 
