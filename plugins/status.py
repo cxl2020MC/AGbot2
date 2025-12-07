@@ -87,5 +87,5 @@ async def status_command(event: MessageEvent):
 
 @bot.command("pstree", ["pstree"])
 async def pstree_command(event: MessageEvent):
-    pstree_output = subprocess.check_output(f"python -m asyncio pstree {os.getpid()}").decode()
+    pstree_output = subprocess.check_output(f"python -m asyncio pstree {os.getpid()}", shell=True).decode()
     await api.send_message(event, pstree_output)
