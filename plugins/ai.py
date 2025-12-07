@@ -16,13 +16,13 @@ from openai.types.chat.chat_completion_message_function_tool_call import ChatCom
 
 bot = plugin.Plugin("AI")
 
-# BASE_URL = "https://api.deepseek.com"
-# API_KEY = os.getenv("DS_API_KEY")
-# AI_MODEL = "deepseek-reasoner"
-BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
-API_KEY = os.getenv("ZAI_API_KEY")
-# AI_MODEL = "glm-4.5-flash"
-AI_MODEL = "glm-4.6"
+BASE_URL = "https://api.deepseek.com"
+API_KEY = os.getenv("DS_API_KEY")
+AI_MODEL = "deepseek-reasoner"
+# BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
+# API_KEY = os.getenv("ZAI_API_KEY")
+# # AI_MODEL = "glm-4.5-flash"
+# AI_MODEL = "glm-4.6"
 
 client = AsyncOpenAI(
     api_key=API_KEY,
