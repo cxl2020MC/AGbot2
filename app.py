@@ -1,4 +1,4 @@
-from AGbot import client, config, plugin
+from AGbot import client, config, plugin, corn_job
 from plugins import command, help, about, status, mc, test, img, error_corn, statistics, ai
 
 config.ADMIN_QQ = 1176503930
@@ -20,4 +20,6 @@ plugin.load_plugin(img.bot)
 plugin.load_plugin(error_corn.bot)
 plugin.load_plugin(statistics.bot)
 
+
+corn_job.background_run()
 client.run()
