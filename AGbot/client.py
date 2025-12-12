@@ -7,7 +7,7 @@ from . import config
 
 async def main(request):
     data = await request.json()
-    log.debug(f"收到json消息: {data}")
+    log.debug(f"收到 JSON 事件数据: {data}")
     await handler.main(data)
 
     return web.json_response({"status": "OK"})
