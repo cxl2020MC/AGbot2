@@ -15,4 +15,5 @@ dependencies = [
     "playwright",
     "psutil",
     "pydantic",
+    "schedule",
 ]
