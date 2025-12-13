@@ -103,6 +103,10 @@ async def main():
 
 
 
+def auto_main():
+
+    asyncio.run(main())
+
 
 bot = plugin.Plugin("Test")
 
@@ -110,3 +114,8 @@ bot = plugin.Plugin("Test")
 @bot.command("手动触发米游社签到", ["米游社签到"])
 async def qd(event: plugin.MessageEvent):
     await main()
+
+
+import schedule
+
+schedule.every().day.at("12:38").do(auto_main)
