@@ -108,7 +108,7 @@ def schedule_main():
     asyncio.run(main())
 
 
-bot = plugin.Plugin("Test")
+bot = plugin.Plugin("米游社自动签到")
 
 
 @bot.command("手动触发米游社签到", ["米游社签到"])
