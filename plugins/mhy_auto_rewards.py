@@ -84,7 +84,7 @@ async def main():
                     reward_item = await client.claim_daily_reward(game=client.game)
                     log.success(
                         f"领取成功: {reward_item.name}x{reward_item.amount}")
-                    msg = f"""[cq:at,id={config.user}] 签到提醒：
+                    msg = f"""[CQ:at,qq={config.user}] 签到提醒：
 当前签到区域: {reward.region}
 当前签到游戏: {game}
 签到成功: {reward_item.name}x{reward_item.amount}
@@ -92,14 +92,14 @@ async def main():
 """
                 except genshin.AlreadyClaimed:
                     log.warning("每日奖励已领取")
-                    msg = f"""[cq:at,id={config.user}] 签到提醒：
+                    msg = f"""[CQ:at,qq={config.user}] 签到提醒：
 当前签到区域: {reward.region}
 当前签到游戏: {game}
 你今日已经签到过了
 累计签到天数: {claimed_rewards}
 """
                 await api.send_group_message(config.group, msg)
-                await asyncio.sleep(random.uniform(1, 5))
+                await asyncio.sleep(random.uniform(3, 8))
 
 
 
