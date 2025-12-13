@@ -118,4 +118,4 @@ async def qd(event: plugin.MessageEvent):
 
 import schedule
 
-schedule.every().day.at("12:38").do(auto_main)
+schedule.every().day.at("07:30").do(auto_main)
