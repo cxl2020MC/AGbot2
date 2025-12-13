@@ -103,7 +103,7 @@ async def main():
 
 
 
-def auto_main():
+def schedule_main():
 
     asyncio.run(main())
 
@@ -118,4 +118,4 @@ async def qd(event: plugin.MessageEvent):
 
 import schedule
 
-schedule.every().day.at("07:30").do(auto_main)
+schedule.every().day.at("07:30").do(schedule_main)
