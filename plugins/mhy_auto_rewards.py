@@ -6,6 +6,7 @@ import json
 from AGbot import utils, api, plugin
 from AGbot.log import logger as log
 import genshin
+import schedule
 from pydantic import BaseModel
 from typing import Literal
 
@@ -28,20 +29,17 @@ class Reward(BaseModel):
 
 async def load_config():
     """加载 rewards.json 配置文件"""
-    try:
-        config_path = await utils.get_data_path() / "rewards.json"
-        async with aiofiles.open(config_path, "r") as f:
-            data = json.loads(await f.read())
-            return [Config.model_validate(i) for i in data]
-    except Exception as e:
-        log.error(f"加载配置文件失败: {e}")
-        return []
+    config_path = await utils.get_data_path() / "rewards.json"
+    async with aiofiles.open(config_path, "r") as f:
+        data = json.loads(await f.read())
+        return [Config.model_validate(i) for i in data]
 
 
 async def handle_error(e):
     """处理错误"""
     msg = f"""签到失败: {repr(e)}
 {traceback.format_exc()}"""
+    await api.send_group_message(1053371582, msg)
 
 
 def set_client_region(client: genshin.Client, region: Region):
@@ -68,7 +66,8 @@ async def main():
     log.debug(f"签到配置: {configs}")
 
     for config in configs:
-        log.debug(f"签到用户: {config.user}")
+        log.debug(f"签到用户: {config.user} | 签到群: {config.group}")
+        await api.send_group_message(config.group, f"[CQ:at,qq={config.user}] 签到提醒：开始执行米游社自动签到")
         for reward in config.rewards:
             log.debug(f"开始签到: {reward.region}")
             for game in reward.games:
@@ -79,32 +78,23 @@ async def main():
 
                 signed_in, claimed_rewards = await client.get_reward_info()
                 log.debug(f"签到状态: {signed_in} | 累计签到天数: {claimed_rewards}")
+                msg = f"""当前签到目标: {reward.region} | {game}
+累计签到天数: {claimed_rewards}"""
 
                 try:
                     reward_item = await client.claim_daily_reward(game=client.game)
                     log.success(
                         f"领取成功: {reward_item.name}x{reward_item.amount}")
-                    msg = f"""[CQ:at,qq={config.user}] 签到提醒：
-当前签到区域: {reward.region}
-当前签到游戏: {game}
-签到成功: {reward_item.name}x{reward_item.amount}
-累计签到天数: {claimed_rewards}
-"""
+                    msg += f"""签到成功: {reward_item.name}x{reward_item.amount}"""
                 except genshin.AlreadyClaimed:
                     log.warning("每日奖励已领取")
-                    msg = f"""[CQ:at,qq={config.user}] 签到提醒：
-当前签到区域: {reward.region}
-当前签到游戏: {game}
-你今日已经签到过了
-累计签到天数: {claimed_rewards}
-"""
+                    msg += f"""你今日已经签到过了"""
                 await api.send_group_message(config.group, msg)
                 await asyncio.sleep(random.uniform(3, 8))
 
 
-
 def schedule_main():
-
+    log.info("开始执行米游社自动签到")
     asyncio.run(main())
 
 
@@ -115,7 +105,5 @@ bot = plugin.Plugin("米游社自动签到")
 async def qd(event: plugin.MessageEvent):
     await main()
 
-
-import schedule
 
 schedule.every().day.at("07:30").do(schedule_main)
