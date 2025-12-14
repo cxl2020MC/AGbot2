@@ -35,11 +35,11 @@ async def load_config():
         return [Config.model_validate(i) for i in data]
 
 
-async def handle_error(e):
+async def handle_error(e, group_id: int = 1053371582):
     """处理错误"""
     msg = f"""签到失败: {repr(e)}
 {traceback.format_exc()}"""
-    await api.send_group_message(1053371582, msg)
+    await api.send_group_message(group_id, msg)
 
 
 def set_client_region(client: genshin.Client, region: Region):
@@ -60,6 +60,33 @@ def set_client_game(client: genshin.Client, game: Game):
     log.debug(f"已设置游戏: {game} -> {client.game}")
 
 
+async def sign_in(client: genshin.Client, config: Config, reward: Reward):
+    """签到"""
+    log.debug(f"开始签到: {reward.region}")
+    for game in reward.games:
+        log.debug(f"开始签到游戏: {game}")
+        set_client_region(client, reward.region)
+        set_client_game(client, game)
+        client.set_cookies(reward.cookie)
+
+        signed_in, claimed_rewards = await client.get_reward_info()
+        log.debug(f"签到状态: {signed_in} | 累计签到天数: {claimed_rewards}")
+        msg = f"""当前签到目标: {reward.region} | {game}
+累计签到天数: {claimed_rewards}
+"""
+
+        try:
+            reward_item = await client.claim_daily_reward(game=client.game)
+            log.success(
+                f"领取成功: {reward_item.name}x{reward_item.amount}")
+            msg += f"""签到成功: {reward_item.name}x{reward_item.amount}"""
+        except genshin.AlreadyClaimed:
+            log.warning("每日奖励已领取")
+            msg += f"""你今日已经签到过了"""
+        await api.send_group_message(config.group, msg)
+        await asyncio.sleep(random.uniform(3, 8))
+
+
 async def main():
     client = genshin.Client(lang="zh-cn")
     configs = await load_config()
@@ -69,33 +96,24 @@ async def main():
         log.debug(f"签到用户: {config.user} | 签到群: {config.group}")
         await api.send_group_message(config.group, f"[CQ:at,qq={config.user}] 签到提醒：开始执行米游社自动签到")
         for reward in config.rewards:
-            log.debug(f"开始签到: {reward.region}")
-            for game in reward.games:
-                log.debug(f"开始签到游戏: {game}")
-                set_client_region(client, reward.region)
-                set_client_game(client, game)
-                client.set_cookies(reward.cookie)
+            try:
+                await sign_in(client, config, reward)
+            except Exception as e:
+                await handle_error(e, config.group)
 
-                signed_in, claimed_rewards = await client.get_reward_info()
-                log.debug(f"签到状态: {signed_in} | 累计签到天数: {claimed_rewards}")
-                msg = f"""当前签到目标: {reward.region} | {game}
-累计签到天数: {claimed_rewards}"""
 
-                try:
-                    reward_item = await client.claim_daily_reward(game=client.game)
-                    log.success(
-                        f"领取成功: {reward_item.name}x{reward_item.amount}")
-                    msg += f"""签到成功: {reward_item.name}x{reward_item.amount}"""
-                except genshin.AlreadyClaimed:
-                    log.warning("每日奖励已领取")
-                    msg += f"""你今日已经签到过了"""
-                await api.send_group_message(config.group, msg)
-                await asyncio.sleep(random.uniform(3, 8))
+async def auto_sign_in():
+    """自动签到"""
+    await asyncio.sleep(random.uniform(0, 300))
+    try:
+        await main()
+    except Exception as e:
+        await handle_error(e)
 
 
 def schedule_main():
     log.info("开始执行米游社自动签到")
-    asyncio.run(main())
+    asyncio.run(auto_sign_in())
 
 
 bot = plugin.Plugin("米游社自动签到")
