@@ -3,11 +3,11 @@ name = "agbot2"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "aiofiles",
     "aiohttp",
-    "genshin>=1.7.21",
+    "genshin",
     "jinja2",
     "loguru",
     "mcstatus",
