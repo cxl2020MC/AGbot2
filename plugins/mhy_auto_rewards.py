@@ -80,7 +80,7 @@ async def sign_in(client: genshin.Client, config: Config, reward: Reward):
             msg += f"签到成功: {reward_item.name}x{reward_item.amount}"
         except genshin.AlreadyClaimed:
             log.warning("每日奖励已领取")
-            msg += f"""你今日已经签到过了"""
+            msg += f"你今日已经签到过了"
         await api.send_group_message(config.group, msg)
         await asyncio.sleep(random.uniform(3, 8))
 
