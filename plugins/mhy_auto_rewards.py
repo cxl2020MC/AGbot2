@@ -68,17 +68,16 @@ async def sign_in(client: genshin.Client, config: Config, reward: Reward):
         set_client_region(client, reward.region)
         set_client_game(client, game)
         client.set_cookies(reward.cookie)
+        msg = f"当前签到目标: {reward.region} | {game}\n"
         try:
             signed_in, claimed_rewards = await client.get_reward_info()
             log.debug(f"签到状态: {signed_in} | 累计签到天数: {claimed_rewards}")
-            msg = f"""当前签到目标: {reward.region} | {game}
-累计签到天数: {claimed_rewards}
-"""
+            msg += f"累计签到天数: {claimed_rewards}\n"
 
             reward_item = await client.claim_daily_reward(game=client.game)
             log.success(
                 f"领取成功: {reward_item.name}x{reward_item.amount}")
-            msg += f"""签到成功: {reward_item.name}x{reward_item.amount}"""
+            msg += f"签到成功: {reward_item.name}x{reward_item.amount}"
         except genshin.AlreadyClaimed:
             log.warning("每日奖励已领取")
             msg += f"""你今日已经签到过了"""
