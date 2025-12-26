@@ -122,4 +122,4 @@ async def qd(event: plugin.MessageEvent):
     await main()
 
 
-schedule.every().day.at("07:30").do(schedule_main)
+schedule.every().day.at("10:00").do(schedule_main)
