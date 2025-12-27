@@ -1,5 +1,5 @@
 from openai import timeout
-from playwright.async_api import async_playwright   # , Playwright
+from playwright.async_api import async_playwright, Page # , Playwright
 import base64
 from . import config
 from .log import logger as log
@@ -40,7 +40,7 @@ async def main(func):
 
 
 async def screenshot(url, full_page=True, timeout_ms=30000, no_wait=False):
-    async def func(page):
+    async def func(page: Page):
         log.info(f"开始截图: {url}")
         await page.goto(url)
         # log.debug("设置页面大小")
