@@ -1,8 +1,8 @@
-import aiofiles
-import aiofiles.os
+# import aiofiles
 import asyncio
 import traceback
 import functools
+import anyio
 # from pathlib import Path
 from anyio import Path
 from datetime import datetime
@@ -60,7 +60,7 @@ async def save_error_log(data: dict | None, traceback_str: str):
     await create_folder(path)
     path = path / f"{time_str}.json"
     # path.touch()
-    async with aiofiles.open(path, "w", encoding="utf-8") as f:
+    async with await anyio.open_file(path, "w", encoding="utf-8") as f:
         await f.write(w_data)
     log.info(f"错误追踪已储存至 {path}")
     return time_str
