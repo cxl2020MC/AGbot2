@@ -3,7 +3,8 @@ import aiofiles.os
 import asyncio
 import traceback
 import functools
-from pathlib import Path
+# from pathlib import Path
+from anyio import Path
 from datetime import datetime
 import json
 
@@ -40,8 +41,9 @@ async def get_data_path() -> Path:
     return path
 
 
-async def create_folder(path):
-    await aiofiles.os.makedirs(path, exist_ok=True)
+async def create_folder(path: Path):
+    # await aiofiles.os.makedirs(path, exist_ok=True)
+    await path.mkdir(exist_ok=True, parents=True)
     return path
 
 

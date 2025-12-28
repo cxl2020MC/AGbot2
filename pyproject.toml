@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 dependencies = [
     "aiofiles",
     "aiohttp",
+    "anyio",
     "genshin",
     "jinja2",
     "loguru",
