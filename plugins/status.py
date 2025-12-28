@@ -7,8 +7,7 @@ from AGbot.types.message_event import MessageEvent
 import psutil
 import sys
 import platform
-import os
-import subprocess
+import asyncio
 from datetime import datetime
 
 bot = plugin.Plugin("状态")
@@ -87,5 +86,5 @@ async def status_command(event: MessageEvent):
 
 @bot.command("pstree", ["pstree"])
 async def pstree_command(event: MessageEvent):
-    pstree_output = subprocess.check_output(f"python -m asyncio pstree {os.getpid()}", shell=True).decode()
+    pstree_output = asyncio.format_call_graph()
     await api.send_message(event, pstree_output)
