@@ -8,11 +8,19 @@ from AGbot.log import logger as log
 import genshin
 import schedule
 from pydantic import BaseModel
-from typing import Literal
+# from typing import Literal
+from enum import StrEnum
 
 
-type Game = Literal["ys", "sr", "zzz"]
-type Region = Literal["cn", "os"]
+class Game(StrEnum):
+    YS = "ys"
+    SR = "sr"
+    ZZZ = "zzz"
+
+
+class Region(StrEnum):
+    CN = "cn"
+    OS = "os"
 
 
 class Config(BaseModel):
@@ -44,7 +52,8 @@ async def handle_error(e, group_id: int = 1053371582):
 
 def set_client_region(client: genshin.Client, region: Region):
     """设置客户端区域"""
-    region_map = {"cn": genshin.Region.CHINESE, "os": genshin.Region.OVERSEAS}
+    region_map = {Region.CN: genshin.Region.CHINESE,
+                  Region.OS: genshin.Region.OVERSEAS}
     client.region = region_map[region]
     log.debug(f"已设置区域: {region} -> {client.region}")
 
@@ -52,9 +61,9 @@ def set_client_region(client: genshin.Client, region: Region):
 def set_client_game(client: genshin.Client, game: Game):
     """设置客户端游戏"""
     game_map = {
-        "ys": genshin.Game.GENSHIN,
-        "sr": genshin.Game.STARRAIL,
-        "zzz": genshin.Game.ZZZ
+        Game.YS: genshin.Game.GENSHIN,
+        Game.SR: genshin.Game.STARRAIL,
+        Game.ZZZ: genshin.Game.ZZZ
     }
     client.game = game_map[game]
     log.debug(f"已设置游戏: {game} -> {client.game}")
