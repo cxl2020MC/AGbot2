@@ -16,9 +16,6 @@ class LaucherArea(Enum):
     GLOBAL = 2
 
 
-type LaucherAreaLiteral = Literal[LaucherArea.CN, LaucherArea.GLOBAL]
-
-
 class Launcher(Enum):
     CN = 1
     GLOBAL = 2
@@ -27,13 +24,9 @@ class Launcher(Enum):
     BILIBILIZZZ = 5
 
 
-type LauncherLiteral = Literal[Launcher.CN, Launcher.GLOBAL,
-                               Launcher.BILIBILIYS, Launcher.BILIBILISR, Launcher.BILIBILIZZZ]
-
-
 # https://github.com/Scighost/Starward/blob/main/src/Starward.Core/HoYoPlay/HoYoPlayClient.cs
 class HYPLauncher:
-    def __init__(self, area: LaucherAreaLiteral, launcher: LauncherLiteral, language: str = "zh-cn"):
+    def __init__(self, area: LaucherArea, launcher: Launcher, language: str = "zh-cn"):
         self.area = area
         self.launcher = launcher
         self.api_base = self._get_hyp_api_base(area)
@@ -44,7 +37,7 @@ class HYPLauncher:
         self.language = language
 
     @staticmethod
-    def _get_launcher_id(laucher: LauncherLiteral) -> str:
+    def _get_launcher_id(laucher: Launcher) -> str:
         match laucher:
             case Launcher.CN:
                 return "jGHBHlcOq1"
@@ -60,7 +53,7 @@ class HYPLauncher:
                 raise Exception("不支持的启动器")
 
     @staticmethod
-    def _get_hyp_api_base(area: LaucherAreaLiteral) -> str:
+    def _get_hyp_api_base(area: LaucherArea) -> str:
         match area:
             case LaucherArea.CN:
                 return "hyp-api.mihoyo.com"
@@ -70,7 +63,7 @@ class HYPLauncher:
                 raise Exception("不支持的启动器")
 
     @staticmethod
-    def _get_game_chunk_api_base(area: LaucherAreaLiteral) -> str:
+    def _get_game_chunk_api_base(area: LaucherArea) -> str:
         match area:
             case LaucherArea.CN:
                 return "downloader-api.mihoyo.com"
@@ -159,6 +152,45 @@ class HYPLauncher:
         data = await self.fetch_hyp_api("getGameBranches", params)
         return data
 
+    async def get_game_deprecated_file_configs(self, game_ids: list[str] | None = None):
+        if game_ids is None:
+            params = {}
+        else:
+            params: dict = {
+                "game_ids[]": game_ids
+            }
+        if self.launcher in [Launcher.BILIBILISR, Launcher.BILIBILIYS, Launcher.BILIBILIZZZ]:
+            params.update({
+                "channel": 14,
+                "sub_channel": 0
+            })
+        else:
+            params.update({
+                "channel": 1,
+                "sub_channel": 1
+            })
+        data = await self.fetch_hyp_api("getGameDeprecatedFileConfigs", params)
+        return data
+
+    async def get_game_configs(self, game_ids: list[str] | None = None):
+        if game_ids is None:
+            params = None
+        else:
+            params = {
+                "game_ids[]": game_ids
+            }
+        data = await self.fetch_hyp_api("getGameConfigs", params)
+        return data
+
+    async def get_game_scan_info(self, game_ids: str):
+        if game_ids is None:
+            params = None
+        else:
+            params = {
+                "game_ids[]": game_ids
+            }
+        data = await self.fetch_hyp_api("getGameScanInfo", params)
+
     async def fetch_hyp_chunk_api(self, path: str, params: dict | None = None):
         api_url = self.hyp_game_chunk_api_url / path
         async with aiohttp.ClientSession() as session:
@@ -170,11 +202,11 @@ class HYPLauncher:
                 if res.get("retcode") != 0:
                     raise Exception(f"API 请求错误: {res}")
                 return res.get("data")
-        
+
     async def post_hyp_chunk_api(self, path: str, params: dict | None = None):
         api_url = self.hyp_game_chunk_api_url / path
         async with aiohttp.ClientSession() as session:
-            async with session.get(api_url, params=params) as response:
+            async with session.post(api_url, params=params) as response:
                 log.debug(f"编码 URL: {response.url}")
                 response.raise_for_status()
                 res = await response.json()
@@ -183,7 +215,7 @@ class HYPLauncher:
                     raise Exception(f"API 请求错误: {res}")
                 return res.get("data")
 
-    async def get_game_chunk_bulid(self, branch: str, package_id: str, password: str, tag: str | None = None):
+    async def get_game_chunk_build(self, branch: str, package_id: str, password: str, tag: str | None = None):
         params = {
             "branch": branch,
             "package_id": package_id,
@@ -224,96 +256,11 @@ HYP_API_DATA = {
 }
 
 
-# https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGameContent?launcher_id=jGHBHlcOq1&game_id=1Z8W5NHUQb&language=zh-cn
-async def 获取游戏内容(laucher, game: str, language: str = "zh-cn") -> dict:
-    url = get_hyp_api_url(laucher, "getGameContent")
-    params = get_hyp_api_params(laucher, language)
-    params["game_id"] = await get_game_id(laucher, game)
-    resp = await client.get(url, params=params)
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取全部游戏(laucher, language="zh-cn"):
-    url = get_hyp_api_url(laucher, "getGames")
-    resp = await client.get(url, params=get_hyp_api_params(laucher, language))
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取全部游戏基本信息(laucher, language="zh-cn") -> dict:
-    url = get_hyp_api_url(laucher, "getAllGameBasicInfo")
-    resp = await client.get(url, params=get_hyp_api_params(laucher, language))
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取游戏(laucher, game: str, language="zh-cn") -> dict:
-    url = get_hyp_api_url(laucher, "getGames")
-    params = get_hyp_api_params(laucher, language)
-    params["game_id"] = await get_game_id(laucher, game)
-    resp = await client.get(url, params=params)
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取游戏基本信息(laucher, game: str, language="zh-cn") -> dict:
-    url = get_hyp_api_url(laucher, "getAllGameBasicInfo")
-    params = get_hyp_api_params(laucher, language)
-    params["game_id"] = await get_game_id(laucher, game)
-    resp = await client.get(url, params=params)
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取全部游戏安装包信息(laucher, language="zh-cn") -> dict:
-    url = get_hyp_api_url(laucher, "getGamePackages")
-    resp = await client.get(url, params=get_hyp_api_params(laucher, language))
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取游戏安装包信息(laucher, game: str, language="zh-cn") -> dict | None:
-    ret_data = await 获取全部游戏安装包信息(laucher, language)
-    game_id = await get_game_id(laucher, game)
-    for i in ret_data["data"]["game_packages"]:
-        if i["game"]["id"] == game_id:
-            return i
-
-
-async def 获取多个游戏安装包信息(laucher, game_ids: list[str], language="zh-cn") -> dict:
-    url = get_hyp_api_url(laucher, "getGamePackages")
-    params = get_hyp_api_params(laucher, language)
-    params["game_ids"] = game_ids
-    resp = await client.get(url, params=params)
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取游戏依赖(laucher, game: str, language="zh-cn") -> dict:
-    url = get_hyp_api_url(
-        laucher, "getGameDeprecatedFileConfigs")
-    params = get_hyp_api_params(laucher, language)
-    params["game_id"] = game
-    resp = await client.get(url, params=params)
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
-async def 获取游戏配置(laucher, game: str, language="zh-cn") -> dict:
-    url = get_hyp_api_url(laucher, "getGameConfigs")
-    params = get_hyp_api_params(laucher, language)
-    params["game_id"] = game
-    resp = await client.get(url, params=params)
-    log.debug(f"发送请求: {resp.url} 请求结果: {resp.text}")
-    return resp.json()
-
-
 if __name__ == "__main__":
     launcher = HYPLauncher(LaucherArea.CN, Launcher.CN)
     data = asyncio.run(launcher.get_games_basic_info("1Z8W5NHUQb"))
     data = asyncio.run(launcher.get_game_packages())
     data = asyncio.run(launcher.get_game_branches(["1Z8W5NHUQb"]))
-    data = asyncio.run(launcher.get_game_chunk_bulid(
+    data = asyncio.run(launcher.get_game_chunk_build(
         "main", "FfGDa3bsvp", "FJCF1CT6Z4nz"))
     print(data)
