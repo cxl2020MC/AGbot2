@@ -1,5 +1,5 @@
 from AGbot import client, config, plugin, corn_job
-from plugins import command, help, about, status, mc, test, img, error_corn, statistics, ai, mhy_auto_rewards
+from plugins import command, help, about, status, mc, test, img, error_corn, statistics, ai, mhy_auto_rewards, push
 
 config.ADMIN_QQ = 1176503930
 config.ADMIN_QQ_LIST = [1176503930, 2130812665]
