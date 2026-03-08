@@ -21,6 +21,7 @@ plugin.load_plugin(error_corn.bot)
 plugin.load_plugin(statistics.bot)
 plugin.load_plugin(mhy_auto_rewards.bot)
 
+push.setup()
 
 corn_job.background_run()
 client.run()

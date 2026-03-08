@@ -17,3 +17,7 @@ async def push(request: client.web.Request):
     else:
         log.warning("push token 验证失败")
         return client.web.json_response({"status": "Error"})
+
+def setup():
+    log.info("正在设置 push 插件...")
+    client.app.add_routes(routes)
