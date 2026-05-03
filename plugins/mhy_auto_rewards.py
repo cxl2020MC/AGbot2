@@ -90,7 +90,7 @@ async def sign_in(client: genshin.Client, config: Config, reward: Reward):
         except genshin.AlreadyClaimed:
             log.warning("每日奖励已领取")
             msg += f"你今日已经签到过了"
-        await api.send_group_message(config.group, msg)
+        await push_message(config.group, msg)
         await asyncio.sleep(random.uniform(3, 8))
 
 
@@ -101,13 +101,22 @@ async def main():
 
     for config in configs:
         log.debug(f"签到用户: {config.user} | 签到群: {config.group}")
-        await api.send_group_message(config.group, f"[CQ:at,qq={config.user}] 签到提醒：开始执行米游社自动签到")
+        await push_message(config.group, f"[CQ:at,qq={config.user}] 签到提醒：开始执行米游社自动签到")
         for reward in config.rewards:
             try:
                 await sign_in(client, config, reward)
             except Exception as e:
                 await handle_error(e, config.group)
 
+async def push_message(group_id: int, message: str):
+    """推送消息给用户"""
+    try:
+        await api.send_group_message(group_id, message)
+    except Exception as e:
+        try:
+            await handle_error(e)
+        except Exception as e:
+            log.error(f"推送错误消息失败: {repr(e)}")
 
 async def auto_sign_in():
     """自动签到"""

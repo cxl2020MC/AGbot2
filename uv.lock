@@ -238,16 +238,16 @@ wheels = [
 
 [[package]]
 name = "genshin"
-version = "1.7.25"
+version = "1.7.26"
 source = { registry = "https://mirrors.ustc.edu.cn/pypi/web/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "pydantic" },
     { name = "tenacity" },
 ]
-sdist = { url = "https://mirrors.ustc.edu.cn/pypi/packages/59/6c/a73f0ac09ac0732c8127beea511ed6ed04f0adb01da9888355cd522c28f3/genshin-1.7.25.tar.gz", hash = "sha256:d7dd40917a4dff5b2b62c2ec91966e2d270c221174fa74731fb33517cb5b4fa7", size = 128535, upload-time = "2026-04-01T03:33:40.759Z" }
+sdist = { url = "https://mirrors.ustc.edu.cn/pypi/packages/35/20/8ac5d88aefeba0bc16162281a348ff772e3b6338951e0ae44c386e94bbcc/genshin-1.7.26.tar.gz", hash = "sha256:1e3daaa4ca24ca85302fad6d9b81a3d3c166ec335345eec49ef804147f000490", size = 128946, upload-time = "2026-05-01T04:05:57.79Z" }
 wheels = [
-    { url = "https://mirrors.ustc.edu.cn/pypi/packages/f6/2d/73a0f94b0881cfd3c7e787e5c8fea54e45342ac1deb850cf5fcff87d22e3/genshin-1.7.25-py3-none-any.whl", hash = "sha256:de82ae1ffc2cf6af5427888dffbf99f82f4799e539afb56c92913e2f4f1fb766", size = 183347, upload-time = "2026-04-01T03:33:39.387Z" },
+    { url = "https://mirrors.ustc.edu.cn/pypi/packages/2e/2e/5c021a720e336292655a5cdc3685eb50806e98a9e20c2ed11ffa0c45ba40/genshin-1.7.26-py3-none-any.whl", hash = "sha256:953bda641d3b7e801fb527d99ce9237dab71af60c45c134bdcf8cc139bb5bea4", size = 183695, upload-time = "2026-05-01T04:05:55.945Z" },
 ]
 
 [[package]]
