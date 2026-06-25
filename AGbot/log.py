@@ -6,7 +6,7 @@ logger.remove()
 
 log_format = "{time:YYYY-MM-DD HH:mm:ss} | <lvl>{level:^8}</lvl> | {message} | {name}:{function}:{line}"
 
-logger.add(sys.stdout, colorize=True, format=log_format, level="DEBUG")
+logger.add(sys.stdout, colorize=True, format=log_format, level="DEBUG", enqueue=True)
 logger.add("logs/debug.log", rotation="10MB", retention="30 days", level="DEBUG", format=log_format, enqueue=True)
 logger.add("logs/info.log", rotation="10MB", retention="30 days", level="INFO", format=log_format, enqueue=True)
 logger.add("logs/error.log", rotation="10MB", retention="30 days", level="ERROR", format=log_format, enqueue=True)
