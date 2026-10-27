@@ -1,21 +1,13 @@
 [project]
-name = "agbot2"
+name = "ag-bot3"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "aiofiles",
-    "aiohttp",
-    "anyio",
-    "genshin",
-    "jinja2",
-    "loguru",
-    "mcstatus",
-    "openai",
-    "ping3",
-    "playwright",
-    "psutil",
-    "pydantic",
-    "schedule",
+    "aiohttp>=3.14.3",
+    "httpx2[http2,ws]>=2.12.0",
+    "loguru>=0.7.3",
+    "pydantic>=2.13.4",
+    "websockets>=16.1.1",
 ]

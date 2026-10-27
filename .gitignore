@@ -1,6 +1,16 @@
-logs/
-*.log
+# Python-generated files
 __pycache__/
-*.pyc
-.venv/
-/data/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# logs
+logs/
+
+# config
+config.toml
