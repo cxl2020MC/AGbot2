@@ -4,9 +4,11 @@ from typing import ClassVar
 import yarl
 
 from . import handle, http_client, plugin
+from .config import config
 from .log import logger as log
 from .qq_api import QQ_Api
-from .types import qq_event, ws_data
+from .types import ws_data
+from .types.qq_events import qq_event
 
 API_HOST = yarl.URL("https://api.bot.qq.com")
 
@@ -24,7 +26,7 @@ class QQ_Bot:
         self._heartbeat_task: asyncio.Task | None = None
         self._latest_s: int | None = None
 
-        self.plugin_manager = plugin.PluginManager()
+        self.plugin_manager = plugin.PluginManager(self)
 
         self.bot_list.append(self)
 
@@ -43,7 +45,7 @@ class QQ_Bot:
         log.debug(f"API 返回: {res}")
         return res
 
-    async def get_access_token(self, app_id, client_secret):
+    async def get_access_token(self, app_id: str, client_secret: str):
         log.info("获取 access_token")
         data = {
             "appId": app_id,
@@ -54,6 +56,7 @@ class QQ_Bot:
         self.access_token_expires_in = res["expires_in"]
 
         self._http_headers = {"Authorization": f"QQBot {self.access_token}"}
+        return res
 
     async def get_getway(self):
         res = await self.get_qqbot_api("gateway")
@@ -140,7 +143,9 @@ class QQ_Bot:
                 log.debug(f"已发送心跳: {heartbeat_data}")
             await asyncio.sleep(heartbeat_interval / 1000)
 
-    async def run(self, app_id, client_secret):
+    async def run(
+        self, app_id: str = config.appId, client_secret: str = config.clientSecret
+    ):
         log.info("启动 QQ_Bot")
         await self.get_access_token(app_id, client_secret)
         await self.get_getway()
@@ -156,11 +161,9 @@ if __name__ == "__main__":
 
     from plugin import echo
 
-    from .config import config
-
     async def main():
         qq = QQ_Bot()
-        qq.plugin_manager.add_plugin(echo.plugin, qq)
-        await qq.run(config.appId, config.clientSecret)
+        qq.plugin_manager.add_plugin(echo.plugin)
+        await qq.run()
 
     asyncio.run(main())

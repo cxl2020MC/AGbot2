@@ -1,0 +1,9 @@
+from enum import StrEnum
+
+
+class EventType(StrEnum):
+    READY = "READY"
+    PRIVATE_MESSAGE = "PRIVATE_MESSAGE"
+    GROUP_MESSAGE = "GROUP_MESSAGE"
+    GROUP_AT_MESSAGE = "GROUP_AT_MESSAGE"
+    UNKNOW = "UNKNOW"
