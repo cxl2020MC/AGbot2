@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from typing import Any
+
+from pydantic import BaseModel
+
 from .qq_events.qq_op import OpType
 
 
