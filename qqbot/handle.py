@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from .log import logger as log
+from .types import bot_event
 from .types.qq_events import qq_event, qq_message, qq_ready_event
 
 if TYPE_CHECKING:
@@ -21,11 +22,22 @@ async def handle_event(
             await event_handle(
                 qq_event.QQEventType.GROUP_MESSAGE_CREATE, event_data, bot_obj
             )
+            await handle_message(
+                [bot_event.MessageEventType.GROUP_MESSAGE], event, bot_obj
+            )
         case qq_event.QQEventType.GROUP_AT_MESSAGE_CREATE:
             event = qq_message.GroupMessage.model_validate(event_data)
             log.info(f"收到群 @ 消息: {event_data}")
             await event_handle(
                 qq_event.QQEventType.GROUP_AT_MESSAGE_CREATE, event_data, bot_obj
+            )
+            await handle_message(
+                [
+                    bot_event.MessageEventType.GROUP_AT_MESSAGE,
+                    bot_event.MessageEventType.GROUP_MESSAGE,
+                ],
+                event,
+                bot_obj,
             )
         case qq_event.QQEventType.READY:
             event = qq_ready_event.SessionData.model_validate(event_data)
@@ -39,9 +51,18 @@ async def handle_event(
     # await event_handle(event_type, event_data, bot_obj)
 
 
-
-
-
-async def event_handle(event_type: qq_event.QQEventType, event_data: dict, bot_obj: QQ_Bot) -> None:
+async def event_handle(
+    event_type: qq_event.QQEventType, event_data: dict, bot_obj: QQ_Bot
+) -> None:
     plugin_manager = bot_obj.plugin_manager
     await plugin_manager.handle_event(event_type, event_data)
+
+
+async def handle_message(
+    event_types: list[bot_event.MessageEventType],
+    event_data: qq_message.Message,
+    bot_obj: QQ_Bot,
+) -> None:
+    plugin_manager = bot_obj.plugin_manager
+    await plugin_manager.handle_message_event(event_types, event_data)
+

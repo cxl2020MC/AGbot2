@@ -167,7 +167,8 @@ class Plugin:
         event_data: qq_message.Message,
         bot_obj,
     ):
-        pass
+        for listener in self.get_message_listeners([message_event_type]):
+            await listener.listener(event_data, bot_obj)
 
     async def _command_event_handler(
         self, command: str, event_data: qq_message.Message, bot_obj

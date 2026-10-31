@@ -3,8 +3,10 @@ import tomllib
 from .types import bot_config
 
 
-def load_config(fp):
-    config = tomllib.load(fp)
+def load_config(config_file):
+    with open(config_file, "r") as f:
+        config = tomllib.loads(f.read())
     return bot_config.Config.model_validate(config)
 
-config = load_config(open("config.toml", "rb"))
+
+config = load_config("config.toml")

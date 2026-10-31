@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
 from enum import IntEnum
+
+from pydantic import BaseModel, Field
 
 
 class GroupMessageType(IntEnum):
@@ -29,8 +30,10 @@ class MessageMarkdown(BaseModel):
 class MediaInfo(BaseModel):
     file_info: str
 
+
 class MessageReference(BaseModel):
     message_id: str
+
 
 # ==========================================
 # 定义整型枚举 (IntEnum)
