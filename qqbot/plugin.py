@@ -44,6 +44,10 @@ class PluginManager:
                     message_event_type, event_data, self.bot_obj
                 )
 
+    async def handle_command_event(self, event_data: qq_message.Message):
+        for plugin in self.plugins:
+            await plugin._command_event_handler(event_data, self.bot_obj)
+
 
 class Plugin:
     def __init__(self, name, description, version: str | None = None):
