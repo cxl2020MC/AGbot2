@@ -45,8 +45,13 @@ class PluginManager:
                 )
 
     async def handle_command_event(self, event_data: qq_message.Message):
-        for plugin in self.plugins:
-            await plugin._command_event_handler(event_data, self.bot_obj)
+        command_start_with = "/"
+        if event_data.content.startswith(command_start_with):
+            command_text = event_data.content.strip().split()[0][
+                len(command_start_with) :
+            ]
+            for plugin in self.plugins:
+                await plugin._command_event_handler(command_text, event_data, self.bot_obj)
 
 
 class Plugin:
@@ -164,14 +169,12 @@ class Plugin:
     ):
         pass
 
-    async def _command_event_handler(self, event_data: qq_message.Message, bot_obj):
-        command_start_with = "/"
-        if event_data.content.startswith(command_start_with):
-            command_text = event_data.content.strip().split()[0][
-                len(command_start_with) :
-            ]
-            for command in self.get_command_event_listeners(command_text) or []:
-                await command.function(event_data, bot_obj)
+    async def _command_event_handler(
+        self, command: str, event_data: qq_message.Message, bot_obj
+    ):
+
+        for command_listener in self.get_command_event_listeners(command) or []:
+            await command_listener.function(event_data, bot_obj)
 
 
 @dataclass
