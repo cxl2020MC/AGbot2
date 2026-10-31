@@ -3,11 +3,11 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Concatenate
 
 from .log import logger as log
+from .types import bot_event
 from .types.qq_events.qq_event import QQEventType
 
 if TYPE_CHECKING:
     from .qq_bot import QQ_Bot
-    from .types import bot_event
     from .types.qq_events import qq_message
 
 type MeaasgePluginEventListener = collections.abc.Callable[
@@ -105,7 +105,16 @@ class Plugin:
     def __str__(self):
         return f"Plugin(name={self.name}, description={self.description}, version={self.version})"
 
-    def on_message(self, name: str, message_types: list[bot_event.MessageEventType]):
+    def on_message(
+        self, name: str, message_types: list[bot_event.MessageEventType] | None = None
+    ):
+        if message_types is None:
+            message_types = [
+                bot_event.MessageEventType.PRIVATE_MESSAGE,
+                bot_event.MessageEventType.GROUP_MESSAGE,
+                bot_event.MessageEventType.GROUP_AT_MESSAGE,
+            ]
+
         def decorator(func):
             for message_type in message_types:
                 event_name = f"message_{name}({message_type})"
@@ -123,9 +132,15 @@ class Plugin:
     ):
 
         def decorator(func: MeaasgePluginEventListener):
-            # event_name = f"command_{command_name or command}"
-            # listener = EventListener(event_name, func)
-            # self.register_event_listener(QQEventType.GROUP_MESSAGE_CREATE, listener)
+            self.register_command_event_listener(
+                command,
+                CommandListener(
+                    function=func,
+                    command=command[0],
+                    command_name=command_name,
+                    command_description=command_description,
+                ),
+            )
             return func
 
         return decorator
@@ -146,8 +161,11 @@ class Plugin:
         pass
 
     async def _command_event_handler(self, event_data: qq_message.Message, bot_obj):
-        if event_data.content.startswith("/"):
-            command_text = event_data.content.strip().split()[0]
+        command_start_with = "/"
+        if event_data.content.startswith(command_start_with):
+            command_text = event_data.content.strip().split()[0][
+                len(command_start_with) :
+            ]
             for command in self.get_command_event_listeners(command_text) or []:
                 await command.function(event_data, bot_obj)
 
