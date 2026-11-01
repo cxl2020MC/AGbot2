@@ -64,5 +64,6 @@ async def handle_message(
     bot_obj: QQ_Bot,
 ) -> None:
     plugin_manager = bot_obj.plugin_manager
+    await plugin_manager.handle_command_event(event_data)
     await plugin_manager.handle_message_event(event_types, event_data)
 

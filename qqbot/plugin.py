@@ -64,7 +64,7 @@ class Plugin:
         self._MessageEventListeners: dict[
             bot_event.MessageEventType, list[MessageListener]
         ] = {}
-        self._CommandEventListeners: dict[list[str], list[CommandListener]] = {}
+        self._CommandEventListeners: dict[tuple[str, ...], list[CommandListener]] = {}
 
     def register_event_listener(self, event_type: QQEventType, listener: EventListener):
         if event_type not in self._EventListeners:
@@ -94,7 +94,7 @@ class Plugin:
         return self._MessageEventListeners
 
     def register_command_event_listener(
-        self, commands: list[str], listener: CommandListener
+        self, commands: tuple[str, ...], listener: CommandListener
     ):
         if commands not in self._CommandEventListeners:
             self._CommandEventListeners[commands] = []
@@ -135,7 +135,7 @@ class Plugin:
 
     def on_command(
         self,
-        command: list[str],
+        command: tuple[str, ...],
         command_name: str | None = None,
         command_description: str | None = None,
     ):
