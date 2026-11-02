@@ -51,7 +51,9 @@ class PluginManager:
                 len(command_start_with) :
             ]
             for plugin in self.plugins:
-                await plugin._command_event_handler(command_text, event_data, self.bot_obj)
+                await plugin._command_event_handler(
+                    command_text, event_data, self.bot_obj
+                )
 
 
 class Plugin:

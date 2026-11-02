@@ -1,3 +1,5 @@
+from asyncio import queues
+
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -41,6 +43,7 @@ SystemPrompt = """你叫“早喵”，是QQ群聊中的群成员，外观是可
 你可以在最终输出中输出给自己看的内容
 
 你的机器人ID是：{BOT_ID}
+当前的群聊名称是：{GROUP_NAME}
 """
 
 TOOLS = {
@@ -69,8 +72,34 @@ async def use_ai(messages: list[ChatCompletionMessageParam]):
     print(completion.choices[0].message.content)
 
 
-async def handle_ai(
-    event_data: qq_message.GroupMessage | qq_message.Message,
-    bot: QQ_Bot,
-):
-    pass
+class AIPlugin:
+    workers: dict[str, AIPlugin] = {}
+    def __init__(self, group_openid: str):
+        self.group_openid = group_openid
+        self.messages: list[ChatCompletionMessageParam] = []
+        self.message_queue: queues.Queue[
+            qq_message.GroupMessage | qq_message.Message
+        ] = queues.Queue()
+
+    async def add_message(
+        self, event_data: qq_message.GroupMessage | qq_message.Message
+    ):
+        messages: list[ChatCompletionMessageParam] = [
+            {
+                "role": "user",
+                "content": f"[{event_data.author.username}]({event_data.author.id})[{event_data.timestamp}][{event_data.id}][{event_data.message_scene.msg_idx}]: {event_data.content}",
+            }
+        ]
+
+        self.messages.extend(messages)
+        return self.messages
+
+    async def handle_ai(
+        self,
+        event_data: qq_message.GroupMessage | qq_message.Message,
+        bot: QQ_Bot,
+    ):
+        messages = await self.add_message(event_data)
+
+        self.messages.extend(messages)
+        await use_ai(messages)

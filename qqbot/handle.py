@@ -9,15 +9,20 @@ if TYPE_CHECKING:
 
 
 async def handle_event(
-    event_type: qq_event.QQEventType, event_data: dict, bot_obj: QQ_Bot
+    event_type: qq_event.QQEventType, event_data: dict | None, bot_obj: QQ_Bot
 ) -> None:
+    if event_data is None:
+        log.warning(f"收到事件 {event_type} 但没有数据")
+        return
     match event_type:
         case qq_event.QQEventType.C2C_MESSAGE_CREATE:
             log.info(f"收到 C2C 消息: {event_data}")
         case qq_event.QQEventType.GROUP_MESSAGE_CREATE:
             event = qq_message.GroupMessage.model_validate(event_data)
+            log.info(f"收到群消息: {event}")
+            group_info = await bot_obj.qq_api.get_group_info(event.group_openid)
             log.info(
-                f"收到群 {event.group_openid} 内 {event.author.username}({event.author.member_openid} {event.author.union_openid}))[{event.author.member_role.name if event.author.member_role else '未知'}] 消息: {event.content}"
+                f"收到群 {group_info.group_name}({event.group_openid}) 内 {event.author.username}({event.author.id} {event.author.member_openid} {event.author.union_openid})[{event.author.member_role.name if event.author.member_role else '未知'}] 的消息: {event.content}\n[{event.id}]\n[{event.message_scene.msg_idx}]"
             )
             await event_handle(
                 qq_event.QQEventType.GROUP_MESSAGE_CREATE, event_data, bot_obj
@@ -66,4 +71,3 @@ async def handle_message(
     plugin_manager = bot_obj.plugin_manager
     await plugin_manager.handle_command_event(event_data)
     await plugin_manager.handle_message_event(event_types, event_data)
-

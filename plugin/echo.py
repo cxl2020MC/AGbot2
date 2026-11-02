@@ -16,7 +16,11 @@ async def echo_message(
     if isinstance(event_data, qq_message.GroupMessage):
         message_content = event_data.content
         group_openid = event_data.group_openid
-        if message_content and group_openid:
-            await bot.qq_api.send_group_message(
-                group_openid, send_message.GroupMessage(content=message_content)
-            )
+
+        message = message_content.strip().split(maxsplit=1)
+        if len(message) > 1:
+            message_content = message[1]
+            if message_content and group_openid:
+                await bot.qq_api.send_group_message(
+                    group_openid, send_message.GroupMessage(content=message_content)
+                )
