@@ -62,9 +62,9 @@ class MessageAttachment(BaseModel):
 
 
 class MsgElement(BaseModel):
-    msg_idx: str
+    msg_idx: str | None = None
     author: User | None = None
-    message_type: int
+    message_type: int | None = None
     content: str
     attachments: list[MessageAttachment] | None = None
     ark_data: Any | None = None

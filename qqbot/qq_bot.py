@@ -54,7 +54,7 @@ class QQ_Bot:
 
         type(self).bot_list.append(self)
 
-    # ------------------------------------------------------------------ HTTP API
+    # HTTP API
 
     async def _api_request(
         self, method: str, api_path: str, **kwargs: Any
@@ -76,7 +76,7 @@ class QQ_Bot:
     async def get_qqbot_api(self, api_path: str) -> dict[str, Any]:
         return await self._api_request("GET", api_path)
 
-    # ------------------------------------------------------------- 鉴权与 Gateway
+    # 鉴权与 Gateway
 
     async def fetch_access_token(
         self, app_id: str, client_secret: str
@@ -98,7 +98,7 @@ class QQ_Bot:
             raise RuntimeError(f"获取 gateway 失败: {res}")
         self._gateway = url
 
-    # ------------------------------------------------------------------ WebSocket
+    # WebSocket
 
     async def ws_send_json(self, data: ws_data.WsData) -> None:
         if self._ws is None:
@@ -161,7 +161,7 @@ class QQ_Bot:
             case _:
                 log.debug(f"忽略未处理的 op: {message.op}")
 
-    # ------------------------------------------------------------------ 事件处理
+    # 事件处理
 
     async def _on_hello(self, data: dict[str, Any] | None) -> None:
         if not data or "heartbeat_interval" not in data:
@@ -223,7 +223,7 @@ class QQ_Bot:
             return
         await handle.handle_event(event_type, message.d, self)
 
-    # ------------------------------------------------------------------ 心跳
+    # 心跳
 
     async def _heartbeat_loop(self, interval_ms: int) -> None:
         interval = interval_ms / 1000
@@ -255,7 +255,7 @@ class QQ_Bot:
         with contextlib.suppress(asyncio.CancelledError):
             await task
 
-    # ------------------------------------------------------------------ 入口
+    # 入口
 
     async def run(
         self,
