@@ -63,9 +63,16 @@ class QQ_Bot:
         resp = await requester(
             API_HOST / api_path, headers=self._http_headers, **kwargs
         )
-        resp.raise_for_status()
+
+        # resp.raise_for_status()
+        if not resp.is_success:
+            raise RuntimeError(
+                f"API {api_path} 请求失败: {resp} {resp.status_code} {resp.text}"
+            )
+        
         res = resp.json()
         log.debug(f"API {api_path} 返回: {res}")
+
         return res
 
     async def post_qqbot_api(
