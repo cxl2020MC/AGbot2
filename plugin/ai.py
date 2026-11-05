@@ -22,16 +22,16 @@ plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 SystemPrompt = """你叫“早喵”，是QQ群聊中的群成员，外观是可爱的猫娘，性格友好、机灵、乐于助人。
 你的主人是 cxl2020mc，你可以通过消息格式中的主人标识来区分
 
-[核心目标]
+## 核心目标
 1. 理解群成员消息，提供简明、友好、有帮助的信息、建议或轻松娱乐内容。
 2. 优先回应@你、回复你、叫你“早喵”、或明显向你提问的消息；普通群聊不抢话、不刷屏。
 3. 默认回答1-3句；复杂问题可分点，但保持简短。不确定时说明不确定，不编造。
 
-[语言风格]
+## 语言风格]
 1. 可使用“喵~”等猫娘口癖，但自然点缀即可，不要每句都加。
 2. 友好、礼貌、尊重，可调皮但不过度卖萌。
 
-[群聊处理流程]
+## 群聊处理流程
 1. 解析消息格式：
   [群成员昵称]([群成员ID])[消息时间戳][消息标识]：[消息内容]
   [消息id][消息回复索引]
@@ -40,10 +40,16 @@ SystemPrompt = """你叫“早喵”，是QQ群聊中的群成员，外观是可
 3. 同一用户连续消息可合并理解；避免重复回答和刷屏。
 4. 回复时可自然称呼对方昵称
 
-[工具调用策略]
-1. 需要发送群消息时，必须调用工具函数发送。
+## 工具调用策略
+1. 需要发送消息时，必须调用 `send_message` 工具函数发送。
 
-你可以在最终输出中输出给自己看的内容
+## 发送消息时可以使用的特殊格式
+不需要对引号进行转义
+at群成员： <qqbot-at-user id="群成员ID" /> 
+
+## 注意事项
+你只可以在最终输出中输出给自己看的内容
+如果需要发送消息，必须使用 `send_message` 工具函数，不能直接输出消息内容
 
 你的机器人ID是：{BOT_ID}
 当前的群聊名称是：{GROUP_NAME}
@@ -55,8 +61,8 @@ TOOLS: list[ChatCompletionToolUnionParam] = [
         "type": "function",
         "function": {
             "name": "send_message",
-            "description": "发送一条消息",
-            "strict": True,
+            "description": "发送一条消息，支持markdown格式，只能使用此工具函数发送消息，不能直接输出消息内容",
+            # "strict": True,
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -97,9 +103,22 @@ class AIPlugin:
         self.messages.extend(messages)
         return self.messages
 
-    async def use_ai(self, messages: list[ChatCompletionMessageParam], bot: QQ_Bot, tool_calls_count: int = 0):
+    async def use_ai(
+        self,
+        messages: list[ChatCompletionMessageParam],
+        bot: QQ_Bot,
+        tool_calls_count: int = 0,
+    ):
         ai_messages: list[ChatCompletionMessageParam] = [
-            {"role": "system", "content": SystemPrompt},
+            {
+                "role": "system",
+                "content": SystemPrompt.format(
+                    BOT_ID=(await bot.qq_api.get_bot_info()).union_openid,
+                    GROUP_NAME=(
+                        await bot.qq_api.get_group_info(self.group_openid)
+                    ).group_name,
+                ),
+            },
         ]
 
         ai_messages.extend(messages)
@@ -111,7 +130,10 @@ class AIPlugin:
         )
         print(completion)
         ai_return = completion.choices[0].message
-        print(ai_return.content)
+        reasoning_content = getattr(ai_return, "reasoning_content", None)
+        print(f"AI推理内容: {reasoning_content}")
+        print(f"AI工具调用: {ai_return.tool_calls}")
+        print(f"AI返回内容: {ai_return.content}")
         # append_message = completion.choices[0].message
 
         assistant_message = cast(
@@ -119,25 +141,43 @@ class AIPlugin:
             {
                 "role": "assistant",
                 "content": ai_return.content,
-                "reasoning_content": getattr(ai_return, "reasoning_content", None),
+                "reasoning_content": reasoning_content,
                 "tool_calls": list(ai_return.tool_calls)
                 if ai_return.tool_calls is not None
                 else None,
             },
         )
-        
+
         self.messages.append(assistant_message)
+
         tool_calls = ai_return.tool_calls
         if tool_calls is not None:
             for tool_call in tool_calls:
                 if tool_call.type == "function":
                     tool_id = tool_call.id
                     tool_name = tool_call.function.name
-                    if tool_name == "send_message":
+                    if tool_calls_count >= 5:  # 避免无限递归，设置最大调用次数
+                        print("达到最大工具调用次数，停止递归。")
+                        self.messages.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                "content": "达到单次最大工具调用次数，暂停调用工具。请在下条消息后继续。",  # 工具的执行结果
+                            }
+                        )
+                    elif tool_name == "send_message":
+                        print(
+                            f"调用 send_message 工具, 参数: {tool_call.function.arguments}"
+                        )
                         tool_args = json.loads(tool_call.function.arguments)
                         return_data = await bot.qq_api.send_group_message(
                             self.group_openid,
-                            send_message.GroupMessage(content=tool_args["content"]),
+                            send_message.GroupMessage(
+                                msg_type=send_message.GroupMessageType.MARKDOWN,
+                                markdown=send_message.MessageMarkdown(
+                                    content=tool_args["content"]
+                                ),
+                            ),
                         )
                         return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
                         self.messages.append(
@@ -147,10 +187,27 @@ class AIPlugin:
                                 "content": return_mesage,  # 工具的执行结果
                             }
                         )
-            await self.use_ai(self.messages, bot, tool_calls_count + 1)  # 继续对话，传入更新后的消息列表
-            if tool_calls_count >= 5:  # 避免无限递归，设置最大调用次数
-                print("达到最大工具调用次数，停止递归。")
-                return self.messages
+            completion = await self.use_ai(
+                self.messages, bot, tool_calls_count + 1
+            )  # 继续对话，传入更新后的消息列表
+
+        if tool_calls_count == 0:  # 仅在最初调用时打印总token数
+            total_tokens = completion.usage.total_tokens if completion.usage else 0
+            print(f"本次当前上下文长度为 {total_tokens} token。")
+            if total_tokens > 300 * 1000:
+                print("对话内容过长，进行总结以保留核心信息。")
+                message: ChatCompletionMessageParam = {
+                    "role": "user",
+                    "content": "对话内容过长，请总结之前的对话内容(不包括系统提示词)，保留核心信息，删除冗余内容，以便继续对话。请输出总结后的对话内容，并确保保留必要的上下文信息。",
+                }
+                self.messages.append(message)
+                ai_return = await self.use_ai(self.messages, bot)
+                self.messages = [
+                    {
+                        "role": "user",
+                        "content": f"{ai_return.choices[0].message.content}",
+                    }
+                ]
 
         return completion
 
@@ -162,6 +219,7 @@ class AIPlugin:
         messages = await self.add_message(event_data)
 
         return await self.use_ai(messages, bot)
+
 
 @plugin.on_message(
     name="AI助手",
