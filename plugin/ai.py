@@ -2,10 +2,16 @@ import json
 from asyncio import queues
 from typing import ClassVar, cast
 
+import httpx2
 from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletionMessageParam, ChatCompletionToolUnionParam
+from openai.types.chat import (
+    ChatCompletionContentPartParam,
+    ChatCompletionMessageParam,
+    ChatCompletionToolUnionParam,
+)
 
 from qqbot import plugin
+from qqbot.log import logger as log
 from qqbot.qq_bot import QQ_Bot
 
 # from qqbot.types.bot_event import MessageEventType
@@ -14,7 +20,8 @@ from qqbot.types.qq_events import qq_message
 
 client = AsyncOpenAI(
     # api_key="your-api-key",
-    base_url="https://api.deepseek.com/beta"
+    base_url="https://api.deepseek.com"
+    # base_url="https://ai.yumeyuki.moe/v1"
 )
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
@@ -55,6 +62,7 @@ at群成员： <qqbot-at-user id="群成员ID" />
 当前的群聊名称是：{GROUP_NAME}
 """
 
+GROUP_ID_BLACKLIST = ["B274F145FD3D531A98184AD623AA9A88"]
 
 TOOLS: list[ChatCompletionToolUnionParam] = [
     {
@@ -62,7 +70,7 @@ TOOLS: list[ChatCompletionToolUnionParam] = [
         "function": {
             "name": "send_message",
             "description": "发送一条消息，支持markdown格式，只能使用此工具函数发送消息，不能直接输出消息内容",
-            # "strict": True,
+            "strict": True,
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -92,11 +100,38 @@ class AIPlugin:
     async def add_message(
         self, event_data: qq_message.GroupMessage | qq_message.Message
     ):
+        ref_msg_flag = f"[引用消息: {event_data.message_scene.ref_msg_idx}]" if event_data.message_scene.ref_msg_idx else ""
+
+        messages_content: list[ChatCompletionContentPartParam] = [
+            {
+                "type": "text",
+                "text": f"""[{event_data.author.username}]({event_data.author.id})[{event_data.timestamp}][]: {ref_msg_flag}{event_data.content}
+[{event_data.id}][{event_data.message_scene.msg_idx}]""",
+            }
+        ]
+
+        if event_data.attachments:
+            for attachment in event_data.attachments:
+                # if attachment.asr_refer_text:
+                #     event_data.content += f"\n[语音转文字]: {attachment.asr_refer_text}"
+                if attachment.content_type.startswith("image"):
+                    img = await httpx2.get(attachment.url).aread()
+                    file = await client.files.create(file=("image.jpg", img), purpose="user_data")
+                    messages_content.append(
+                        # {
+                        #     "type": "image_url",
+                        #     "image_url": {"url": attachment.url},
+                        # }
+                        cast(
+                            ChatCompletionContentPartParam,
+                            {"type": "file", "file_id": file.id},
+                        ),
+                    )
+
         messages: list[ChatCompletionMessageParam] = [
             {
                 "role": "user",
-                "content": f"""[{event_data.author.username}]({event_data.author.id})[{event_data.timestamp}][]: {event_data.content}
-[{event_data.id}][{event_data.message_scene.msg_idx}]""",
+                "content": messages_content,
             }
         ]
 
@@ -127,13 +162,16 @@ class AIPlugin:
             model="deepseek-flash",
             messages=ai_messages,
             tools=TOOLS,
+            reasoning_effort="high",
+            extra_body={"thinking": {"type": "enabled"}},
         )
-        print(completion)
+        log.debug(f"AI响应: {completion}")
         ai_return = completion.choices[0].message
+        log.info(f"AI返回内容: {ai_return}")
         reasoning_content = getattr(ai_return, "reasoning_content", None)
-        print(f"AI推理内容: {reasoning_content}")
-        print(f"AI工具调用: {ai_return.tool_calls}")
-        print(f"AI返回内容: {ai_return.content}")
+        log.info(f"AI推理内容: {reasoning_content}")
+        log.info(f"AI工具调用: {ai_return.tool_calls}")
+        log.info(f"AI返回内容: {ai_return.content}")
         # append_message = completion.choices[0].message
 
         assistant_message = cast(
@@ -157,7 +195,7 @@ class AIPlugin:
                     tool_id = tool_call.id
                     tool_name = tool_call.function.name
                     if tool_calls_count >= 5:  # 避免无限递归，设置最大调用次数
-                        print("达到最大工具调用次数，停止递归。")
+                        log.info("达到最大工具调用次数，停止递归。")
                         self.messages.append(
                             {
                                 "role": "tool",
@@ -166,7 +204,7 @@ class AIPlugin:
                             }
                         )
                     elif tool_name == "send_message":
-                        print(
+                        log.info(
                             f"调用 send_message 工具, 参数: {tool_call.function.arguments}"
                         )
                         tool_args = json.loads(tool_call.function.arguments)
@@ -179,6 +217,7 @@ class AIPlugin:
                                 ),
                             ),
                         )
+                        log.debug(f"发送消息返回: {return_data}")
                         return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
                         self.messages.append(
                             {
@@ -190,24 +229,25 @@ class AIPlugin:
             completion = await self.use_ai(
                 self.messages, bot, tool_calls_count + 1
             )  # 继续对话，传入更新后的消息列表
-
-        if tool_calls_count == 0:  # 仅在最初调用时打印总token数
-            total_tokens = completion.usage.total_tokens if completion.usage else 0
-            print(f"本次当前上下文长度为 {total_tokens} token。")
-            if total_tokens > 300 * 1000:
-                print("对话内容过长，进行总结以保留核心信息。")
-                message: ChatCompletionMessageParam = {
+        total_tokens = completion.usage.total_tokens if completion.usage else 0
+        log.info(f"本次上下文长度为 {total_tokens} token。")
+        log.debug(
+            f"详细使用情况: {completion.usage.prompt_tokens_details if completion.usage else 'N/A'}"
+        )
+        if tool_calls_count == 0 and total_tokens > 300 * 1000:
+            log.info("对话内容过长，进行总结以保留核心信息。")
+            message: ChatCompletionMessageParam = {
+                "role": "user",
+                "content": "对话内容过长，请总结之前的对话内容(不包括系统提示词)，保留核心信息，删除冗余内容，以便继续对话。只需要总结最近10～20条的对话内容，然后输出总结后的对话内容，并确保保留必要的上下文信息。",
+            }
+            self.messages.append(message)
+            ai_return = await self.use_ai(self.messages, bot)
+            self.messages = [
+                {
                     "role": "user",
-                    "content": "对话内容过长，请总结之前的对话内容(不包括系统提示词)，保留核心信息，删除冗余内容，以便继续对话。请输出总结后的对话内容，并确保保留必要的上下文信息。",
+                    "content": f"{ai_return.choices[0].message.content}",
                 }
-                self.messages.append(message)
-                ai_return = await self.use_ai(self.messages, bot)
-                self.messages = [
-                    {
-                        "role": "user",
-                        "content": f"{ai_return.choices[0].message.content}",
-                    }
-                ]
+            ]
 
         return completion
 
@@ -225,10 +265,17 @@ class AIPlugin:
     name="AI助手",
     # message_types=[qq_message.GroupMessage]
 )
-def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot):
+async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot):
     group_openid = event_data.group_openid
+
+    if group_openid in GROUP_ID_BLACKLIST:
+        log.info(f"群聊 {group_openid} 在黑名单中，跳过AI处理。")
+        return
+
     if group_openid not in AIPlugin.workers:
         AIPlugin.workers[group_openid] = AIPlugin(group_openid)
 
     ai_plugin = AIPlugin.workers[group_openid]
-    return ai_plugin.handle_ai(event_data, bot)
+    return await ai_plugin.handle_ai(event_data, bot)
+
+
