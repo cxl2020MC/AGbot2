@@ -70,40 +70,45 @@ class CommandParser:
             opt, tmp = self.__get_sep(tmp)
             self.args.append(opt)
 
+
     def __get_sep(self, s1: str) -> tuple[str, str]:
         quote = ""
         l = len(s1)
-        for i in range(len(s1)):
+        i = 0
+
+        while i < len(s1):
             self.c2 += 1
             c = s1[i]
+
             if c in "\"'`" and ((not quote) or quote == c):  # 引号包裹
                 if i - 1 >= 0 and s1[i - 1] == "\\":  # 转义
-                    s1 = (
-                        s1[: i - 1] + s1[i:] + " "
-                    )  # 删除转义字符 \, 并添加空格在后面，避免out of range，同时更新l
+                    s1 = s1[: i - 1] + s1[i:] + " "
                     i -= 1
                     l -= 1
                     continue
+
                 if quote:
-                    return s1[1 : i - 1], s1[
-                        i + 1 : l
-                    ]  # 字符串结束了，说明当前参数结束了
+                    return s1[1: i - 1], s1[i + 1: l]  # 字符串结束了
+
                 quote = c
+                i += 1
                 continue
+
             if not quote and c == "\\":
-                s1 = (
-                    s1[:i] + s1[i + 1 :] + " "
-                )  # 删除转义字符 \, 并添加空格在后面，避免out of range，同时更新l
-                i -= 1
+                s1 = s1[:i] + s1[i + 1:] + " "
                 l -= 1
+                # 删除当前反斜杠后，后面的字符会移到 i 位置，需要重新检查 i
                 continue
+
             if not quote and c in "|\\ \n\r=,":
-                return s1[:i], s1[i:l]  # 返回当前参数,排除末尾的空格
+                return s1[:i], s1[i:l]
+
+            i += 1
+
         if quote:
             raise ValueError(f"未关闭的引号包裹：{quote} at {len(self.cmd)}")
-        # 遍历完没遇到分隔符
-        return s1, ""
 
+        return s1, ""
 
 if __name__ == "__main__":
     # 测试样例：引号包裹，里面有逗号
