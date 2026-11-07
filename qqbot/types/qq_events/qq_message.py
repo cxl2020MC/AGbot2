@@ -55,6 +55,7 @@ class MessageAttachment(BaseModel):
     url: str
     filename: str
     size: int
+    content_type: str
     width: int | None = None
     height: int | None = None
     voice_wav_url: str | None = None

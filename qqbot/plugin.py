@@ -161,7 +161,10 @@ class Plugin:
     ):
         # listeners = self.get_event_listeners(event_type)
         for listener in self.get_event_listeners(event_type):
-            await listener.listener(event_data, bot_obj)
+            try:
+                await listener.listener(event_data, bot_obj)
+            except Exception:  # noqa: BLE001
+                log.exception("处理事件时发生异常")
 
     async def _message_event_handler(
         self,
@@ -170,14 +173,21 @@ class Plugin:
         bot_obj,
     ):
         for listener in self.get_message_listeners([message_event_type]):
-            await listener.listener(event_data, bot_obj)
+            try:
+                await listener.listener(event_data, bot_obj)
+            except Exception:  # noqa: BLE001
+                log.exception("处理消息事件时发生异常")
 
     async def _command_event_handler(
         self, command: str, event_data: qq_message.Message, bot_obj
     ):
-
         for command_listener in self.get_command_event_listeners(command) or []:
-            await command_listener.function(event_data, bot_obj)
+            try:
+                await command_listener.function(event_data, bot_obj)
+            except Exception as e:  # noqa: BLE001
+                log.exception(
+                    f"插件 {self.name} 的命令 {command_listener.command} 执行失败: {e}"
+                )
 
 
 @dataclass

@@ -69,7 +69,7 @@ class QQ_Bot:
             raise RuntimeError(
                 f"API {api_path} 请求失败: {resp} {resp.status_code} {resp.text}"
             )
-        
+
         res = resp.json()
         log.debug(f"API {api_path} 返回: {res}")
 
@@ -84,7 +84,6 @@ class QQ_Bot:
         return await self._api_request("GET", api_path)
 
     # 鉴权与 Gateway
-
     async def fetch_access_token(
         self, app_id: str, client_secret: str
     ) -> dict[str, Any]:
@@ -96,6 +95,7 @@ class QQ_Bot:
         self.access_token = res["access_token"]
         self.access_token_expires_in = res["expires_in"]
         self._http_headers = {"Authorization": f"QQBot {self.access_token}"}
+        log.info(f"获取 access_token 成功，expires_in={self.access_token_expires_in}")
         return res
 
     async def fetch_gateway(self) -> None:
@@ -106,7 +106,6 @@ class QQ_Bot:
         self._gateway = url
 
     # WebSocket
-
     async def ws_send_json(self, data: ws_data.WsData) -> None:
         if self._ws is None:
             raise RuntimeError("WebSocket 未连接，无法发送数据")
@@ -127,7 +126,10 @@ class QQ_Bot:
                 except Exception:  # noqa: BLE001
                     log.exception("解析 WebSocket 消息失败")
                     continue
-                await self._handle_ws_message(message)
+                try:
+                    await self._handle_ws_message(message)
+                except Exception:  # noqa: BLE001
+                    log.exception("处理 WebSocket 消息时发生异常")
 
     async def connect_ws(self) -> None:
         """保持 WebSocket 连接，断线后自动重连。"""
@@ -137,6 +139,7 @@ class QQ_Bot:
             except QQBotReconnect:
                 log.info("服务端要求重连，重新建立 WebSocket")
             except asyncio.CancelledError:
+                log.info("WebSocket 连接被取消")
                 raise
             except Exception:  # noqa: BLE001
                 log.exception(f"WebSocket 连接异常，{RECONNECT_DELAY_SECONDS} 秒后重试")
@@ -262,8 +265,17 @@ class QQ_Bot:
         with contextlib.suppress(asyncio.CancelledError):
             await task
 
-    # 入口
+    async def update_access_token_loop(self, app_id: str, client_secret: str) -> None:
+        log.info("启动 access_token 更新循环")
+        while True:
+            try:
+                await asyncio.sleep(self.access_token_expires_in - 60)
+                await self.fetch_access_token(app_id, client_secret)
+            except Exception:  # noqa: BLE001
+                log.exception("更新 access_token 失败，10 秒后重试")
+                await asyncio.sleep(10)
 
+    # 入口
     async def run(
         self,
         app_id: str = config.appId,
@@ -271,6 +283,7 @@ class QQ_Bot:
     ) -> None:
         log.info("启动 QQ_Bot")
         await self.fetch_access_token(app_id, client_secret)
+        await asyncio.create_task(self.update_access_token_loop(app_id, client_secret))
         await self.fetch_gateway()
         await self.connect_ws()
 

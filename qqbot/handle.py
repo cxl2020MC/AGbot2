@@ -19,10 +19,12 @@ async def handle_event(
             log.info(f"收到 C2C 消息: {event_data}")
         case qq_event.QQEventType.GROUP_MESSAGE_CREATE:
             event = qq_message.GroupMessage.model_validate(event_data)
-            log.info(f"收到群消息: {event}")
+            log.debug(f"收到群消息: {event}")
             group_info = await bot_obj.qq_api.get_group_info(event.group_openid)
             log.info(
-                f"收到群 {group_info.group_name}({event.group_openid}) 内 {event.author.username}({event.author.id} {event.author.member_openid} {event.author.union_openid})[{event.author.member_role.name if event.author.member_role else '未知'}] 的消息: {event.content}\n[{event.id}]\n[{event.message_scene.msg_idx}]"
+                f"""收到群 {group_info.group_name}({event.group_openid}) 内 {event.author.username}({event.author.id} {event.author.member_openid} {event.author.union_openid})[{event.author.member_role.name if event.author.member_role else "未知"}] 的消息: {event.content}
+{f"[引用消息: {event.message_scene.ref_msg_idx}]\n" if event.message_scene.ref_msg_idx else ""}[{event.id}]
+[{event.message_scene.msg_idx}]"""
             )
             await event_handle(
                 qq_event.QQEventType.GROUP_MESSAGE_CREATE, event_data, bot_obj
