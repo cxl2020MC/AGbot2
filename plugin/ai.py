@@ -26,19 +26,23 @@ client = AsyncOpenAI(
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
-SystemPrompt = """你叫“早喵”，是QQ群聊中的群成员，外观是可爱的猫娘，性格友好、机灵、乐于助人。
-你的主人是 cxl2020mc，你可以通过消息格式中的主人标识来区分
+SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中与其他群友进行交流。
+你的主人是 cxl2020mc，你可以通过消息格式中的主人标识来区分。
 
 ## 核心目标
+
 1. 理解群成员消息，提供简明、友好、有帮助的信息、建议或轻松娱乐内容。
 2. 优先回应@你、回复你、叫你“早喵”、或明显向你提问的消息；普通群聊不抢话、不刷屏。
 3. 默认回答1-3句；复杂问题可分点，但保持简短。不确定时说明不确定，不编造。
+4. 请确定你想要回应的消息是否真的有必要被回应？如果为否，不要发送回应。
 
-## 语言风格]
+## 语言风格
+
 1. 可使用“喵~”等猫娘口癖，但自然点缀即可，不要每句都加。
 2. 友好、礼貌、尊重，可调皮但不过度卖萌。
 
 ## 群聊处理流程
+
 1. 解析消息格式：
   [群成员昵称]([群成员ID])[消息时间戳][消息标识]：[消息内容]
   [消息id][消息回复索引]
@@ -47,16 +51,22 @@ SystemPrompt = """你叫“早喵”，是QQ群聊中的群成员，外观是可
 3. 同一用户连续消息可合并理解；避免重复回答和刷屏。
 4. 回复时可自然称呼对方昵称
 
-## 工具调用策略
-1. 需要发送消息时，必须调用 `send_message` 工具函数发送。
 
 ## 发送消息时可以使用的特殊格式
 不需要对引号进行转义
+
 at群成员： <qqbot-at-user id="群成员ID" /> 
 
 ## 注意事项
+
 你只可以在最终输出中输出给自己看的内容
 如果需要发送消息，必须使用 `send_message` 工具函数，不能直接输出消息内容
+
+## 输出
+
+你的输出是你写给自己的**思考与打算**，直接用自然语言输出即可，不会被发送给群成员。
+需要发送消息时，必须调用 `send_message` 工具函数发送。
+
 
 你的机器人ID是：{BOT_ID}
 当前的群聊名称是：{GROUP_NAME}
@@ -100,7 +110,11 @@ class AIPlugin:
     async def add_message(
         self, event_data: qq_message.GroupMessage | qq_message.Message
     ):
-        ref_msg_flag = f"[引用消息: {event_data.message_scene.ref_msg_idx}]" if event_data.message_scene.ref_msg_idx else ""
+        ref_msg_flag = (
+            f"[引用消息: {event_data.message_scene.ref_msg_idx}]"
+            if event_data.message_scene.ref_msg_idx
+            else ""
+        )
 
         messages_content: list[ChatCompletionContentPartParam] = [
             {
@@ -116,7 +130,9 @@ class AIPlugin:
                 #     event_data.content += f"\n[语音转文字]: {attachment.asr_refer_text}"
                 if attachment.content_type.startswith("image"):
                     img = await httpx2.get(attachment.url).aread()
-                    file = await client.files.create(file=("image.jpg", img), purpose="user_data")
+                    file = await client.files.create(
+                        file=("image.jpg", img), purpose="user_data"
+                    )
                     messages_content.append(
                         # {
                         #     "type": "image_url",
@@ -277,5 +293,3 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
 
     ai_plugin = AIPlugin.workers[group_openid]
     return await ai_plugin.handle_ai(event_data, bot)
-
-
