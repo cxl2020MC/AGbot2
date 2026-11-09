@@ -93,7 +93,7 @@ class QQ_Bot:
             {"appId": app_id, "clientSecret": client_secret},
         )
         self.access_token = res["access_token"]
-        self.access_token_expires_in = res["expires_in"]
+        self.access_token_expires_in = int(res["expires_in"])
         self._http_headers = {"Authorization": f"QQBot {self.access_token}"}
         log.info(f"获取 access_token 成功，expires_in={self.access_token_expires_in}")
         return res
@@ -269,7 +269,9 @@ class QQ_Bot:
         log.info("启动 access_token 更新循环")
         while True:
             try:
-                await asyncio.sleep(self.access_token_expires_in - 60)
+                next_update_in = self.access_token_expires_in - 60
+                log.info(f"下次更新 access_token 在 {next_update_in} 秒后")
+                await asyncio.sleep(next_update_in)
                 await self.fetch_access_token(app_id, client_secret)
             except Exception:  # noqa: BLE001
                 log.exception("更新 access_token 失败，10 秒后重试")
@@ -283,7 +285,10 @@ class QQ_Bot:
     ) -> None:
         log.info("启动 QQ_Bot")
         await self.fetch_access_token(app_id, client_secret)
-        await asyncio.create_task(self.update_access_token_loop(app_id, client_secret))
+        asyncio.create_task(
+            self.update_access_token_loop(app_id, client_secret),
+            name="update_access_token_loop"
+        )
         await self.fetch_gateway()
         await self.connect_ws()
 
