@@ -1,3 +1,4 @@
+import asyncio
 import json
 from asyncio import queues
 from typing import ClassVar, cast
@@ -100,12 +101,16 @@ TOOLS: list[ChatCompletionToolUnionParam] = [
 class AIPlugin:
     workers: ClassVar[dict[str, AIPlugin]] = {}
 
-    def __init__(self, group_openid: str):
+    def __init__(self, group_openid: str, bot: QQ_Bot):
         self.group_openid = group_openid
+        self.bot: QQ_Bot = bot
         self.messages: list[ChatCompletionMessageParam] = []
-        self.message_queue: queues.Queue[
+        self.group_message_queue: queues.Queue[
             qq_message.GroupMessage | qq_message.Message
         ] = queues.Queue()
+        self.worker_task = asyncio.create_task(
+            self.worker(), name=f"AIPluginWorker-{group_openid}"
+        )
 
     async def add_message(
         self, event_data: qq_message.GroupMessage | qq_message.Message
@@ -173,6 +178,8 @@ class AIPlugin:
         ]
 
         ai_messages.extend(messages)
+
+        log.trace(f"AI请求消息: {ai_messages}")
 
         completion = await client.chat.completions.create(
             model="deepseek-flash",
@@ -276,6 +283,22 @@ class AIPlugin:
 
         return await self.use_ai(messages, bot)
 
+    async def worker(self):
+        while True:
+            event_data = await self.group_message_queue.get()
+            try:
+                await self.handle_ai(event_data, self.bot)
+            except Exception as e:
+                log.exception(f"处理消息时发生异常:")
+            finally:
+                self.group_message_queue.task_done()
+
+    async def handle_message(
+        self, event_data: qq_message.GroupMessage | qq_message.Message
+    ):
+        queue = self.group_message_queue
+        await queue.put(event_data)
+
 
 @plugin.on_message(
     name="AI助手",
@@ -289,7 +312,7 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
         return
 
     if group_openid not in AIPlugin.workers:
-        AIPlugin.workers[group_openid] = AIPlugin(group_openid)
+        AIPlugin.workers[group_openid] = AIPlugin(group_openid, bot)
 
     ai_plugin = AIPlugin.workers[group_openid]
     return await ai_plugin.handle_ai(event_data, bot)
