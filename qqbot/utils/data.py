@@ -6,11 +6,11 @@ type Path = anyio.Path
 DataDir = anyio.Path("data/")
 
 
-async def get_file_path(file_name):
-    await create_data_dir()
+def get_file_path(file_name):
     return DataDir / file_name
 
 
+# TODO: 
 async def create_data_dir():
     if not await DataDir.exists():
         print(f"创建数据目录: {DataDir}")

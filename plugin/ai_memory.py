@@ -15,12 +15,12 @@ class Memory(BaseModel):
 
 
 async def read_memory():
-    async for i, memory in data.read_jsonl_file(await memory_file_path):
+    async for i, memory in data.read_jsonl_file(memory_file_path):
         yield i, Memory.model_validate(memory)
 
 
 async def write_memory(memory: Memory):
-    await data.write_jsonl_file(await memory_file_path, memory.model_dump_json())
+    await data.write_jsonl_file(memory_file_path, memory.model_dump_json())
 
 
 async def search_memory(content: str, limit: int = 5):
