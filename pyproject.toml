@@ -8,11 +8,7 @@ dependencies = [
     "aiohttp>=3.14.3",
     "httpx2[http2,ws]>=2.12.0",
     "loguru>=0.7.3",
+    "openai>=3.48.0",
     "pydantic>=2.13.4",
     "websockets>=16.1.1",
-]
-
-[dependency-groups]
-plugin = [
-    "openai>=3.42.0",
 ]
