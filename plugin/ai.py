@@ -19,6 +19,8 @@ from qqbot.qq_bot import QQ_Bot
 from qqbot.types.qq_api import send_message
 from qqbot.types.qq_events import qq_message
 
+from . import ai_memory
+
 client = AsyncOpenAI(
     # api_key="your-api-key",
     base_url="https://api.deepseek.com"
@@ -51,7 +53,11 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 [群成员昵称]([群成员ID])[消息时间戳][消息标识]：[消息内容]
 [消息id][消息回复索引]
 
-消息标识可能包含@、回复、主人标识等 
+消息标识可能包含@、回复、主人标识等
+
+如果命中了记忆中的关键词，下面会输出记忆内容，格式如下：
+[时间][关键词列表]：[记忆内容]
+
 
 ## 群聊处理流程
 
@@ -59,6 +65,7 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 2. 判断是否需要发言：仅在被@、被回复、被点名、明显提问或内容适合你参与时回复。
 3. 同一用户连续消息可合并理解；避免重复回答和刷屏。
 4. 回复时可自然称呼对方昵称。
+5. 如果消息中有些信息值得记忆，可将关键词和内容存入记忆库，便于后续参考。
 
 
 ## 发送消息时可以使用的特殊格式
@@ -105,7 +112,31 @@ TOOLS: list[ChatCompletionToolUnionParam] = [
                 "additionalProperties": False,
             },
         },
-    }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_memory",
+            "description": "添加一条记忆，包含关键词和内容",
+            "strict": True,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "keywords": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "记忆关键词列表",
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "记忆内容",
+                    },
+                },
+                "required": ["content"],
+                "additionalProperties": False,
+            },
+        },
+    },
 ]
 
 
@@ -237,29 +268,51 @@ class AIPlugin:
                                 "content": "达到单次最大工具调用次数，暂停调用工具。你可以在下条消息后继续。",  # 工具的执行结果
                             }
                         )
-                    elif tool_name == "send_message":
-                        log.info(
-                            f"调用 send_message 工具, 参数: {tool_call.function.arguments}"
-                        )
-                        tool_args = json.loads(tool_call.function.arguments)
-                        return_data = await bot.qq_api.send_group_message(
-                            self.group_openid,
-                            send_message.GroupMessage(
-                                msg_type=send_message.GroupMessageType.MARKDOWN,
-                                markdown=send_message.MessageMarkdown(
-                                    content=tool_args["content"]
-                                ),
-                            ),
-                        )
-                        log.debug(f"发送消息返回: {return_data}")
-                        return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
-                        self.messages.append(
-                            {
-                                "role": "tool",
-                                "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                "content": return_mesage,  # 工具的执行结果
-                            }
-                        )
+                    else:
+                        match tool_name:
+                            case "add_memory":
+                                log.info(
+                                    f"调用 send_message 工具, 参数: {tool_call.function.arguments}"
+                                )
+                                tool_args = json.loads(tool_call.function.arguments)
+                                return_data = await bot.qq_api.send_group_message(
+                                    self.group_openid,
+                                    send_message.GroupMessage(
+                                        msg_type=send_message.GroupMessageType.MARKDOWN,
+                                        markdown=send_message.MessageMarkdown(
+                                            content=tool_args["content"]
+                                        ),
+                                    ),
+                                )
+                                log.debug(f"发送消息返回: {return_data}")
+                                return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
+                                self.messages.append(
+                                    {
+                                        "role": "tool",
+                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                        "content": return_mesage,  # 工具的执行结果
+                                    }
+                                )
+                            case "send_message":
+                                log.info(
+                                    f"调用 add_memory 工具, 参数: {tool_call.function.arguments}"
+                                )
+                                tool_args = json.loads(tool_call.function.arguments)
+                                await ai_memory.write_memory(
+                                    ai_memory.Memory(
+                                        keywords=tool_args.get("keywords", []),
+                                        content=tool_args["content"],
+                                    )
+                                )
+                                log.info("消息已保存到记忆中。")
+                                self.messages.append(
+                                    {
+                                        "role": "tool",
+                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                        "content": "消息已保存到记忆中。",  # 工具的执行结果
+                                    }
+                                )
+
             completion = await self.use_ai(
                 self.messages, bot, tool_calls_count + 1
             )  # 继续对话，传入更新后的消息列表
@@ -268,7 +321,7 @@ class AIPlugin:
         log.debug(
             f"详细使用情况: {completion.usage.prompt_tokens_details if completion.usage else 'N/A'}"
         )
-        if tool_calls_count == 0 and total_tokens > 300 * 1000:
+        if tool_calls_count == 0 and total_tokens > 100 * 1000:
             log.info("对话内容过长，进行总结以保留核心信息。")
             message: ChatCompletionMessageParam = {
                 "role": "user",
