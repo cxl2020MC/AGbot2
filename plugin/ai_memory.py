@@ -20,7 +20,7 @@ async def read_memory():
 
 
 async def write_memory(memory: Memory):
-    await data.write_jsonl_file(await memory_file_path, memory.model_dump())
+    await data.write_jsonl_file(await memory_file_path, memory.model_dump_json())
 
 
 async def search_memory(content: str, limit: int = 5):

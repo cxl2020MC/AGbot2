@@ -43,6 +43,7 @@ async def read_jsonl_file(file_path: Path):
             i += 1
 
 
-async def write_jsonl_file(file_path: Path, data: dict):
+async def write_jsonl_file(file_path: Path, data: dict | str):
     async with await anyio.open_file(file_path, "a", encoding="utf-8") as f:
-        await f.write(json.dumps(data) + "\n")
+        data_str = data if isinstance(data, str) else json.dumps(data)
+        await f.write(data_str + "\n")
