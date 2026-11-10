@@ -1,6 +1,8 @@
 import json
 import anyio
 
+type Path = anyio.Path
+
 DataDir = anyio.Path("data/")
 
 
@@ -14,7 +16,7 @@ async def create_data_dir():
         await DataDir.mkdir(parents=True, exist_ok=True)
 
 
-async def read_json_file(file_path):
+async def read_json_file(file_path: Path):
     if not file_path.exists():
         return None
     async with await anyio.open_file(file_path, "r", encoding="utf-8") as f:
@@ -22,12 +24,15 @@ async def read_json_file(file_path):
         return json.loads(content)
 
 
-async def write_json_file(file_path, data):
+
+
+async def write_json_file(file_path: Path, data: dict):
     async with await anyio.open_file(file_path, "w", encoding="utf-8") as f:
         await f.write(json.dumps(data))
 
 
-async def read_jsonl_file(file_path):
+async def read_jsonl_file(file_path: Path):
+    
     async with await anyio.open_file(file_path, "r", encoding="utf-8") as f:
         i = 0
         async for line in f:
@@ -37,6 +42,6 @@ async def read_jsonl_file(file_path):
             i += 1
 
 
-async def write_jsonl_file(file_path, data):
+async def write_jsonl_file(file_path: Path, data: dict):
     async with await anyio.open_file(file_path, "a", encoding="utf-8") as f:
         await f.write(json.dumps(data) + "\n")
