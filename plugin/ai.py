@@ -190,7 +190,7 @@ class AIPlugin:
         )
         log.debug(f"AI响应: {completion}")
         ai_return = completion.choices[0].message
-        log.info(f"AI返回内容: {ai_return}")
+        log.debug(f"AI返回内容: {ai_return}")
         reasoning_content = getattr(ai_return, "reasoning_content", None)
         log.info(f"AI推理内容: {reasoning_content}")
         log.info(f"AI工具调用: {ai_return.tool_calls}")
@@ -265,10 +265,12 @@ class AIPlugin:
             }
             self.messages.append(message)
             ai_return = await self.use_ai(self.messages, bot)
+            completion_message = ai_return.choices[0].message.content
+            log.info(f"总结后的对话内容: {completion_message}")
             self.messages = [
                 {
                     "role": "user",
-                    "content": f"{ai_return.choices[0].message.content}",
+                    "content": f"由于前文上下文过长，已进行总结: {completion_message}",
                 }
             ]
 
