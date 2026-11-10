@@ -12,7 +12,7 @@ async def get_file_path(file_name):
 
 
 async def create_data_dir():
-    if not DataDir.exists():
+    if not await DataDir.exists():
         print(f"创建数据目录: {DataDir}")
         await DataDir.mkdir(parents=True, exist_ok=True)
 
