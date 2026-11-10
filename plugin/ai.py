@@ -270,7 +270,7 @@ class AIPlugin:
                         )
                     else:
                         match tool_name:
-                            case "add_memory":
+                            case "send_message":
                                 log.info(
                                     f"调用 send_message 工具, 参数: {tool_call.function.arguments}"
                                 )
@@ -293,7 +293,7 @@ class AIPlugin:
                                         "content": return_mesage,  # 工具的执行结果
                                     }
                                 )
-                            case "send_message":
+                            case "add_memory":
                                 log.info(
                                     f"调用 add_memory 工具, 参数: {tool_call.function.arguments}"
                                 )
