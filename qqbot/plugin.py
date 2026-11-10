@@ -106,11 +106,16 @@ class Plugin:
         return self._CommandEventListeners
 
     def get_command_event_listeners(self, command: str):
+        find_command = 0
         for cmd, listeners in self._CommandEventListeners.items():
             if command in cmd:
-                log.debug(f"找到命令 {command} : {listeners}")
+                log.debug(f"匹配到命令 {command} : {listeners}")
+                find_command += 1
                 return listeners
-        log.warning(f"未找到命令 {command}")
+        if find_command == 0:
+            log.warning(f"未匹配到命令 {command}")
+        else:
+            log.info(f"匹配到多个命令 {command} : {find_command} 个")
         # return self._CommandEventListeners.get(command, [])
 
     def __str__(self):
