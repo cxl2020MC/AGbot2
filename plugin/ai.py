@@ -19,7 +19,7 @@ from qqbot.qq_bot import QQ_Bot
 from qqbot.types.qq_api import send_message
 from qqbot.types.qq_events import qq_message
 
-from . import ai_memory
+from . import ai_memory, ai_search
 
 client = AsyncOpenAI(
     # api_key="your-api-key",
@@ -137,6 +137,52 @@ TOOLS: list[ChatCompletionToolUnionParam] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "进行网络搜索，返回搜索结果",
+            "strict": True,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "搜索词，支持搜索语法",
+                    },
+                    "count": {
+                        "type": "string",
+                        "description": "搜索结果数量，默认为10",
+                    },
+                    "need_content": {
+                        "type": "boolean",
+                        "description": "是否需要返回搜索结果的内容，默认为False",
+                    },
+                },
+                "required": ["query"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_fetch",
+            "description": "获取网页内容，返回网页内容",
+            "strict": True,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "网页URL，必须是合法的URL",
+                    }
+                },
+                "required": ["url"],
+                "additionalProperties": False,
+            },
+        },
+    },
 ]
 
 
@@ -175,6 +221,8 @@ class AIPlugin:
             else:
                 self.load_memory_id_list.append(memory.id)  # 将记忆ID添加到已加载集合中
 
+        log.debug(f"命中的记忆内容: {ai_memory_content}")
+
         messages_content: list[ChatCompletionContentPartParam] = [
             {
                 "type": "text",
@@ -182,7 +230,7 @@ class AIPlugin:
 [{event_data.id}][{event_data.message_scene.msg_idx}]
 
 ## 命中的记忆内容
-{ai_memory_content if ai_memory_content else "无"}""",
+{"\n".join(str(memory) for memory in ai_memory_content) if ai_memory_content else "无"}""",
             }
         ]
 
@@ -284,12 +332,12 @@ class AIPlugin:
                             }
                         )
                     else:
+                        log.info(
+                            f"调用 {tool_name} 工具, 参数: {tool_call.function.arguments}"
+                        )
+                        tool_args = json.loads(tool_call.function.arguments)
                         match tool_name:
                             case "send_message":
-                                log.info(
-                                    f"调用 send_message 工具, 参数: {tool_call.function.arguments}"
-                                )
-                                tool_args = json.loads(tool_call.function.arguments)
                                 return_data = await bot.qq_api.send_group_message(
                                     self.group_openid,
                                     send_message.GroupMessage(
@@ -309,10 +357,6 @@ class AIPlugin:
                                     }
                                 )
                             case "add_memory":
-                                log.info(
-                                    f"调用 add_memory 工具, 参数: {tool_call.function.arguments}"
-                                )
-                                tool_args = json.loads(tool_call.function.arguments)
                                 await ai_memory.write_memory(
                                     ai_memory.Memory(
                                         keywords=tool_args.get("keywords", []),
@@ -325,6 +369,24 @@ class AIPlugin:
                                         "role": "tool",
                                         "tool_call_id": tool_id,  # 与之前的调用请求配对
                                         "content": "消息已保存到记忆中。",  # 工具的执行结果
+                                    }
+                                )
+                            case "web_search":
+                                search_results = await ai_search.web_search(**tool_args)
+                                self.messages.append(
+                                    {
+                                        "role": "tool",
+                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                        "content": search_results,  # 工具的执行结果
+                                    }
+                                )
+                            case "web_fetch":
+                                fetch_results = await ai_search.web_fetch(**tool_args)
+                                self.messages.append(
+                                    {
+                                        "role": "tool",
+                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                        "content": fetch_results,  # 工具的执行结果
                                     }
                                 )
 
