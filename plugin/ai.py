@@ -170,7 +170,7 @@ class AIPlugin:
 [{event_data.id}][{event_data.message_scene.msg_idx}]
 
 ## 命中的记忆内容
-{ai_memory_content if (ai_memory_content := await ai_memory.search_memory(event_data.content)) else "无"}""",
+{ai_memory_content if (ai_memory_content := await ai_memory.search_memory(f"[{event_data.author.username}] {event_data.content}")) else "无"}""",
             }
         ]
 
