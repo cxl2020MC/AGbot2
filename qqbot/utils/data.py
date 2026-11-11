@@ -10,11 +10,12 @@ def get_file_path(file_name):
     return DataDir / file_name
 
 
-# TODO: 
-async def create_data_dir():
-    if not await DataDir.exists():
-        print(f"创建数据目录: {DataDir}")
-        await DataDir.mkdir(parents=True, exist_ok=True)
+async def create_file_dir(path: Path):
+    """创建数据目录"""
+    data_dir = path.parent
+    if not await data_dir.exists():
+        print(f"创建数据目录: {data_dir}")
+        await data_dir.mkdir(parents=True, exist_ok=True)
 
 
 async def read_json_file(file_path: Path):
@@ -23,8 +24,6 @@ async def read_json_file(file_path: Path):
     async with await anyio.open_file(file_path, "r", encoding="utf-8") as f:
         content = await f.read()
         return json.loads(content)
-
-
 
 
 async def write_json_file(file_path: Path, data: dict):
