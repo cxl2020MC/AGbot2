@@ -29,7 +29,9 @@ async def write_memory(memory: Memory):
 async def search_memory(content: str, limit: int = 5):
     results: list[Memory] = []
     async for i, memory in read_memory():
-        if memory.content in content:
-            print(f"找到记忆:{i} {memory}")
-            results.append(memory)
+        for keyword in memory.keywords:
+            if keyword in content:
+                print(f"找到记忆:{i} {memory}")
+                results.append(memory)
+    print(f"搜索记忆结果: {results}")
     return results
