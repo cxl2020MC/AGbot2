@@ -153,6 +153,7 @@ class AIPlugin:
         self.worker_task = asyncio.create_task(
             self.worker(), name=f"AIPluginWorker-{group_openid}"
         )
+        self.load_memory_id_list = []  # 用于存储已加载的记忆ID，避免重复加载
 
     async def add_message(
         self, event_data: qq_message.GroupMessage | qq_message.Message
@@ -163,6 +164,17 @@ class AIPlugin:
             else ""
         )
 
+        ai_memory_content = await ai_memory.search_memory(
+            f"[{event_data.author.username}] {event_data.content}"
+        )
+        for memory in ai_memory_content:
+            if memory.id in self.load_memory_id_list:
+                ai_memory_content.remove(
+                    memory
+                )  # 如果记忆ID已存在，则从结果中移除，避免重复加载
+            else:
+                self.load_memory_id_list.append(memory.id)  # 将记忆ID添加到已加载集合中
+
         messages_content: list[ChatCompletionContentPartParam] = [
             {
                 "type": "text",
@@ -170,7 +182,7 @@ class AIPlugin:
 [{event_data.id}][{event_data.message_scene.msg_idx}]
 
 ## 命中的记忆内容
-{ai_memory_content if (ai_memory_content := await ai_memory.search_memory(f"[{event_data.author.username}] {event_data.content}")) else "无"}""",
+{ai_memory_content if ai_memory_content else "无"}""",
             }
         ]
 
