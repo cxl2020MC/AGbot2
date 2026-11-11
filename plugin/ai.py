@@ -377,7 +377,7 @@ class AIPlugin:
                                     {
                                         "role": "tool",
                                         "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                        "content": search_results,  # 工具的执行结果
+                                        "content": json.dumps(search_results),  # 工具的执行结果
                                     }
                                 )
                             case "web_fetch":
