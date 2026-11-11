@@ -390,7 +390,7 @@ class AIPlugin:
                                     }
                                 )
 
-            completion = await self.use_ai(
+            tool_completion = await self.use_ai(
                 self.messages, bot, tool_calls_count + 1
             )  # 继续对话，传入更新后的消息列表
         total_tokens = completion.usage.total_tokens if completion.usage else 0
