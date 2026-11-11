@@ -55,8 +55,7 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 
 消息标识可能包含@、回复、主人标识等
 
-如果命中了记忆中的关键词，下面会输出记忆内容，格式如下：
-[时间][关键词列表]：[记忆内容]
+如果命中了记忆中的关键词，下面会输出记忆内容
 
 
 ## 群聊处理流程
@@ -87,6 +86,7 @@ at群成员： <qqbot-at-user id="群成员ID" />
 你的机器人ID是：{BOT_ID}
 当前的群聊名称是：{GROUP_NAME}
 """
+
 
 GROUP_ID_BLACKLIST = [
     "B274F145FD3D531A98184AD623AA9A88",
@@ -167,7 +167,10 @@ class AIPlugin:
             {
                 "type": "text",
                 "text": f"""[{event_data.author.username}]({event_data.author.id})[{event_data.timestamp}][]: {ref_msg_flag}{event_data.content}
-[{event_data.id}][{event_data.message_scene.msg_idx}]""",
+[{event_data.id}][{event_data.message_scene.msg_idx}]
+
+## 命中的记忆内容
+{ai_memory_content if (ai_memory_content := await ai_memory.search_memory(event_data.content)) else "无"}""",
             }
         ]
 

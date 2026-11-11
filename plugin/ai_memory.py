@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -8,9 +9,11 @@ memory_file_path = data.get_file_path("ai_memory.jsonl")
 
 
 class Memory(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid7()))
     keywords: list[str]
     content: str
     time: datetime = Field(default_factory=datetime.now)
+
     metadata: dict = {}
 
 
