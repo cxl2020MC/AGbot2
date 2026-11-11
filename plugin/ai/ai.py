@@ -18,8 +18,9 @@ from qqbot.qq_bot import QQ_Bot
 # from qqbot.types.bot_event import MessageEventType
 from qqbot.types.qq_api import send_message
 from qqbot.types.qq_events import qq_message
+from qqbot.utils import command_utils
 
-from . import ai_memory, ai_search
+from . import ai_memory, web_search
 
 client = AsyncOpenAI(
     # api_key="your-api-key",
@@ -85,6 +86,7 @@ at群成员： <qqbot-at-user id="群成员ID" />
 
 你的机器人ID是：{BOT_ID}
 当前的群聊名称是：{GROUP_NAME}
+群聊openid是：{GROUP_OPENID}
 """
 
 
@@ -201,6 +203,12 @@ class AIPlugin:
         )
         self.load_memory_id_list = []  # 用于存储已加载的记忆ID，避免重复加载
 
+    @staticmethod
+    async def get_group_worker(bot: QQ_Bot, group_openid: str):
+        if group_openid not in AIPlugin.workers:
+            AIPlugin.workers[group_openid] = AIPlugin(group_openid, bot)
+        return AIPlugin.workers[group_openid]
+
     async def add_message(
         self, event_data: qq_message.GroupMessage | qq_message.Message
     ):
@@ -278,6 +286,7 @@ class AIPlugin:
                     GROUP_NAME=(
                         await bot.qq_api.get_group_info(self.group_openid)
                     ).group_name,
+                    GROUP_OPENID=self.group_openid,
                 ),
             },
         ]
@@ -372,21 +381,27 @@ class AIPlugin:
                                     }
                                 )
                             case "web_search":
-                                search_results = await ai_search.web_search(**tool_args)
+                                search_results = await web_search.web_search(
+                                    **tool_args
+                                )
                                 self.messages.append(
                                     {
                                         "role": "tool",
                                         "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                        "content": json.dumps(search_results),  # 工具的执行结果
+                                        "content": json.dumps(
+                                            search_results
+                                        ),  # 工具的执行结果
                                     }
                                 )
                             case "web_fetch":
-                                fetch_results = await ai_search.web_fetch(**tool_args)
+                                fetch_results = await web_search.web_fetch(**tool_args)
                                 self.messages.append(
                                     {
                                         "role": "tool",
                                         "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                        "content": json.dumps(fetch_results),  # 工具的执行结果
+                                        "content": json.dumps(
+                                            fetch_results
+                                        ),  # 工具的执行结果
                                     }
                                 )
 
@@ -427,12 +442,13 @@ class AIPlugin:
         return await self.use_ai(messages, bot)
 
     async def worker(self):
+        log.debug(f"启动AI插件工作线程，处理群聊 {self.group_openid} 的消息。")
         while True:
             event_data = await self.group_message_queue.get()
             try:
                 await self.handle_ai(event_data, self.bot)
-            except Exception as e:
-                log.exception(f"处理消息时发生异常:")
+            except Exception:  # noqa: BLE001
+                log.exception("AI 插件处理消息时发生异常")
             finally:
                 self.group_message_queue.task_done()
 
@@ -441,6 +457,11 @@ class AIPlugin:
     ):
         queue = self.group_message_queue
         await queue.put(event_data)
+
+    async def clear_messages(self):
+        log.info(f"清理群聊 {self.group_openid} 的上下文消息。")
+        self.messages.clear()
+        log.info(f"清理群聊 {self.group_openid} 的上下文消息完成。")
 
 
 @plugin.on_message(
@@ -454,8 +475,32 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
         log.info(f"群聊 {group_openid} 在黑名单中，跳过AI处理。")
         return
 
-    if group_openid not in AIPlugin.workers:
-        AIPlugin.workers[group_openid] = AIPlugin(group_openid, bot)
-
-    ai_plugin = AIPlugin.workers[group_openid]
+    ai_plugin = await AIPlugin.get_group_worker(bot, group_openid)
     return await ai_plugin.handle_ai(event_data, bot)
+
+
+@plugin.on_command(
+    ("chat_black_list", "聊天黑名单"), "聊天黑名单", "关于聊天黑名单的各种操作"
+)
+async def chat_black_list_command(
+    event_data: qq_message.GroupMessage | qq_message.Message, bot: QQ_Bot
+):
+    if isinstance(event_data, qq_message.GroupMessage):
+        await bot.qq_api.send_group_message(
+            event_data.group_openid,
+            send_message.GroupMessage(content=f"当前聊天黑名单: {GROUP_ID_BLACKLIST}"),
+        )
+
+
+@plugin.on_command(("chat_clear", "重置上下文"), "重置上下文", "清除当前群聊的上下文")
+async def clear_command(
+    event_data: qq_message.GroupMessage | qq_message.Message, bot: QQ_Bot
+):
+    if isinstance(event_data, qq_message.GroupMessage):
+        await (
+            await AIPlugin.get_group_worker(bot, event_data.group_openid)
+        ).clear_messages()
+        await bot.qq_api.send_group_message(
+            event_data.group_openid,
+            send_message.GroupMessage(content="清理当前群聊的上下文成功"),
+        )

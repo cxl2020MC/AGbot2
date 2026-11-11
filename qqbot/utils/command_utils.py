@@ -70,7 +70,6 @@ class CommandParser:
             opt, tmp = self.__get_sep(tmp)
             self.args.append(opt)
 
-
     def __get_sep(self, s1: str) -> tuple[str, str]:
         quote = ""
         l = len(s1)
@@ -88,14 +87,14 @@ class CommandParser:
                     continue
 
                 if quote:
-                    return s1[1: i - 1], s1[i + 1: l]  # 字符串结束了
+                    return s1[1 : i - 1], s1[i + 1 : l]  # 字符串结束了
 
                 quote = c
                 i += 1
                 continue
 
             if not quote and c == "\\":
-                s1 = s1[:i] + s1[i + 1:] + " "
+                s1 = s1[:i] + s1[i + 1 :] + " "
                 l -= 1
                 # 删除当前反斜杠后，后面的字符会移到 i 位置，需要重新检查 i
                 continue
@@ -109,6 +108,7 @@ class CommandParser:
             raise ValueError(f"未关闭的引号包裹：{quote} at {len(self.cmd)}")
 
         return s1, ""
+
 
 if __name__ == "__main__":
     # 测试样例：引号包裹，里面有逗号

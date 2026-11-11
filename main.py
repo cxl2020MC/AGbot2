@@ -1,4 +1,5 @@
-from plugin import ai, command, echo
+from plugin import command, echo
+from plugin.ai import ai
 from qqbot import qq_bot
 
 
