@@ -12,5 +12,4 @@ dependencies = [
     "loguru>=0.7.3",
     "openai>=3.48.0",
     "pydantic>=2.13.4",
-    "websockets>=16.1.1",
 ]
