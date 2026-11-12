@@ -16,8 +16,12 @@ class Memory(BaseModel):
 
     metadata: dict = {}
 
+
 class MemoryWriteToolPram(BaseModel):
-    keywords: list[str] = Field(..., description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID")
+    keywords: list[str] = Field(
+        ...,
+        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
+    )
     content: str = Field(..., description="记忆内容")
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
@@ -38,5 +42,6 @@ async def search_memory(content: str, limit: int = 5):
             if keyword in content:
                 print(f"找到记忆:{i} {memory}")
                 results.append(memory)
+                break
     print(f"搜索记忆结果: {results}")
     return results
