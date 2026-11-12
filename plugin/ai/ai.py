@@ -4,12 +4,13 @@ from asyncio import queues
 from typing import ClassVar, cast
 
 import httpx2
-from openai import AsyncOpenAI
+import openai
 from openai.types.chat import (
     ChatCompletionContentPartParam,
     ChatCompletionMessageParam,
     ChatCompletionToolUnionParam,
 )
+from pydantic import BaseModel, Field
 
 from qqbot import plugin
 from qqbot.log import logger as log
@@ -22,7 +23,7 @@ from qqbot.utils import command_utils
 
 from . import ai_memory, web_search
 
-client = AsyncOpenAI(
+client = openai.AsyncOpenAI(
     # api_key="your-api-key",
     base_url="https://api.deepseek.com"
     # base_url="https://ai.yumeyuki.moe/v1"
@@ -95,97 +96,35 @@ GROUP_ID_BLACKLIST = [
     "45F510227BFFF0355392E42E6B98015D",
 ]
 
+
+class SendMessageToolParam(BaseModel):
+    content: str = Field(..., description="需要发送的消息内容")
+
+
 TOOLS: list[ChatCompletionToolUnionParam] = [
-    {
-        "type": "function",
-        "function": {
-            "name": "send_message",
-            "description": "发送一条消息，支持markdown格式，只能使用此工具函数发送消息，不能直接输出消息内容",
-            "strict": True,
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "content": {
-                        "type": "string",
-                        "description": "需要发送的消息内容",
-                    }
-                },
-                "required": ["content"],
-                "additionalProperties": False,
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "add_memory",
-            "description": "添加一条记忆，包含关键词和内容",
-            "strict": True,
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "keywords": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "记忆关键词列表，不能为空",
-                    },
-                    "content": {
-                        "type": "string",
-                        "description": "记忆内容",
-                    },
-                },
-                "required": ["keywords", "content"],
-                "additionalProperties": False,
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "web_search",
-            "description": "进行网络搜索，返回搜索结果",
-            "strict": True,
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "搜索词，支持搜索语法",
-                    },
-                    "count": {
-                        "type": "string",
-                        "description": "搜索结果数量，默认为10",
-                    },
-                    "need_content": {
-                        "type": "boolean",
-                        "description": "是否需要返回搜索结果的内容，默认为False",
-                    },
-                },
-                "required": ["query"],
-                "additionalProperties": False,
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "web_fetch",
-            "description": "获取网页内容，返回网页内容",
-            "strict": True,
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "网页URL，必须是合法的URL",
-                    }
-                },
-                "required": ["url"],
-                "additionalProperties": False,
-            },
-        },
-    },
+    openai.pydantic_function_tool(
+        SendMessageToolParam,
+        name="send_message",
+        description="发送一条消息，支持markdown格式，你只能使用此工具函数发送消息，不能直接输出消息内容",
+    ),
+    openai.pydantic_function_tool(
+        ai_memory.MemoryWriteToolPram,
+        name="add_memory",
+        description="将消息内容存入记忆库，便于后续参考",
+    ),
+    openai.pydantic_function_tool(
+        web_search.WebSearchToolParam,
+        name="web_search",
+        description="搜索网页内容，返回搜索结果",
+    ),
+    openai.pydantic_function_tool(
+        web_search.WebFetchToolParam,
+        name="web_fetch",
+        description="获取网页内容，返回网页内容",
+    ),
 ]
+
+log.debug(f"已注册工具函数: {TOOLS}")
 
 
 class AIPlugin:
@@ -295,7 +234,7 @@ class AIPlugin:
 
         log.trace(f"AI请求消息: {ai_messages}")
 
-        completion = await client.chat.completions.create(
+        completion = await client.chat.completions.parse(
             model="deepseek-flash",
             messages=ai_messages,
             tools=TOOLS,
@@ -344,66 +283,75 @@ class AIPlugin:
                         log.info(
                             f"调用 {tool_name} 工具, 参数: {tool_call.function.arguments}"
                         )
-                        tool_args = json.loads(tool_call.function.arguments)
-                        match tool_name:
-                            case "send_message":
-                                return_data = await bot.qq_api.send_group_message(
-                                    self.group_openid,
-                                    send_message.GroupMessage(
-                                        msg_type=send_message.GroupMessageType.MARKDOWN,
-                                        markdown=send_message.MessageMarkdown(
-                                            content=tool_args["content"]
+                        parsed_arguments = tool_call.function.parsed_arguments
+                        log.debug(f"解析后的参数: {parsed_arguments}")
+                        if parsed_arguments is None:
+                            log.warning(
+                                f"工具 {tool_name} 的参数解析失败，无法调用工具。"
+                            )
+                        else:
+                            tool_args = cast(BaseModel, parsed_arguments).model_dump()
+                            match tool_name:
+                                case "send_message":
+                                    return_data = await bot.qq_api.send_group_message(
+                                        self.group_openid,
+                                        send_message.GroupMessage(
+                                            msg_type=send_message.GroupMessageType.MARKDOWN,
+                                            markdown=send_message.MessageMarkdown(
+                                                content=tool_args["content"]
+                                            ),
                                         ),
-                                    ),
-                                )
-                                log.debug(f"发送消息返回: {return_data}")
-                                return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
-                                self.messages.append(
-                                    {
-                                        "role": "tool",
-                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                        "content": return_mesage,  # 工具的执行结果
-                                    }
-                                )
-                            case "add_memory":
-                                await ai_memory.write_memory(
-                                    ai_memory.Memory(
-                                        keywords=tool_args.get("keywords", []),
-                                        content=tool_args["content"],
                                     )
-                                )
-                                log.info("消息已保存到记忆中。")
-                                self.messages.append(
-                                    {
-                                        "role": "tool",
-                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                        "content": "消息已保存到记忆中。",  # 工具的执行结果
-                                    }
-                                )
-                            case "web_search":
-                                search_results = await web_search.web_search(
-                                    **tool_args
-                                )
-                                self.messages.append(
-                                    {
-                                        "role": "tool",
-                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                        "content": json.dumps(
-                                            search_results
-                                        ),  # 工具的执行结果
-                                    }
-                                )
-                            case "web_fetch":
-                                fetch_results = await web_search.web_fetch(**tool_args)
-                                self.messages.append(
-                                    {
-                                        "role": "tool",
-                                        "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                        "content": json.dumps(
-                                            fetch_results
-                                        ),  # 工具的执行结果
-                                    }
-                                )
+                                    log.debug(f"发送消息返回: {return_data}")
+                                    return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
+                                    self.messages.append(
+                                        {
+                                            "role": "tool",
+                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                            "content": return_mesage,  # 工具的执行结果
+                                        }
+                                    )
+                                case "add_memory":
+                                    await ai_memory.write_memory(
+                                        ai_memory.Memory(
+                                            keywords=tool_args.get("keywords", []),
+                                            content=tool_args["content"],
+                                        )
+                                    )
+                                    log.info("消息已保存到记忆中。")
+                                    self.messages.append(
+                                        {
+                                            "role": "tool",
+                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                            "content": "消息已保存到记忆中。",  # 工具的执行结果
+                                        }
+                                    )
+                                case "web_search":
+                                    search_results = await web_search.web_search(
+                                        **tool_args
+                                    )
+                                    self.messages.append(
+                                        {
+                                            "role": "tool",
+                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                            "content": json.dumps(
+                                                search_results
+                                            ),  # 工具的执行结果
+                                        }
+                                    )
+                                case "web_fetch":
+                                    fetch_results = await web_search.web_fetch(
+                                        **tool_args
+                                    )
+                                    self.messages.append(
+                                        {
+                                            "role": "tool",
+                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                            "content": json.dumps(
+                                                fetch_results
+                                            ),  # 工具的执行结果
+                                        }
+                                    )
 
             tool_completion = await self.use_ai(
                 self.messages, bot, tool_calls_count + 1

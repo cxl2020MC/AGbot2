@@ -16,6 +16,11 @@ class Memory(BaseModel):
 
     metadata: dict = {}
 
+class MemoryWriteToolPram(BaseModel):
+    keywords: list[str] = Field(..., description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID")
+    content: str = Field(..., description="记忆内容")
+    # metadata: dict = Field(default_factory=dict, description="记忆元数据")
+
 
 async def read_memory():
     async for i, memory in data.read_jsonl_file(memory_file_path):
