@@ -21,10 +21,20 @@ async def handle_event(
             event = qq_message.GroupMessage.model_validate(event_data)
             log.debug(f"收到群消息: {event}")
             group_info = await bot_obj.qq_api.get_group_info(event.group_openid)
+            message_metadata: list[str] = [
+                "消息ID: " + event.id,
+                # "消息类型: " + event.message_type.name,
+                f"消息索引: {event.message_scene.msg_idx}",
+                f"引用目标消息索引: {event.message_scene.ref_msg_idx}",
+            ]
+            if event.msg_elements:
+                message_metadata.append(f"消息元素: {event.msg_elements}")
+            if event.parallel_message:
+                message_metadata.append(f"消息节点: {event.parallel_message.msg_nodes}")
+
             log.info(
-                f"""收到群 {group_info.group_name}({event.group_openid}) 内 {event.author.username}({event.author.id} {event.author.member_openid} {event.author.union_openid})[{event.author.member_role.name if event.author.member_role else "未知"}] 的消息: {event.content}
-{f"[引用消息: {event.message_scene.ref_msg_idx}]\n" if event.message_scene.ref_msg_idx else ""}[{event.id}]
-[{event.message_scene.msg_idx}]"""
+                f"""收到群 {group_info.group_name}({event.group_openid}) 内 {event.author.username}({event.author.id} {event.author.member_openid} {event.author.union_openid})[{event.author.member_role.name if event.author.member_role else "未知"}] 的 {event.message_type.name} 消息: {event.content}
+[{"]\n[".join(message_metadata)}]"""
             )
             await event_handle(
                 qq_event.QQEventType.GROUP_MESSAGE_CREATE, event_data, bot_obj
