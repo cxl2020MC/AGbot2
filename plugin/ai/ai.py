@@ -52,25 +52,30 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 2. 友好、礼貌、尊重，可调皮但不过度卖萌。
 
 ## 消息格式
-[群成员昵称]([群成员ID])[消息时间戳][消息标识]：[消息内容]
-[消息id][消息回复索引]
+[消息时间戳][群成员昵称]([群成员ID])[消息类型][消息标识]：[消息内容]
+[消息ID]
+[消息索引]
+[引用目标消息索引]
+[消息元素(可选)]
+[消息节点(可选)]
+
 
 消息标识可能包含@、回复、主人标识等
 
-如果命中了记忆中的关键词，下面会输出记忆内容
+如果命中了记忆中的关键词，会在下面输出命中的记忆内容
 
 
 ## 群聊处理流程
 
 1. 解析消息格式。
-2. 判断是否需要发言：仅在被@、被回复、被点名、明显提问或内容适合你参与时回复。
+2. 判断是否需要发言：仅在被@、被回复、被点名、明显提问时回复。
 3. 同一用户连续消息可合并理解；避免重复回答和刷屏。
 4. 回复时可自然称呼对方昵称。
 5. 如果用户的消息中有些信息值得记忆(如个人喜好、重要信息等)，可将关键词和内容调用 `add_memory` 工具存入记忆库，便于后续参考。
 
 
 ## 发送消息时可以使用的特殊格式
-不需要对引号进行转义
+不需要对引号进行转义message_type
 
 at群成员： <qqbot-at-user id="群成员ID" /> 
 
@@ -89,7 +94,7 @@ at群成员： <qqbot-at-user id="群成员ID" />
 当前的群聊名称是：{GROUP_NAME}
 群聊openid是：{GROUP_OPENID}
 """
-
+# 或内容适合你参与
 
 GROUP_ID_BLACKLIST = [
     "B274F145FD3D531A98184AD623AA9A88",
@@ -151,14 +156,8 @@ class AIPlugin:
     async def add_message(
         self, event_data: qq_message.GroupMessage | qq_message.Message
     ):
-        ref_msg_flag = (
-            f"[引用消息: {event_data.message_scene.ref_msg_idx}]"
-            if event_data.message_scene.ref_msg_idx
-            else ""
-        )
-
         ai_memory_content = await ai_memory.search_memory(
-            f"[{event_data.author.username}] {event_data.content}"
+            f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}"
         )
         for memory in ai_memory_content:
             if memory.id in self.load_memory_id_list:
@@ -170,11 +169,32 @@ class AIPlugin:
 
         log.debug(f"命中的记忆内容: {ai_memory_content}")
 
+        message_metadata: list[str] = [
+            "消息ID: " + event_data.id,
+            "消息类型: " + event_data.message_type.name,
+            f"消息索引: {event_data.message_scene.msg_idx}",
+            f"引用目标消息索引: {event_data.message_scene.ref_msg_idx}",
+        ]
+        if event_data.msg_elements:
+            message_metadata.append(f"消息元素: {event_data.msg_elements}")
+        if event_data.parallel_message:
+            message_metadata.append(
+                f"消息节点: {event_data.parallel_message.msg_nodes}"
+            )
+
+        message_type_flag = []
+        if event_data.author.union_openid == "1AE10B8401B2C79FAC54EA62A9EE2272":
+            message_type_flag.append("主人")
+        if event_data.mentions:
+            for mention in event_data.mentions:
+                if mention.id == (await self.bot.qq_api.get_bot_info()).union_openid:
+                    message_type_flag.append("被@")
+
         messages_content: list[ChatCompletionContentPartParam] = [
             {
                 "type": "text",
-                "text": f"""[{event_data.author.username}]({event_data.author.id})[{event_data.timestamp}][]: {ref_msg_flag}{event_data.content}
-[{event_data.id}][{event_data.message_scene.msg_idx}]
+                "text": f"""[{event_data.timestamp}][{event_data.author.username}]({event_data.author.id})[{event_data.message_type.name}]{message_type_flag}: {event_data.content}
+[{"]\n[".join(message_metadata)}]
 
 ## 命中的记忆内容
 {"\n".join(str(memory) for memory in ai_memory_content) if ai_memory_content else "无"}""",
