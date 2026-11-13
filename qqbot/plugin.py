@@ -72,6 +72,7 @@ class Plugin:
     def register_event_listener(self, event_type: QQEventType, listener: EventListener):
         if event_type not in self._EventListeners:
             self._EventListeners[event_type] = []
+        log.debug(f"注册事件监听器: {event_type}[{listener}]")
         self._EventListeners[event_type].append(listener)
 
     def get_event_listeners(self, event_type: QQEventType):
@@ -91,6 +92,9 @@ class Plugin:
     ):
         if message_event_type not in self._MessageEventListeners:
             self._MessageEventListeners[message_event_type] = []
+        log.debug(
+            f"注册消息事件监听器: {message_event_type}[{listener}]"
+        )
         self._MessageEventListeners[message_event_type].append(listener)
 
     def get_all_message_listeners(self):
@@ -101,23 +105,23 @@ class Plugin:
     ):
         if commands not in self._CommandEventListeners:
             self._CommandEventListeners[commands] = []
+        log.debug(f"注册命令事件监听器: {commands}[{listener}]")
         self._CommandEventListeners[commands].append(listener)
 
     def get_all_command_event_listeners(self):
         return self._CommandEventListeners
 
     def get_command_event_listeners(self, command: str):
-        find_command = 0
+        find_commands = []
         for cmd, listeners in self._CommandEventListeners.items():
             if command in cmd:
                 log.debug(f"匹配到命令 {command} : {listeners}")
-                find_command += 1
-                return listeners
-        if find_command == 0:
+                find_commands.append(listeners)
+        if find_commands:
             log.warning(f"未匹配到命令 {command}")
-        else:
-            log.info(f"匹配到多个命令 {command} : {find_command} 个")
-        # return self._CommandEventListeners.get(command, [])
+        elif len(find_commands) > 1:
+            log.info(f"命令 {command} 共匹配到多个监听器: {find_commands}")
+        return find_commands
 
     def __str__(self):
         return f"Plugin(name={self.name}, description={self.description}, version={self.version})"
