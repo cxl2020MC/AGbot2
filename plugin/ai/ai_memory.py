@@ -4,6 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from qqbot.utils import data
+from qqbot.log import logger as log
 
 memory_file_path = data.get_file_path("ai_memory.jsonl")
 
@@ -40,8 +41,8 @@ async def search_memory(content: str, limit: int = 5):
     async for i, memory in read_memory():
         for keyword in memory.keywords:
             if keyword in content:
-                print(f"找到记忆:{i} {memory}")
+                log.debug(f"在第 {i} 行找到记忆: {memory}")
                 results.append(memory)
                 break
-    print(f"搜索记忆结果: {results}")
+    log.debug(f"搜索记忆结果: {results}")
     return results
