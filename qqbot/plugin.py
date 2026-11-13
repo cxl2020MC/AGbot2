@@ -25,6 +25,7 @@ class PluginManager:
         self.bot_obj = bot_obj
 
     def add_plugin(self, plugin_class: Plugin):
+        log.info(f"添加插件: {plugin_class.name} - {plugin_class.description}")
         # plugin = plugin_class(bot)
         self.plugins.append(plugin_class)
         # return plugin

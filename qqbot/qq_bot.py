@@ -22,8 +22,11 @@ DEFAULT_INTENTS = (
     (1 << 0)  # GUILDS
     | (1 << 1)  # GUILD_MEMBERS
     | (1 << 9)  # GUILD_MESSAGES
+    | (1 << 10)  # GUILD_MESSAGE_REACTIONS
     | (1 << 12)  # DIRECT_MESSAGE
     | (1 << 25)  # GROUP_AND_C2C_EVENT
+    | (1 << 26)  # INTERACTION
+    | (1 << 30)  # PUBLIC_GUILD_MESSAGES
 )
 
 RECONNECT_DELAY_SECONDS = 5
@@ -287,7 +290,7 @@ class QQ_Bot:
         await self.fetch_access_token(app_id, client_secret)
         asyncio.create_task(
             self.update_access_token_loop(app_id, client_secret),
-            name="update_access_token_loop"
+            name="update_access_token_loop",
         )
         await self.fetch_gateway()
         await self.connect_ws()

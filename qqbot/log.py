@@ -1,41 +1,65 @@
-import sys
+import logging
+import logging.handlers
 
-from loguru import logger
+from rich.logging import RichHandler
 
-logger.remove()
+logger = logging.getLogger("AGbot2")
 
-log_format = "{time:YYYY-MM-DD HH:mm:ss} | <lvl>{level:<8}</lvl> | {message} | {name}:{function}:{line}"
+console_format = "{message}"
+file_format = "{asctime} - {levelname:<8} | {message} | {module}:{lineno} ({funcName}, {taskName})"
 
-logger.add(sys.stdout, colorize=True, format=log_format, level="DEBUG")
-logger.add(
-    "logs/debug.log",
-    rotation="10MB",
-    retention="30 days",
-    level="DEBUG",
-    format=log_format,
-    enqueue=True,
+console_handler = RichHandler(
+    rich_tracebacks=True,
+    tracebacks_show_locals=True,
+    markup=True,
+    log_time_format="[%Y-%m-%d %H:%M:%S]",
 )
-logger.add(
-    "logs/info.log",
-    rotation="10MB",
-    retention="30 days",
-    level="INFO",
-    format=log_format,
-    enqueue=True,
-)
-logger.add(
-    "logs/error.log",
-    rotation="10MB",
-    retention="30 days",
-    level="ERROR",
-    format=log_format,
-    enqueue=True,
-)
+console_handler.setLevel(logging.DEBUG)
 
+file_debug_handler = logging.handlers.TimedRotatingFileHandler(
+    "logs/debug.log", when="midnight", interval=1, backupCount=30, encoding="utf-8"
+)
+file_debug_handler.setLevel(logging.DEBUG)
+file_debug_handler.setFormatter(logging.Formatter(file_format, style="{"))
 
-# logger.add(sys.stderr, format="{time} {level} {message}", filter="my_module", level="INFO")
+file_info_handler = logging.handlers.TimedRotatingFileHandler(
+    "logs/info.log", when="midnight", interval=1, backupCount=30, encoding="utf-8"
+)
+file_info_handler.setLevel(logging.INFO)
+file_info_handler.setFormatter(logging.Formatter(file_format, style="{"))
+
+file_error_handler = logging.handlers.TimedRotatingFileHandler(
+    "logs/error.log", when="midnight", interval=1, backupCount=30, encoding="utf-8"
+)
+file_error_handler.setLevel(logging.ERROR)
+file_error_handler.setFormatter(logging.Formatter(file_format, style="{"))
+
+# logging.basicConfig(
+#     style="{",
+#     level=logging.NOTSET,
+#     format=console_format,
+#     handlers=[
+#         # logging.StreamHandler()
+#         console_handler,
+#         file_debug_handler,
+#         file_info_handler
+#     ],
+# )
+
+# logging.getLogger("httpcore2").setLevel(logging.INFO)
+# logger = logging.getLogger("AGbot2")
+
+logger.setLevel(logging.DEBUG)
+# logger.propagate = False
+
+logger.addHandler(console_handler)
+logger.addHandler(file_debug_handler)
+logger.addHandler(file_info_handler)
+logger.addHandler(file_error_handler)
+
 
 if __name__ == "__main__":
+    # logger = logging.getLogger(__name__)
     logger.debug("This is a debug message")
     logger.info("This is an info message")
     logger.warning("This is a warning message")

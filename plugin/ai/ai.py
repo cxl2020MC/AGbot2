@@ -252,7 +252,7 @@ class AIPlugin:
 
         ai_messages.extend(messages)
 
-        log.trace(f"AI请求消息: {ai_messages}")
+        log.debug(f"AI请求消息: {ai_messages}")
 
         completion = await client.chat.completions.parse(
             model="deepseek-flash",
