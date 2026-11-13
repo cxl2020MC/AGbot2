@@ -1,4 +1,5 @@
 import json
+
 import anyio
 
 type Path = anyio.Path
@@ -10,12 +11,17 @@ def get_file_path(file_name):
     return DataDir / file_name
 
 
+async def create_dir(path: Path):
+    """创建数据目录"""
+    if not await path.exists():
+        print(f"创建数据目录: {path}")
+        await path.mkdir(parents=True, exist_ok=True)
+
+
 async def create_file_dir(path: Path):
     """创建数据目录"""
     data_dir = path.parent
-    if not await data_dir.exists():
-        print(f"创建数据目录: {data_dir}")
-        await data_dir.mkdir(parents=True, exist_ok=True)
+    await create_dir(data_dir)
 
 
 async def read_json_file(file_path: Path):
@@ -46,3 +52,7 @@ async def write_jsonl_file(file_path: Path, data: dict | str):
     async with await anyio.open_file(file_path, "a", encoding="utf-8") as f:
         data_str = data if isinstance(data, str) else json.dumps(data)
         await f.write(data_str + "\n")
+
+
+async def init_data_dir():
+    pass

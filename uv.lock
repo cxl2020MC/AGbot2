@@ -3,8 +3,8 @@ revision = 5
 requires-python = ">=3.15"
 
 [[package]]
-name = "ag-bot3"
-version = "0.1.0"
+name = "ag-bot2"
+version = "0.2.0"
 source = { virtual = "." }
 dependencies = [
     { name = "anyio" },
