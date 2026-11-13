@@ -1,6 +1,10 @@
+from dotenv import load_dotenv
+
 from plugin import command, echo
 from plugin.ai import ai
 from qqbot import qq_bot
+
+load_dotenv()
 
 
 async def main():
