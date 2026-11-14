@@ -1,24 +1,41 @@
-import uuid
 from datetime import datetime
+from typing import Annotated
 
-from pydantic import BaseModel, Field
+from bson import ObjectId
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
 
-from qqbot.utils import data
 from qqbot.log import logger as log
+from qqbot.utils import db
 
-memory_file_path = data.get_file_path("ai_memory.jsonl")
+# 定义一个可复用的 ObjectId 类型
+PyObjectId = Annotated[
+    ObjectId,
+    BeforeValidator(lambda v: ObjectId(v) if isinstance(v, (str, ObjectId)) else v),
+    PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
+]
+
+db_collection = db.get_db().get_collection("ai_memory")
+
+
+def init_memory_collection():
+    db_collection.createIndex({"keywords": 1})
 
 
 class Memory(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid7()))
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    id: PyObjectId = Field(alias="_id", default_factory=ObjectId)
+    level: int = Field(default=1, description="记忆等级, 1-5, 1为最不重要, 5为最重要")
     keywords: list[str]
     content: str
-    time: datetime = Field(default_factory=datetime.now)
+    create_time: datetime = Field(default_factory=datetime.now)
+    latest_read_time: datetime = Field(default_factory=datetime.now)
+    last_update_time: datetime = Field(default_factory=datetime.now)
 
-    metadata: dict = {}
+    # metadata: dict = {}
 
 
 class MemoryWriteToolPram(BaseModel):
+    level: int = Field(default=1, description="记忆等级, 1-5, 1为最不重要, 5为最重要")
     keywords: list[str] = Field(
         ...,
         description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
@@ -27,22 +44,34 @@ class MemoryWriteToolPram(BaseModel):
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
 
-async def read_memory():
-    async for i, memory in data.read_jsonl_file(memory_file_path):
-        yield i, Memory.model_validate(memory)
-
-
 async def write_memory(memory: Memory):
-    await data.write_jsonl_file(memory_file_path, memory.model_dump_json())
+    await db_collection.insert_one(memory.model_dump())
+
+
+async def update_memory(memory_id: str, memory: Memory):
+    memory.last_update_time = datetime.now()
+    await db_collection.update_one(
+        {"_id": ObjectId(memory_id)}, {"$set": memory.model_dump()}
+    )
 
 
 async def search_memory(content: str, limit: int = 5):
-    results: list[Memory] = []
-    async for i, memory in read_memory():
-        for keyword in memory.keywords:
-            if keyword in content:
-                log.debug(f"在第 {i} 行找到记忆: {memory}")
-                results.append(memory)
-                break
+    all_keywords = await db_collection.distinct("keywords")
+    match_keywords = []
+    for keyword in all_keywords:
+        if keyword in content:
+            log.debug(f"搜索到记忆关键词: {keyword}")
+            match_keywords.append(keyword)
+    if not match_keywords:
+        log.debug(f"未搜索到记忆关键词, content: {content}")
+        return []
+        
+    db_results = await db_collection.find(
+        {"keywords": {"$in": match_keywords}}
+    ).to_list(length=limit)
+    results = [Memory.model_validate(memory) for memory in db_results]
+    for result in results:
+        result.latest_read_time = datetime.now()
+        await update_memory(str(result.id), result)
     log.debug(f"搜索记忆结果: {results}")
     return results
