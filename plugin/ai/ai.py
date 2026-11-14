@@ -476,6 +476,10 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
         log.info(f"群聊 {group_openid} 在黑名单中，跳过AI处理。")
         return
 
+    if event_data.content.startswith("/"):
+        log.info(f"群聊 {group_openid} 的消息以 / 开头，跳过AI处理。")
+        return
+
     ai_plugin = await AIPlugin.get_group_worker(bot, group_openid)
     # return await ai_plugin.handle_ai(event_data, bot)
     return await ai_plugin.handle_message(event_data)
