@@ -104,6 +104,9 @@ GROUP_ID_BLACKLIST = [
 
 class SendMessageToolParam(BaseModel):
     content: str = Field(..., description="需要发送的消息内容")
+    ref_msg_idx: int | None = Field(
+        None, description="引用消息时，需要引用的消息的消息索引"
+    )
 
 
 TOOLS: list[ChatCompletionToolUnionParam] = [
@@ -328,6 +331,7 @@ class AIPlugin:
                             tool_args = cast(BaseModel, parsed_arguments).model_dump()
                             match tool_name:
                                 case "send_message":
+                                    ref_msg_idx = tool_args.get("ref_msg_idx")
                                     return_data = await bot.qq_api.send_group_message(
                                         self.group_openid,
                                         send_message.GroupMessage(
@@ -335,6 +339,14 @@ class AIPlugin:
                                             markdown=send_message.MessageMarkdown(
                                                 content=tool_args["content"]
                                             ),
+                                            message_reference=send_message.MessageReference(
+                                                message_id=ref_msg_idx
+                                            )
+                                            if ref_msg_idx
+                                            else None,
+                                            msg_seq=tool_calls_count
+                                            if ref_msg_idx
+                                            else None,
                                         ),
                                     )
                                     log.debug(f"发送消息返回: {return_data}")
