@@ -1,5 +1,6 @@
 import logging
 import logging.handlers
+import os
 
 from rich.logging import RichHandler
 
@@ -14,7 +15,12 @@ console_handler = RichHandler(
     markup=True,
     log_time_format="[%Y-%m-%d %H:%M:%S]",
 )
-console_handler.setLevel(logging.DEBUG)
+# console_handler.setLevel(logging.DEBUG)
+
+console_docker_handler = logging.StreamHandler(
+)
+# console_docker_handler.setLevel(logging.DEBUG)
+console_docker_handler.setFormatter(logging.Formatter(console_format, style="{"))
 
 file_debug_handler = logging.handlers.TimedRotatingFileHandler(
     "logs/debug.log", when="midnight", interval=1, backupCount=30, encoding="utf-8"
@@ -52,7 +58,10 @@ file_error_handler.setFormatter(logging.Formatter(file_format, style="{"))
 logger.setLevel(logging.DEBUG)
 # logger.propagate = False
 
-logger.addHandler(console_handler)
+if not os.getenv("RUN_DOCKER"):
+    logger.addHandler(console_handler)
+else:
+    logger.addHandler(console_docker_handler)
 logger.addHandler(file_debug_handler)
 logger.addHandler(file_info_handler)
 logger.addHandler(file_error_handler)
