@@ -14,11 +14,20 @@ PyObjectId = Annotated[
     PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
 ]
 
-db_collection = db.get_db().get_collection("ai_memory")
+db_collection: db.AsyncCollection | None = None
 
 
-def init_memory_collection():
-    db_collection.createIndex({"keywords": 1})
+async def init():
+    global db_collection
+    db_collection = (await db.get_db()).get_collection("ai_memory")
+    await db_collection.create_index({"keywords": 1})
+
+
+async def get_collection() -> db.AsyncCollection:
+    if db_collection is None:
+        await init()
+    assert db_collection is not None
+    return db_collection
 
 
 class Memory(BaseModel):
@@ -45,10 +54,12 @@ class MemoryWriteToolPram(BaseModel):
 
 
 async def write_memory(memory: Memory):
+    db_collection = await get_collection()
     await db_collection.insert_one(memory.model_dump())
 
 
 async def update_memory(memory_id: str, memory: Memory):
+    db_collection = await get_collection()
     memory.last_update_time = datetime.now()
     await db_collection.update_one(
         {"_id": ObjectId(memory_id)}, {"$set": memory.model_dump()}
@@ -56,6 +67,7 @@ async def update_memory(memory_id: str, memory: Memory):
 
 
 async def search_memory(content: str, limit: int = 5):
+    db_collection = await get_collection()
     all_keywords = await db_collection.distinct("keywords")
     match_keywords = []
     for keyword in all_keywords:
@@ -65,7 +77,7 @@ async def search_memory(content: str, limit: int = 5):
     if not match_keywords:
         log.debug(f"未搜索到记忆关键词, content: {content}")
         return []
-        
+
     db_results = await db_collection.find(
         {"keywords": {"$in": match_keywords}}
     ).to_list(length=limit)

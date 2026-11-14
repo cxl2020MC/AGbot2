@@ -1,6 +1,7 @@
 import os
 
 from pymongo import AsyncMongoClient
+from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.database import AsyncDatabase
 
 from ..log import logger as log
@@ -38,12 +39,13 @@ async def close_db() -> None:
         _client = None
 
 
-def get_client() -> AsyncMongoClient:
+async def get_client() -> AsyncMongoClient:
     if _client is None:
+        await init_db()  # 尝试获取数据库对象，如果未初始化则抛出异常
         raise RuntimeError("数据库未初始化，请先调用 init_db()。")
     return _client
 
 
-def get_db() -> AsyncDatabase:
+async def get_db() -> AsyncDatabase:
     """获取数据库对象，默认使用 DB_NAME 指定的数据库。"""
-    return get_client().get_database(DB_NAME)
+    return (await get_client()).get_database(DB_NAME)
