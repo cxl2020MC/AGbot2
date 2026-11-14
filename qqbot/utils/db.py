@@ -42,7 +42,8 @@ async def close_db() -> None:
 async def get_client() -> AsyncMongoClient:
     if _client is None:
         await init_db()  # 尝试获取数据库对象，如果未初始化则抛出异常
-        raise RuntimeError("数据库未初始化，请先调用 init_db()。")
+        # raise RuntimeError("数据库未初始化，请先调用 init_db()。")
+    assert _client is not None
     return _client
 
 
