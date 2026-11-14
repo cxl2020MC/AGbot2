@@ -75,7 +75,7 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 
 
 ## 发送消息时可以使用的特殊格式
-不需要对引号进行转义message_type
+不需要对引号进行转义
 
 at群成员： <qqbot-at-user id="群成员ID" /> 
 
