@@ -1,6 +1,5 @@
 import asyncio
 import json
-from asyncio import queues
 from typing import ClassVar, cast
 
 import httpx2
@@ -142,9 +141,9 @@ class AIPlugin:
         self.group_openid = group_openid
         self.bot: QQ_Bot = bot
         self.messages: list[ChatCompletionMessageParam] = []
-        self.group_message_queue: queues.Queue[
+        self.group_message_queue: asyncio.Queue[
             qq_message.GroupMessage | qq_message.Message
-        ] = queues.Queue()
+        ] = asyncio.Queue()
         self.worker_task = asyncio.create_task(
             self.worker(), name=f"AIPluginWorker-{group_openid}"
         )
@@ -471,7 +470,8 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
         return
 
     ai_plugin = await AIPlugin.get_group_worker(bot, group_openid)
-    return await ai_plugin.handle_ai(event_data, bot)
+    # return await ai_plugin.handle_ai(event_data, bot)
+    return await ai_plugin.handle_message(event_data)
 
 
 @plugin.on_command(
