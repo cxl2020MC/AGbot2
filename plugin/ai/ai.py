@@ -21,6 +21,7 @@ from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils
 
 from . import ai_memory, web_search
+from . import tool_calls as tool_calls_utils
 
 client = openai.AsyncOpenAI(
     # api_key="your-api-key",
@@ -325,6 +326,12 @@ class AIPlugin:
                         if parsed_arguments is None:
                             log.warning(
                                 f"工具 {tool_name} 的参数解析失败，无法调用工具。"
+                            )
+                            self.messages.append(
+                                tool_calls_utils.make_tool_call_result(
+                                    tool_call_id=tool_id,
+                                    content=f"工具 {tool_name} 的参数解析失败，无法调用工具。请检查参数格式是否正确。",
+                                )
                             )
                         else:
                             tool_args = cast(BaseModel, parsed_arguments).model_dump()
