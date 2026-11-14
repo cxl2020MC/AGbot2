@@ -20,7 +20,7 @@ console_handler = RichHandler(
 console_docker_handler = logging.StreamHandler(
 )
 # console_docker_handler.setLevel(logging.DEBUG)
-console_docker_handler.setFormatter(logging.Formatter(console_format, style="{"))
+console_docker_handler.setFormatter(logging.Formatter(file_format, style="{"))
 
 file_debug_handler = logging.handlers.TimedRotatingFileHandler(
     "logs/debug.log", when="midnight", interval=1, backupCount=30, encoding="utf-8"
