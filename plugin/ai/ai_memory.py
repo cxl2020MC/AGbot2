@@ -55,14 +55,14 @@ class MemoryWriteToolPram(BaseModel):
 
 async def write_memory(memory: Memory):
     db_collection = await get_collection()
-    await db_collection.insert_one(memory.model_dump())
+    await db_collection.insert_one(memory.model_dump(by_alias=True))
 
 
 async def update_memory(memory_id: str, memory: Memory):
     db_collection = await get_collection()
     memory.last_update_time = datetime.now()
     await db_collection.update_one(
-        {"_id": ObjectId(memory_id)}, {"$set": memory.model_dump()}
+        {"_id": ObjectId(memory_id)}, {"$set": memory.model_dump(by_alias=True)}
     )
 
 
