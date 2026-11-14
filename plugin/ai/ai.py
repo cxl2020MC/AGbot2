@@ -415,7 +415,7 @@ class AIPlugin:
                 "content": "对话内容过长，请总结之前的对话内容(不包括系统提示词)，保留核心信息，删除冗余内容，以便继续对话。只需要总结最近10～20条的对话内容，然后输出总结后的对话内容，并确保保留必要的上下文信息。",
             }
             self.messages.append(message)
-            ai_return = await self.use_ai(self.messages, bot)
+            ai_return = await self.use_ai(self.messages, bot, tool_calls_count + 1)
             completion_message = ai_return.choices[0].message.content
             log.info(f"总结后的对话内容: {completion_message}")
             self.messages = [
