@@ -7,7 +7,7 @@ from rich.logging import RichHandler
 logger = logging.getLogger("AGbot2")
 
 console_format = "{message}"
-file_format = "{asctime} - {levelname:<8} | {message} | {module}:{lineno} ({funcName}, {taskName})"
+file_format = "[{asctime}] {levelname:<8} {message} | {module}:{lineno} ({funcName}, {taskName})"
 
 console_handler = RichHandler(
     rich_tracebacks=True,
