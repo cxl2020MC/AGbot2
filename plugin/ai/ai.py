@@ -220,6 +220,21 @@ class AIPlugin:
                             {"type": "file", "file_id": file.id},
                         ),
                     )
+                elif attachment.content_type.startswith("voice"):
+                    if attachment.asr_refer_text:
+                        messages_content.append(
+                            {
+                                "type": "text",
+                                "text": f"[语音转文字]: {attachment.asr_refer_text}",
+                            }
+                        )
+                    else:
+                        messages_content.append(
+                            {
+                                "type": "text",
+                                "text": "[语音消息]: 无法识别语音内容",
+                            }
+                        )
 
         messages: list[ChatCompletionMessageParam] = [
             {
