@@ -208,7 +208,7 @@ class AIPlugin:
                 if attachment.content_type.startswith("image"):
                     img = await httpx2.get(attachment.url).aread()
                     file = await client.files.create(
-                        file=("image.jpg", img), purpose="user_data"
+                        file=(attachment.filename, img), purpose="user_data"
                     )
                     messages_content.append(
                         # {
@@ -427,7 +427,7 @@ class AIPlugin:
         await queue.put(event_data)
 
     async def clear_messages(self):
-        log.info(f"清理群聊 {self.group_openid} 的上下文消息。")
+        log.info(f"清理群聊 {self.group_openid} 的上下文消息……")
         self.messages.clear()
         log.info(f"清理群聊 {self.group_openid} 的上下文消息完成。")
 
