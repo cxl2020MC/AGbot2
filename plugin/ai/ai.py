@@ -104,7 +104,7 @@ GROUP_ID_BLACKLIST = [
 
 class SendMessageToolParam(BaseModel):
     content: str = Field(..., description="需要发送的消息内容")
-    ref_msg_idx: int | None = Field(
+    ref_msg_idx: str | None = Field(
         None, description="引用消息时，需要引用的消息的消息索引"
     )
 
