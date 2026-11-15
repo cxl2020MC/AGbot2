@@ -3,16 +3,19 @@ from typing import Annotated
 
 from bson import ObjectId
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
+from pydantic_mongo import ObjectIdField
 
 from qqbot.log import logger as log
 from qqbot.utils import db
 
 # 定义一个可复用的 ObjectId 类型
-PyObjectId = Annotated[
-    ObjectId,
-    BeforeValidator(lambda v: ObjectId(v) if isinstance(v, (str, ObjectId)) else v),
-    PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
-]
+# type PyObjectId = Annotated[
+#     ObjectId,
+#     BeforeValidator(lambda v: ObjectId(v) if isinstance(v, (str, ObjectId)) else v),
+#     PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
+# ]
+
+type PyObjectId = ObjectIdField
 
 db_collection: db.AsyncCollection | None = None
 
@@ -31,8 +34,9 @@ async def get_collection() -> db.AsyncCollection:
 
 
 class Memory(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
-    id: PyObjectId = Field(alias="_id", default_factory=ObjectId)
+    id: PyObjectId = Field(
+        alias="_id", default_factory=ObjectIdField, description="记忆ID"
+    )
     level: int = Field(
         default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
     )
@@ -56,8 +60,8 @@ class MemoryWriteToolPram(BaseModel):
     content: str = Field(..., description="记忆内容")
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
+
 class MemoryUpdateToolPram(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
     id: PyObjectId = Field(..., description="记忆ID")
     level: int = Field(
         default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
@@ -68,6 +72,7 @@ class MemoryUpdateToolPram(BaseModel):
     )
     content: str = Field(..., description="记忆内容")
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
+
 
 async def write_memory(memory: Memory):
     db_collection = await get_collection()
