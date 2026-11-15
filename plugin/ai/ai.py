@@ -9,7 +9,6 @@ from openai.types.chat import (
     ChatCompletionMessageParam,
     ChatCompletionToolUnionParam,
 )
-from openai.types.file_create_params import ExpiresAfter
 from pydantic import BaseModel, Field
 
 from qqbot import plugin
