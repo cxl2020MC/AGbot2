@@ -219,9 +219,10 @@ class AIPlugin:
                     file = await client.files.create(
                         file=(attachment.filename, img),
                         purpose="user_data",
-                        expires_after=cast(
-                            ExpiresAfter, {"seconds": 60 * 60 * 24 * 14}
-                        ),
+                        expires_after={
+                            "anchor": "created_at",
+                            "seconds": 60 * 60 * 24 * 14,
+                        },
                     )
                     messages_content.append(
                         # {
