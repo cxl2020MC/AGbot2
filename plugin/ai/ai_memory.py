@@ -84,7 +84,7 @@ async def update_memory(memory_id: str, memory: Memory):
     memory.last_update_time = datetime.now()
     await db_collection.update_one(
         {"_id": ObjectId(memory_id)},
-        {"$set": memory.model_dump(by_alias=True, exclude={"_id"})},
+        {"$set": memory.model_dump(by_alias=True, exclude={"id"})},
     )
 
 
