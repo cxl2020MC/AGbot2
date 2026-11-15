@@ -9,6 +9,7 @@ from openai.types.chat import (
     ChatCompletionMessageParam,
     ChatCompletionToolUnionParam,
 )
+from openai.types.file_create_params import ExpiresAfter
 from pydantic import BaseModel, Field
 
 from qqbot import plugin
@@ -216,7 +217,11 @@ class AIPlugin:
                 if attachment.content_type.startswith("image"):
                     img = await httpx2.get(attachment.url).aread()
                     file = await client.files.create(
-                        file=(attachment.filename, img), purpose="user_data"
+                        file=(attachment.filename, img),
+                        purpose="user_data",
+                        expires_after=cast(
+                            ExpiresAfter, {"seconds": 60 * 60 * 24 * 14}
+                        ),
                     )
                     messages_content.append(
                         # {
@@ -391,7 +396,7 @@ class AIPlugin:
                                             level=tool_args.get("level", 1),
                                             keywords=tool_args.get("keywords", []),
                                             content=tool_args["content"],
-                                        )
+                                        ),
                                     )
                                     log.info("记忆已更新。")
                                     self.messages.append(
