@@ -121,6 +121,11 @@ TOOLS: list[ChatCompletionToolUnionParam] = [
         description="将消息内容存入记忆库，便于后续参考",
     ),
     openai.pydantic_function_tool(
+        ai_memory.MemoryUpdateToolPram,
+        name="update_memory",
+        description="修改记忆内容",
+    ),
+    openai.pydantic_function_tool(
         web_search.WebSearchToolParam,
         name="web_search",
         description="搜索网页内容，返回搜索结果",
@@ -362,6 +367,37 @@ class AIPlugin:
                                             "role": "tool",
                                             "tool_call_id": tool_id,  # 与之前的调用请求配对
                                             "content": return_mesage,  # 工具的执行结果
+                                        }
+                                    )
+                                case "add_memory":
+                                    await ai_memory.write_memory(
+                                        ai_memory.Memory(
+                                            keywords=tool_args.get("keywords", []),
+                                            content=tool_args["content"],
+                                        )
+                                    )
+                                    log.info("消息已保存到记忆中。")
+                                    self.messages.append(
+                                        {
+                                            "role": "tool",
+                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                            "content": "消息已保存到记忆中。",  # 工具的执行结果
+                                        }
+                                    )
+                                case "update_memory":
+                                    await ai_memory.update_memory(
+                                        tool_args["id"],
+                                        ai_memory.Memory(
+                                            keywords=tool_args.get("keywords", []),
+                                            content=tool_args["content"],
+                                        )
+                                    )
+                                    log.info("记忆已更新。")
+                                    self.messages.append(
+                                        {
+                                            "role": "tool",
+                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
+                                            "content": "记忆已更新。",  # 工具的执行结果
                                         }
                                     )
                                 case "add_memory":

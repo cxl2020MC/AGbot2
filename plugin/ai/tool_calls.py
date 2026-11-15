@@ -15,8 +15,7 @@ from qqbot.log import logger as log
 
 
 def make_tool_call_result(
-    self,
-    /,
+    *,
     tool_call_id: str,
     content: str | Iterable[ChatCompletionContentPartTextParam],
 ) -> ChatCompletionToolMessageParam:
