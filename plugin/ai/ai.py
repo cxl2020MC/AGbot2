@@ -23,13 +23,15 @@ from qqbot.utils import command_utils
 from . import ai_memory, web_search
 from . import tool_calls as tool_calls_utils
 
+plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
+
 client = openai.AsyncOpenAI(
     # api_key="your-api-key",
     base_url="https://api.deepseek.com"
     # base_url="https://ai.yumeyuki.moe/v1"
 )
 
-plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
+AI_MODEL = "deepseek-flash"
 
 SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中与其他群友进行交流。
 你的主人是 cxl2020mc，你可以通过消息格式中的主人标识来区分。
@@ -220,7 +222,7 @@ class AIPlugin:
                         purpose="user_data",
                         expires_after={
                             "anchor": "created_at",
-                            "seconds": 60 * 60 * 24 * 14,
+                            "seconds": 60 * 60 * 24 * 14,  # 14天后过期
                         },
                     )
                     messages_content.append(
@@ -283,7 +285,7 @@ class AIPlugin:
         log.debug(f"AI请求消息: {ai_messages}")
 
         completion = await client.chat.completions.parse(
-            model="deepseek-flash",
+            model=AI_MODEL,
             messages=ai_messages,
             tools=TOOLS,
             reasoning_effort="high",
