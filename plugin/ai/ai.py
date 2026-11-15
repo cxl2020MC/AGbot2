@@ -388,6 +388,7 @@ class AIPlugin:
                                     await ai_memory.update_memory(
                                         tool_args["id"],
                                         ai_memory.Memory(
+                                            level=tool_args.get("level", 1),
                                             keywords=tool_args.get("keywords", []),
                                             content=tool_args["content"],
                                         )
