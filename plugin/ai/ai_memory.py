@@ -3,16 +3,19 @@ from typing import Annotated
 
 from bson import ObjectId
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
+from pydantic_mongo import ObjectIdField
 
 from qqbot.log import logger as log
 from qqbot.utils import db
 
 # 定义一个可复用的 ObjectId 类型
-PyObjectId = Annotated[
-    ObjectId,
-    BeforeValidator(lambda v: ObjectId(v) if isinstance(v, (str, ObjectId)) else v),
-    PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
-]
+# type PyObjectId = Annotated[
+#     ObjectId,
+#     BeforeValidator(lambda v: ObjectId(v) if isinstance(v, (str, ObjectId)) else v),
+#     PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
+# ]
+
+type PyObjectId = ObjectIdField
 
 db_collection: db.AsyncCollection | None = None
 
@@ -31,9 +34,12 @@ async def get_collection() -> db.AsyncCollection:
 
 
 class Memory(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
-    id: PyObjectId = Field(alias="_id", default_factory=ObjectId)
-    level: int = Field(default=1, description="记忆等级, 1-5, 1为最不重要, 5为最重要")
+    id: PyObjectId = Field(
+        alias="_id", default_factory=ObjectIdField, description="记忆ID"
+    )
+    level: int = Field(
+        default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
+    )
     keywords: list[str]
     content: str
     create_time: datetime = Field(default_factory=datetime.now)
@@ -44,7 +50,22 @@ class Memory(BaseModel):
 
 
 class MemoryWriteToolPram(BaseModel):
-    level: int = Field(default=1, description="记忆等级, 1-5, 1为最不重要, 5为最重要")
+    level: int = Field(
+        default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
+    )
+    keywords: list[str] = Field(
+        ...,
+        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
+    )
+    content: str = Field(..., description="记忆内容")
+    # metadata: dict = Field(default_factory=dict, description="记忆元数据")
+
+
+class MemoryUpdateToolPram(BaseModel):
+    id: PyObjectId = Field(..., description="记忆ID")
+    level: int = Field(
+        default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
+    )
     keywords: list[str] = Field(
         ...,
         description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
@@ -55,14 +76,15 @@ class MemoryWriteToolPram(BaseModel):
 
 async def write_memory(memory: Memory):
     db_collection = await get_collection()
-    await db_collection.insert_one(memory.model_dump())
+    await db_collection.insert_one(memory.model_dump(by_alias=True))
 
 
 async def update_memory(memory_id: str, memory: Memory):
     db_collection = await get_collection()
     memory.last_update_time = datetime.now()
     await db_collection.update_one(
-        {"_id": ObjectId(memory_id)}, {"$set": memory.model_dump()}
+        {"_id": ObjectId(memory_id)},
+        {"$set": memory.model_dump(by_alias=True, exclude={"id"})},
     )
 
 
