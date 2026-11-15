@@ -57,6 +57,7 @@ class MemoryWriteToolPram(BaseModel):
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
 class MemoryUpdateToolPram(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
     id: PyObjectId = Field(..., description="记忆ID")
     level: int = Field(
         default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
