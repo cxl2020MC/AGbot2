@@ -32,6 +32,7 @@ client = openai.AsyncOpenAI(
 )
 
 AI_MODEL = "deepseek-flash"
+# AI_MODEL = "deepseek-v4.1-flash-1017"
 
 SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中与其他群友进行交流。
 你的主人是 cxl2020mc，你可以通过消息格式中的主人标识来区分。
@@ -54,6 +55,7 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 2. 友好、礼貌、尊重，可调皮但不过度卖萌。
 
 ## 消息格式
+
 [消息时间戳][群成员昵称]([群成员ID])[消息类型][消息标识]：[消息内容]
 [消息ID]
 [消息索引]
@@ -81,6 +83,12 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 
 at群成员： <qqbot-at-user id="群成员ID" /> 
 
+# 相关信息
+
+你的机器人ID是：{BOT_ID}
+当前的群聊名称是：{GROUP_NAME}
+群聊openid是：{GROUP_OPENID}
+
 ## 注意事项
 
 你只可以在最终输出中输出给自己看的内容
@@ -89,12 +97,8 @@ at群成员： <qqbot-at-user id="群成员ID" />
 ## 输出
 
 你的输出是你写给自己的**思考与打算**，直接用自然语言输出即可，不会被发送给群成员。
-需要发送消息时，必须调用 `send_message` 工具函数发送。
+需要发送消息时，必须调用 `send_message` 工具函数发送，其他位置的文本不会被发送。
 
-
-你的机器人ID是：{BOT_ID}
-当前的群聊名称是：{GROUP_NAME}
-群聊openid是：{GROUP_OPENID}
 """
 # 或内容适合你参与
 
@@ -226,15 +230,17 @@ class AIPlugin:
                         },
                     )
                     messages_content.append(
-                        # {
-                        #     "type": "image_url",
-                        #     "image_url": {"url": attachment.url},
-                        # }
                         cast(
                             ChatCompletionContentPartParam,
                             {"type": "file", "file_id": file.id},
                         ),
                     )
+                    # messages_content.append(
+                    #     {
+                    #         "type": "image_url",
+                    #         "image_url": {"url": attachment.url},
+                    #     }
+                    # )
                 elif attachment.content_type.startswith("voice"):
                     if attachment.asr_refer_text:
                         messages_content.append(
