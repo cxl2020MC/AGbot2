@@ -251,6 +251,7 @@ class AIPlugin:
         )
         for memory in ai_memory_content:
             if str(memory.id) in self.load_memory_id_list:
+                log.debug(f"记忆ID {memory.id} 已加载过，跳过加载。")
                 ai_memory_content.remove(
                     memory
                 )  # 如果记忆ID已存在，则从结果中移除，避免重复加载
