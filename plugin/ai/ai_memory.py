@@ -62,7 +62,7 @@ async def update_memory(memory_id: str, memory: Memory, update_time: bool = True
     )
 
 
-async def search_memory(content: str, limit: int = 5):
+async def search_memory(content: str, limit: int = 10):
     db_collection = await get_collection()
     all_keywords = await db_collection.distinct("keywords")
     match_keywords = []
@@ -85,6 +85,11 @@ async def search_memory(content: str, limit: int = 5):
     return results
 
 
+async def delete_memory(memory_id: str):
+    db_collection = await get_collection()
+    await db_collection.delete_one({"_id": ObjectId(memory_id)})
+
+
 class MemoryWriteToolPram(BaseModel):
     level: int = Field(
         default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
@@ -98,7 +103,7 @@ class MemoryWriteToolPram(BaseModel):
 
 
 class MemoryUpdateToolPram(BaseModel):
-    id: ObjectIdField = Field(..., description="记忆ID")
+    id: ObjectIdField = Field(..., description="需要更新的记忆ID")
     level: int = Field(
         default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
     )
@@ -110,6 +115,17 @@ class MemoryUpdateToolPram(BaseModel):
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
 
+class MemorySearchToolPram(BaseModel):
+    content: str = Field(..., description="搜索内容")
+    limit: int = Field(
+        default=10, ge=1, le=20, description="搜索结果数量, 范围1～20, 默认为10"
+    )
+
+
+class MemoryDeleteToolPram(BaseModel):
+    id: ObjectIdField = Field(..., description="需要删除的记忆ID")
+
+
 async def write_memory_tool_call(tool_param: MemoryWriteToolPram):
     memory = Memory(
         level=tool_param.level,
@@ -118,6 +134,7 @@ async def write_memory_tool_call(tool_param: MemoryWriteToolPram):
     )
     await write_memory(memory)
     return f"记忆写入成功, 记忆ID: {memory.id}"
+
 
 async def update_memory_tool_call(tool_param: MemoryUpdateToolPram):
     memory = Memory(
@@ -129,6 +146,12 @@ async def update_memory_tool_call(tool_param: MemoryUpdateToolPram):
     await update_memory(str(memory.id), memory)
     return f"记忆更新成功, 记忆ID: {memory.id}"
 
-async def search_memory_tool_call(content: str, limit: int = 5):
+
+async def search_memory_tool_call(content: str, limit: int = 10):
     results = await search_memory(content, limit)
     return [memory.model_dump() for memory in results]
+
+
+async def delete_memory_tool_call(memory_id: str):
+    await delete_memory(memory_id)
+    return f"记忆删除成功, 记忆ID: {memory_id}"

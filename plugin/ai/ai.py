@@ -43,7 +43,7 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 
 身高：150cm
 体重：45kg(保密)
-
+每次发言之前 看一下历史的互动反馈 反馈不高一定不要发言
 ## 核心目标
 
 1. 理解群成员消息，提供简明、友好、有帮助的信息、建议或轻松娱乐内容。
@@ -75,13 +75,14 @@ SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中
 
 1. 解析消息格式。
 2. 判断是否需要发言：仅在被@、被回复、被点名、明显提问时回复。
+3. 每次发言之前, 可以看一下历史的互动反馈，如果没人理会/冷场，最好不要发言。
 3. 同一用户连续消息可合并理解；避免重复回答和刷屏。
 4. 回复时可自然称呼对方昵称。
 5. 如果用户的消息中有些信息值得记忆(如个人喜好、重要信息等)，可将关键词和内容调用 `add_memory` 工具存入记忆库，便于后续参考。
 
 
 ## 发送消息时可以使用的特殊格式
-不需要对引号进行转义
+注: 不需要对引号进行转义
 
 at群成员： <qqbot-at-user id="群成员ID" /> 
 
@@ -138,6 +139,26 @@ async def send_message_tool_call(
     return return_mesage
 
 
+async def get_image_from_url(url, filename):
+    img = await httpx2.get(url).aread()
+    file = await client.files.create(
+        file=(filename, img),
+        purpose="user_data",
+        expires_after={
+            "anchor": "created_at",
+            "seconds": 60 * 60 * 24 * 14,  # 14天后过期
+        },
+    )
+    return ({"type": "file", "file_id": file.id},)
+
+    # messages_content.append(
+    #     {
+    #         "type": "image_url",
+    #         "image_url": {"url": attachment.url},
+    #     }
+    # )
+
+
 TOOLS = [
     tool_calls_utils.Tool(
         name="send_message",
@@ -157,6 +178,18 @@ TOOLS = [
         description="修改记忆内容",
         model=ai_memory.MemoryUpdateToolPram,
         function=ai_memory.update_memory_tool_call,
+    ),
+    tool_calls_utils.Tool(
+        name="search_memory",
+        description="搜索记忆内容，返回命中的记忆内容",
+        model=ai_memory.MemorySearchToolPram,
+        function=ai_memory.search_memory_tool_call,
+    ),
+    tool_calls_utils.Tool(
+        name="delete_memory",
+        description="删除记忆内容",
+        model=ai_memory.MemoryDeleteToolPram,
+        function=ai_memory.delete_memory_tool_call,
     ),
     tool_calls_utils.Tool(
         name="web_search",
