@@ -1,11 +1,12 @@
 import asyncio
-import json
+from collections.abc import Iterable, Sequence
 from typing import ClassVar, cast
 
 import httpx2
 import openai
 from openai.types.chat import (
     ChatCompletionContentPartParam,
+    ChatCompletionContentPartTextParam,
     ChatCompletionMessageParam,
     ChatCompletionToolUnionParam,
 )
@@ -20,8 +21,7 @@ from qqbot.types.qq_api import send_message
 from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils
 
-from . import ai_memory, web_search
-from . import tool_calls as tool_calls_utils
+from . import ai_memory, tool_calls_utils, web_search
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
@@ -115,35 +115,60 @@ class SendMessageToolParam(BaseModel):
     )
 
 
-TOOLS: list[ChatCompletionToolUnionParam] = [
-    openai.pydantic_function_tool(
-        SendMessageToolParam,
+async def send_message_tool_call(
+    tool_args: SendMessageToolParam, tool_scene: tool_calls_utils.ToolScene
+):
+    bot = tool_scene.bot
+    ref_msg_idx = tool_args.ref_msg_idx
+    return_data = await bot.qq_api.send_group_message(
+        tool_scene.group_openid,
+        send_message.GroupMessage(
+            msg_type=send_message.GroupMessageType.MARKDOWN,
+            markdown=send_message.MessageMarkdown(content=tool_args.content),
+            message_reference=send_message.MessageReference(message_id=ref_msg_idx)
+            if ref_msg_idx
+            else None,
+            msg_seq=tool_scene.run_count if ref_msg_idx else None,
+        ),
+    )
+    log.debug(f"发送消息返回: {return_data}")
+    return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
+    return return_mesage
+
+
+TOOLS = [
+    tool_calls_utils.Tool(
         name="send_message",
         description="发送一条消息，支持markdown格式，你只能使用此工具函数发送消息，不能直接输出消息内容",
+        model=SendMessageToolParam,
+        function=send_message_tool_call,
+        need_scene=True,
     ),
-    openai.pydantic_function_tool(
-        ai_memory.MemoryWriteToolPram,
+    tool_calls_utils.Tool(
         name="add_memory",
         description="将消息内容存入记忆库，便于后续参考",
+        model=ai_memory.MemoryWriteToolPram,
+        function=ai_memory.write_memory_tool_call,
     ),
-    openai.pydantic_function_tool(
-        ai_memory.MemoryUpdateToolPram,
+    tool_calls_utils.Tool(
         name="update_memory",
         description="修改记忆内容",
+        model=ai_memory.MemoryUpdateToolPram,
+        function=ai_memory.update_memory_tool_call,
     ),
-    openai.pydantic_function_tool(
-        web_search.WebSearchToolParam,
+    tool_calls_utils.Tool(
         name="web_search",
         description="搜索网页内容，返回搜索结果",
+        model=web_search.WebSearchToolParam,
+        function=web_search.web_search_tool_call,
     ),
-    openai.pydantic_function_tool(
-        web_search.WebFetchToolParam,
+    tool_calls_utils.Tool(
         name="web_fetch",
         description="获取网页内容，返回网页内容",
+        model=web_search.WebFetchToolParam,
+        function=web_search.web_fetch_tool_call,
     ),
 ]
-
-log.debug(f"已注册工具函数: {TOOLS}")
 
 
 class AIPlugin:
@@ -152,7 +177,7 @@ class AIPlugin:
     def __init__(self, group_openid: str, bot: QQ_Bot):
         self.group_openid = group_openid
         self.bot: QQ_Bot = bot
-        self.messages: list[ChatCompletionMessageParam] = []
+        self.ai_chat_manager: AiChatManager | None = None
         self.group_message_queue: asyncio.Queue[
             qq_message.GroupMessage | qq_message.Message
         ] = asyncio.Queue()
@@ -167,7 +192,23 @@ class AIPlugin:
             AIPlugin.workers[group_openid] = AIPlugin(group_openid, bot)
         return AIPlugin.workers[group_openid]
 
-    async def add_message(
+    async def get_ai_chat_manager(self):
+        if self.ai_chat_manager is None:
+            bot_info = await self.bot.qq_api.get_bot_info()
+            group_info = await self.bot.qq_api.get_group_info(self.group_openid)
+            system_message_content = SystemPrompt.format(
+                BOT_ID=bot_info.union_openid,
+                GROUP_NAME=group_info.group_name,
+                GROUP_OPENID=self.group_openid,
+            )
+            self.ai_chat_manager = AiChatManager(
+                self.bot,
+                self.group_openid,
+                system_message_content,
+            )
+        return self.ai_chat_manager
+
+    async def generate_message(
         self, event_data: qq_message.GroupMessage | qq_message.Message
     ):
         ai_memory_content = await ai_memory.search_memory(
@@ -264,233 +305,17 @@ class AIPlugin:
             }
         ]
 
-        self.messages.extend(messages)
-        return self.messages
-
-    async def use_ai(
-        self,
-        messages: list[ChatCompletionMessageParam],
-        bot: QQ_Bot,
-        tool_calls_count: int = 0,
-    ):
-        ai_messages: list[ChatCompletionMessageParam] = [
-            {
-                "role": "system",
-                "content": SystemPrompt.format(
-                    BOT_ID=(await bot.qq_api.get_bot_info()).union_openid,
-                    GROUP_NAME=(
-                        await bot.qq_api.get_group_info(self.group_openid)
-                    ).group_name,
-                    GROUP_OPENID=self.group_openid,
-                ),
-            },
-        ]
-
-        ai_messages.extend(messages)
-
-        log.debug(f"AI请求消息: {ai_messages}")
-
-        completion = await client.chat.completions.parse(
-            model=AI_MODEL,
-            messages=ai_messages,
-            tools=TOOLS,
-            reasoning_effort="high",
-            extra_body={"thinking": {"type": "enabled"}},
-        )
-        log.debug(f"AI响应: {completion}")
-        ai_return = completion.choices[0].message
-        log.debug(f"AI返回内容: {ai_return}")
-        reasoning_content = getattr(ai_return, "reasoning_content", None)
-        log.info(f"AI推理内容: {reasoning_content}")
-        log.info(f"AI工具调用: {ai_return.tool_calls}")
-        log.info(f"AI返回内容: {ai_return.content}")
-        # append_message = completion.choices[0].message
-
-        assistant_message = cast(
-            ChatCompletionMessageParam,
-            {
-                "role": "assistant",
-                "content": ai_return.content,
-                "reasoning_content": reasoning_content,
-                "tool_calls": list(ai_return.tool_calls)
-                if ai_return.tool_calls is not None
-                else None,
-            },
-        )
-
-        self.messages.append(assistant_message)
-
-        tool_calls = ai_return.tool_calls
-        if tool_calls is not None:
-            for tool_call in tool_calls:
-                if tool_call.type == "function":
-                    tool_id = tool_call.id
-                    tool_name = tool_call.function.name
-                    if tool_calls_count >= 10:  # 避免无限递归，设置最大调用次数
-                        log.info("达到最大工具调用次数，停止递归。")
-                        self.messages.append(
-                            {
-                                "role": "tool",
-                                "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                "content": "达到单次最大工具调用次数，暂停调用工具。你可以在下条消息后继续。",  # 工具的执行结果
-                            }
-                        )
-                    else:
-                        log.info(
-                            f"调用 {tool_name} 工具, 参数: {tool_call.function.arguments}"
-                        )
-                        parsed_arguments = tool_call.function.parsed_arguments
-                        log.debug(f"解析后的参数: {parsed_arguments}")
-                        if parsed_arguments is None:
-                            log.warning(
-                                f"工具 {tool_name} 的参数解析失败，无法调用工具。"
-                            )
-                            self.messages.append(
-                                tool_calls_utils.make_tool_call_result(
-                                    tool_call_id=tool_id,
-                                    content=f"工具 {tool_name} 的参数解析失败，无法调用工具。请检查参数格式是否正确。",
-                                )
-                            )
-                        else:
-                            tool_args = cast(BaseModel, parsed_arguments).model_dump()
-                            match tool_name:
-                                case "send_message":
-                                    ref_msg_idx = tool_args.get("ref_msg_idx")
-                                    return_data = await bot.qq_api.send_group_message(
-                                        self.group_openid,
-                                        send_message.GroupMessage(
-                                            msg_type=send_message.GroupMessageType.MARKDOWN,
-                                            markdown=send_message.MessageMarkdown(
-                                                content=tool_args["content"]
-                                            ),
-                                            message_reference=send_message.MessageReference(
-                                                message_id=ref_msg_idx
-                                            )
-                                            if ref_msg_idx
-                                            else None,
-                                            msg_seq=tool_calls_count
-                                            if ref_msg_idx
-                                            else None,
-                                        ),
-                                    )
-                                    log.debug(f"发送消息返回: {return_data}")
-                                    return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
-                                    self.messages.append(
-                                        {
-                                            "role": "tool",
-                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                            "content": return_mesage,  # 工具的执行结果
-                                        }
-                                    )
-                                case "add_memory":
-                                    await ai_memory.write_memory(
-                                        ai_memory.Memory(
-                                            keywords=tool_args.get("keywords", []),
-                                            content=tool_args["content"],
-                                        )
-                                    )
-                                    log.info("消息已保存到记忆中。")
-                                    self.messages.append(
-                                        {
-                                            "role": "tool",
-                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                            "content": "消息已保存到记忆中。",  # 工具的执行结果
-                                        }
-                                    )
-                                case "update_memory":
-                                    await ai_memory.update_memory(
-                                        tool_args["id"],
-                                        ai_memory.Memory(
-                                            level=tool_args.get("level", 1),
-                                            keywords=tool_args.get("keywords", []),
-                                            content=tool_args["content"],
-                                        ),
-                                    )
-                                    log.info("记忆已更新。")
-                                    self.messages.append(
-                                        {
-                                            "role": "tool",
-                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                            "content": "记忆已更新。",  # 工具的执行结果
-                                        }
-                                    )
-                                case "add_memory":
-                                    await ai_memory.write_memory(
-                                        ai_memory.Memory(
-                                            keywords=tool_args.get("keywords", []),
-                                            content=tool_args["content"],
-                                        )
-                                    )
-                                    log.info("消息已保存到记忆中。")
-                                    self.messages.append(
-                                        {
-                                            "role": "tool",
-                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                            "content": "消息已保存到记忆中。",  # 工具的执行结果
-                                        }
-                                    )
-                                case "web_search":
-                                    search_results = await web_search.web_search(
-                                        **tool_args
-                                    )
-                                    self.messages.append(
-                                        {
-                                            "role": "tool",
-                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                            "content": json.dumps(
-                                                search_results
-                                            ),  # 工具的执行结果
-                                        }
-                                    )
-                                case "web_fetch":
-                                    fetch_results = await web_search.web_fetch(
-                                        **tool_args
-                                    )
-                                    self.messages.append(
-                                        {
-                                            "role": "tool",
-                                            "tool_call_id": tool_id,  # 与之前的调用请求配对
-                                            "content": json.dumps(
-                                                fetch_results
-                                            ),  # 工具的执行结果
-                                        }
-                                    )
-
-            tool_completion = await self.use_ai(
-                self.messages, bot, tool_calls_count + 1
-            )  # 继续对话，传入更新后的消息列表
-        total_tokens = completion.usage.total_tokens if completion.usage else 0
-        log.info(f"本次上下文长度为 {total_tokens} token。")
-        log.debug(
-            f"详细使用情况: {completion.usage.prompt_tokens_details if completion.usage else 'N/A'}"
-        )
-        if tool_calls_count == 0 and total_tokens > 100 * 1000:
-            log.info("对话内容过长，进行总结以保留核心信息。")
-            message: ChatCompletionMessageParam = {
-                "role": "user",
-                "content": "对话内容过长，请总结之前的对话内容(不包括系统提示词)，保留核心信息，删除冗余内容，以便继续对话。只需要总结最近10～20条的对话内容，然后输出总结后的对话内容，并确保保留必要的上下文信息。",
-            }
-            self.messages.append(message)
-            ai_return = await self.use_ai(self.messages, bot, tool_calls_count + 1)
-            completion_message = ai_return.choices[0].message.content
-            log.info(f"总结后的对话内容: {completion_message}")
-            self.messages = [
-                {
-                    "role": "user",
-                    "content": f"由于前文上下文过长，已进行总结: {completion_message}",
-                }
-            ]
-
-        return completion
+        return messages
 
     async def handle_ai(
         self,
         event_data: qq_message.GroupMessage | qq_message.Message,
         bot: QQ_Bot,
     ):
-        messages = await self.add_message(event_data)
+        messages = await self.generate_message(event_data)
 
-        return await self.use_ai(messages, bot)
+        ai_chat_manager = await self.get_ai_chat_manager()
+        return await ai_chat_manager.handle_ai(messages)
 
     async def worker(self):
         log.debug(f"启动AI插件工作线程，处理群聊 {self.group_openid} 的消息。")
@@ -511,7 +336,7 @@ class AIPlugin:
 
     async def clear_messages(self):
         log.info(f"清理群聊 {self.group_openid} 的上下文消息……")
-        self.messages.clear()
+        await (await self.get_ai_chat_manager()).clear_messages()
         log.info(f"清理群聊 {self.group_openid} 的上下文消息完成。")
 
 
@@ -560,3 +385,176 @@ async def clear_command(
             event_data.group_openid,
             send_message.GroupMessage(content="清理当前群聊的上下文成功"),
         )
+
+
+class AiChatManager:
+    def __init__(self, bot: QQ_Bot, group_openid: str, system_message_content: str):
+        self.bot = bot
+        self.group_openid = group_openid
+        self.ai_messages: list[ChatCompletionMessageParam] = []
+        self.system_message_content: str = system_message_content
+        self.system_message: ChatCompletionMessageParam | None = None
+        self._tool_call_manager = tool_calls_utils.ToolCallManager(self)
+
+        self._tool_call_manager.add_tools(TOOLS)
+
+        log.debug(f"已注册工具函数: {self._tool_call_manager.get_tools_list()}")
+
+    async def add_message(self, message: ChatCompletionMessageParam):
+        self.ai_messages.append(message)
+
+    async def add_messages(self, messages: Sequence[ChatCompletionMessageParam]):
+        self.ai_messages.extend(messages)
+
+    async def add_user_message(self, content: str):
+        message: ChatCompletionMessageParam = {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": content,
+                }
+            ],
+        }
+        await self.add_message(message)
+
+    async def add_tool_message(
+        self,
+        tool_call_id: str,
+        content: str | Iterable[ChatCompletionContentPartTextParam],
+    ):
+        message: ChatCompletionMessageParam = {
+            "role": "tool",
+            "tool_call_id": tool_call_id,
+            "content": content,
+        }
+        await self.add_message(message)
+
+    async def add_assistant_message(
+        self,
+        content: str | Iterable[ChatCompletionContentPartTextParam],
+        reasoning_content: str | None = None,
+        tool_calls: Sequence[ChatCompletionToolUnionParam] | None = None,
+    ):
+        message: ChatCompletionMessageParam = cast(
+            ChatCompletionMessageParam,
+            {
+                "role": "assistant",
+                "content": content,
+                "reasoning_content": reasoning_content,
+                "tool_calls": tool_calls,
+            },
+        )
+        await self.add_message(message)
+
+    async def set_system_message(self, content: str):
+        message: ChatCompletionMessageParam = {
+            "role": "system",
+            "content": [
+                {
+                    "type": "text",
+                    "text": content,
+                }
+            ],
+        }
+        self.system_message = message
+
+    async def get_messages(self) -> list[ChatCompletionMessageParam]:
+        if self.system_message is None:
+            await self.set_system_message(self.system_message_content)
+        # 理论上永远不会被运行的 if 这一块
+        if self.system_message is None:
+            raise ValueError(
+                "系统消息未设置，请先调用 set_system_message 方法设置系统消息。"
+            )
+        ai_messages: list[ChatCompletionMessageParam] = [self.system_message]
+        ai_messages.extend(self.ai_messages)
+        return ai_messages
+
+    async def clear_messages(self):
+        log.info("清理AI上下文消息……")
+        self.ai_messages.clear()
+        log.info("清理AI上下文消息完成。")
+
+    async def use_ai(self, messages: Sequence[ChatCompletionMessageParam]):
+        completion = await client.chat.completions.parse(
+            model=AI_MODEL,
+            messages=messages,
+            tools=self._tool_call_manager.get_tools_list(),
+            reasoning_effort="high",
+            extra_body={"thinking": {"type": "enabled"}},
+        )
+        log.debug(f"AI响应: {completion}")
+        return completion
+
+    async def handle_ai(
+        self,
+        messages: Sequence[ChatCompletionMessageParam],
+        system_message: str | None = None,
+        *,
+        run_count: int = 0,
+    ):
+        if system_message is not None:
+            await self.set_system_message(system_message)
+
+        await self.add_messages(messages)
+        log.debug(f"处理AI请求: {messages}")
+        ai_messages = await self.get_messages()
+        log.debug(f"AI请求消息: {ai_messages}")
+
+        completion = await self.use_ai(ai_messages)
+        ai_ret_messages = completion.choices[0].message
+        log.debug(f"AI返回内容: {ai_ret_messages}")
+        reasoning_content = getattr(ai_ret_messages, "reasoning_content", None)
+        log.info(f"AI推理内容: {reasoning_content}")
+        log.info(f"AI工具调用: {ai_ret_messages.tool_calls}")
+        log.info(f"AI返回内容: {ai_ret_messages.content}")
+        total_tokens = completion.usage.total_tokens if completion.usage else 0
+        log.info(f"本次上下文长度为 {total_tokens} token。")
+        log.debug(
+            f"详细使用情况: {completion.usage.prompt_tokens_details if completion.usage else 'N/A'}"
+        )
+        tool_calls = ai_ret_messages.tool_calls
+        await self.add_assistant_message(
+            content=ai_ret_messages.content if ai_ret_messages.content else "",
+            reasoning_content=reasoning_content,
+            tool_calls=tool_calls,
+        )
+        if tool_calls:
+            tool_call_scene = tool_calls_utils.ToolScene(
+                group_openid=self.group_openid,
+                bot=self.bot,
+                ai_obj=self,
+                run_count=run_count,
+            )
+            tool_result = await self._tool_call_manager.run_tool_calls(
+                tool_calls, tool_call_scene
+            )
+            completion = await self.handle_ai(tool_result, run_count=run_count + 1)
+
+        if run_count == 0 and total_tokens > 100 * 1000:
+            log.info("对话内容过长，进行总结以保留核心信息。")
+            await self.context_completion()
+
+        return completion
+
+    async def context_completion(self):
+        message_content = "对话内容过长，请总结之前的对话内容(不包括系统提示词)，保留核心信息，删除冗余内容，以便继续对话。只需要总结最近10～20条的对话内容，然后直接输出总结后的对话内容，并确保保留必要的上下文信息。"
+        message: ChatCompletionMessageParam = {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": message_content,
+                }
+            ],
+        }
+        ai_return = await self.handle_ai(messages=[message], run_count=1)
+        completion_message = ai_return.choices[0].message.content
+        log.info(f"总结后的对话内容: {completion_message}")
+        self.ai_messages = [
+            {
+                "role": "user",
+                "content": f"由于前文上下文过长，已进行总结: {completion_message}",
+            }
+        ]

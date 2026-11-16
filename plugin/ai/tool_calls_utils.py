@@ -16,10 +16,13 @@ from openai.types.chat import (
 from pydantic import BaseModel
 
 from qqbot.log import logger as log
+from qqbot.types.qq_events import qq_message
 
 # from pydantic import BaseModel, Field
 if TYPE_CHECKING:
-    from . import ai_new
+    from qqbot.qq_bot import QQ_Bot
+
+    from . import ai
 
 
 def make_tool_call_result(
@@ -54,6 +57,8 @@ class Tool:
         description: str,
         model: type[BaseModel],
         function: Callable[..., Awaitable],
+        *,
+        need_scene: bool = False,
     ):
         self.name = name
         self.description = description
@@ -62,14 +67,24 @@ class Tool:
         self.tool_call: ChatCompletionFunctionToolParam = openai.pydantic_function_tool(
             model=model, name=name, description=description
         )
+        self.need_scene = need_scene
 
     def __str__(self):
         # return f"Tool(name={self.name}, description={self.description}, model={self.model})"
         return str(self.tool_call)
 
 
+@dataclass
+class ToolScene:
+    # event: qq_message.GroupMessage
+    group_openid: str
+    bot: QQ_Bot
+    ai_obj: ai.AiChatManager
+    run_count: int
+
+
 class ToolCallManager:
-    def __init__(self, ai_obj: ai_new.AiChatManager) -> None:
+    def __init__(self, ai_obj: ai.AiChatManager) -> None:
         # self.tools: list[ChatCompletionToolUnionParam] = []
         self.tools: list[Tool] = []
         self.ai_obj = ai_obj
@@ -78,10 +93,24 @@ class ToolCallManager:
     #     self.tools.append(tool_call)
 
     def add_tool(self, tool: Tool):
+        for existing_tool in self.tools:
+            if existing_tool.name == tool.name:
+                log.warning(f"工具 {tool.name} 已存在，将被覆盖。")
+                self.tools.remove(existing_tool)
+                break
         self.tools.append(tool)
+
+    def add_tools(self, tools: Sequence[Tool]):
+        self.tools.extend(tools)
 
     def get_tools(self):
         return self.tools
+
+    def change_tool(self, tool_name: str, new_tool: Tool):
+        for i, tool in enumerate(self.get_tools()):
+            if tool.name == tool_name:
+                self.tools[i] = new_tool
+                break
 
     def get_tools_list(self):
         tools: list[ChatCompletionFunctionToolParam] = []
@@ -90,7 +119,9 @@ class ToolCallManager:
         return tools
 
     async def run_tool_calls(
-        self, tool_calls: list[ParsedFunctionToolCall]
+        self,
+        tool_calls: list[ParsedFunctionToolCall],
+        tool_scene: ToolScene | None = None,
     ) -> list[ChatCompletionToolMessageParam]:
         results = []
         for tool_call in tool_calls or []:
@@ -103,7 +134,10 @@ class ToolCallManager:
                 if tool.name == tool_name:
                     log.debug(f"匹配到工具: {tool}")
                     try:
-                        result_content = await tool.function()
+                        if tool.need_scene:
+                            result_content = await tool.function(tool_args, tool_scene)
+                        else:
+                            result_content = await tool.function(tool_args)
                     except Exception:  # noqa: BLE001
                         error_str = traceback.format_exc()
                         log.exception(

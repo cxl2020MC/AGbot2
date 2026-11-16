@@ -15,8 +15,6 @@ from qqbot.utils import db
 #     PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
 # ]
 
-type PyObjectId = ObjectIdField
-
 db_collection: db.AsyncCollection | None = None
 
 
@@ -34,7 +32,7 @@ async def get_collection() -> db.AsyncCollection:
 
 
 class Memory(BaseModel):
-    id: PyObjectId = Field(
+    id: ObjectIdField = Field(
         alias="_id", default_factory=ObjectIdField, description="记忆ID"
     )
     level: int = Field(
@@ -47,31 +45,6 @@ class Memory(BaseModel):
     last_update_time: datetime = Field(default_factory=datetime.now)
 
     # metadata: dict = {}
-
-
-class MemoryWriteToolPram(BaseModel):
-    level: int = Field(
-        default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
-    )
-    keywords: list[str] = Field(
-        ...,
-        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
-    )
-    content: str = Field(..., description="记忆内容")
-    # metadata: dict = Field(default_factory=dict, description="记忆元数据")
-
-
-class MemoryUpdateToolPram(BaseModel):
-    id: PyObjectId = Field(..., description="记忆ID")
-    level: int = Field(
-        default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
-    )
-    keywords: list[str] = Field(
-        ...,
-        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
-    )
-    content: str = Field(..., description="记忆内容")
-    # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
 
 async def write_memory(memory: Memory):
@@ -109,3 +82,52 @@ async def search_memory(content: str, limit: int = 5):
         await update_memory(str(result.id), result)
     log.debug(f"搜索记忆结果: {results}")
     return results
+
+
+class MemoryWriteToolPram(BaseModel):
+    level: int = Field(
+        default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
+    )
+    keywords: list[str] = Field(
+        ...,
+        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
+    )
+    content: str = Field(..., description="记忆内容")
+    # metadata: dict = Field(default_factory=dict, description="记忆元数据")
+
+
+class MemoryUpdateToolPram(BaseModel):
+    id: ObjectIdField = Field(..., description="记忆ID")
+    level: int = Field(
+        default=1, ge=1, le=5, description="记忆等级, 1-5, 1为最不重要, 5为最重要"
+    )
+    keywords: list[str] = Field(
+        ...,
+        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
+    )
+    content: str = Field(..., description="记忆内容")
+    # metadata: dict = Field(default_factory=dict, description="记忆元数据")
+
+
+async def write_memory_tool_call(tool_param: MemoryWriteToolPram):
+    memory = Memory(
+        level=tool_param.level,
+        keywords=tool_param.keywords,
+        content=tool_param.content,
+    )
+    await write_memory(memory)
+    return f"记忆写入成功, 记忆ID: {memory.id}"
+
+async def update_memory_tool_call(tool_param: MemoryUpdateToolPram):
+    memory = Memory(
+        _id=tool_param.id,
+        level=tool_param.level,
+        keywords=tool_param.keywords,
+        content=tool_param.content,
+    )
+    await update_memory(str(memory.id), memory)
+    return f"记忆更新成功, 记忆ID: {memory.id}"
+
+async def search_memory_tool_call(content: str, limit: int = 5):
+    results = await search_memory(content, limit)
+    return [memory.model_dump() for memory in results]
