@@ -52,9 +52,10 @@ async def write_memory(memory: Memory):
     await db_collection.insert_one(memory.model_dump(by_alias=True))
 
 
-async def update_memory(memory_id: str, memory: Memory):
+async def update_memory(memory_id: str, memory: Memory, update_time: bool = True):
     db_collection = await get_collection()
-    memory.last_update_time = datetime.now()
+    if update_time:
+        memory.last_update_time = datetime.now()
     await db_collection.update_one(
         {"_id": ObjectId(memory_id)},
         {"$set": memory.model_dump(by_alias=True, exclude={"id"})},
@@ -79,7 +80,7 @@ async def search_memory(content: str, limit: int = 5):
     results = [Memory.model_validate(memory) for memory in db_results]
     for result in results:
         result.latest_read_time = datetime.now()
-        await update_memory(str(result.id), result)
+        await update_memory(str(result.id), result, update_time=False)
     log.debug(f"搜索记忆结果: {results}")
     return results
 
