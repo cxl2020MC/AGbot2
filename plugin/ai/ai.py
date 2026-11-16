@@ -7,8 +7,10 @@ import openai
 from openai.types.chat import (
     ChatCompletionContentPartParam,
     ChatCompletionContentPartTextParam,
+    ChatCompletionMessageFunctionToolCallParam,
     ChatCompletionMessageParam,
     ChatCompletionToolUnionParam,
+    ParsedFunctionToolCall,
 )
 from pydantic import BaseModel, Field
 
@@ -515,10 +517,24 @@ class AiChatManager:
             f"详细使用情况: {completion.usage.prompt_tokens_details if completion.usage else 'N/A'}"
         )
         tool_calls = ai_ret_messages.tool_calls
+
+        parse_tool_calls = []
+        if tool_calls:
+            for tool_call in tool_calls:
+                parse_tool_calls.append(
+                    ChatCompletionMessageFunctionToolCallParam(
+                        id=tool_call.id,
+                        type="function",
+                        function={
+                            "name": tool_call.function.name,
+                            "arguments": tool_call.function.arguments,  # 已经是 JSON 字符串
+                        },
+                    ),
+                )
         await self.add_assistant_message(
             content=ai_ret_messages.content if ai_ret_messages.content else "",
             reasoning_content=reasoning_content,
-            tool_calls=tool_calls,
+            tool_calls=parse_tool_calls,
         )
         if tool_calls:
             tool_call_scene = tool_calls_utils.ToolScene(
