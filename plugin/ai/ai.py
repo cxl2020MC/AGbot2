@@ -534,7 +534,7 @@ class AiChatManager:
         await self.add_assistant_message(
             content=ai_ret_messages.content if ai_ret_messages.content else "",
             reasoning_content=reasoning_content,
-            tool_calls=parse_tool_calls,
+            tool_calls=parse_tool_calls if parse_tool_calls else None,
         )
         if tool_calls:
             tool_call_scene = tool_calls_utils.ToolScene(
