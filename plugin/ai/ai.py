@@ -250,12 +250,13 @@ class AIPlugin:
             f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}"
         )
         for memory in ai_memory_content:
-            if memory.id in self.load_memory_id_list:
+            if str(memory.id) in self.load_memory_id_list:
                 ai_memory_content.remove(
                     memory
                 )  # 如果记忆ID已存在，则从结果中移除，避免重复加载
             else:
-                self.load_memory_id_list.append(memory.id)  # 将记忆ID添加到已加载集合中
+                log.debug(f"添加已加载记忆ID: {memory.id}")
+                self.load_memory_id_list.append(str(memory.id))  # 将记忆ID添加到已加载集合中
 
         log.debug(f"命中的记忆内容: {ai_memory_content}")
 
