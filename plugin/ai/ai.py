@@ -247,17 +247,12 @@ class AIPlugin:
         self, event_data: qq_message.GroupMessage | qq_message.Message
     ):
         ai_memory_content = await ai_memory.search_memory(
-            f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}"
+            f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}",
+            filiter_object_ids=self.load_memory_id_list,  # 传入已加载的记忆ID列表，避免重复加载
         )
         for memory in ai_memory_content:
-            if str(memory.id) in self.load_memory_id_list:
-                log.debug(f"记忆ID {memory.id} 已加载过，跳过加载。")
-                ai_memory_content.remove(
-                    memory
-                )  # 如果记忆ID已存在，则从结果中移除，避免重复加载
-            else:
-                log.debug(f"添加已加载记忆ID: {memory.id}")
-                self.load_memory_id_list.append(str(memory.id))  # 将记忆ID添加到已加载集合中
+            log.debug(f"添加已加载记忆ID: {memory.id}")
+            self.load_memory_id_list.append(memory.id)  # 将记忆ID添加到已加载集合中
 
         log.debug(f"命中的记忆内容: {ai_memory_content}")
 

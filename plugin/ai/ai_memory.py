@@ -62,7 +62,12 @@ async def update_memory(memory_id: str, memory: Memory, update_time: bool = True
     )
 
 
-async def search_memory(content: str, limit: int = 10):
+async def search_memory(
+    content: str,
+    limit: int = 10,
+    update_read_time: bool = True,
+    filiter_object_ids: list[str] | None = None,
+):
     db_collection = await get_collection()
     all_keywords = await db_collection.distinct("keywords")
     match_keywords = []
@@ -80,7 +85,12 @@ async def search_memory(content: str, limit: int = 10):
     db_results = await (
         await db_collection.aggregate(
             [
-                {"$match": {"keywords": {"$in": match_keywords}}},
+                {
+                    "$match": {
+                        "keywords": {"$in": match_keywords},
+                        "_id": {"$nin": filiter_object_ids or []},
+                    }
+                },
                 # {"$sort": {"level": -1, "latest_read_time": 1}},
                 # {"$limit": limit},
                 {"$sample": {"size": limit}},  # 随机抽取 limit 条记录
@@ -88,9 +98,10 @@ async def search_memory(content: str, limit: int = 10):
         )
     ).to_list()
     results = [Memory.model_validate(memory) for memory in db_results]
-    for result in results:
-        result.latest_read_time = datetime.now()
-        await update_memory(str(result.id), result, update_time=False)
+    if update_read_time:
+        for result in results:
+            result.latest_read_time = datetime.now()
+            await update_memory(str(result.id), result, update_time=False)
     log.debug(f"搜索记忆结果: {results}")
     return results
 
