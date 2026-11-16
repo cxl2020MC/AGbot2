@@ -74,9 +74,19 @@ async def search_memory(content: str, limit: int = 10):
         log.debug(f"未搜索到记忆关键词, content: {content}")
         return []
 
-    db_results = await db_collection.find(
-        {"keywords": {"$in": match_keywords}}
-    ).to_list(length=limit)
+    # db_results = await db_collection.find(
+    #     {"keywords": {"$in": match_keywords}}
+    # ).to_list(length=limit)
+    db_results = await (
+        await db_collection.aggregate(
+            [
+                {"$match": {"keywords": {"$in": match_keywords}}},
+                # {"$sort": {"level": -1, "latest_read_time": 1}},
+                # {"$limit": limit},
+                {"$sample": {"size": limit}},  # 随机抽取 limit 条记录
+            ]
+        )
+    ).to_list()
     results = [Memory.model_validate(memory) for memory in db_results]
     for result in results:
         result.latest_read_time = datetime.now()
