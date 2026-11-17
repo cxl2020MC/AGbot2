@@ -245,11 +245,11 @@ class AIPlugin:
         messages_content: list[ChatCompletionContentPartParam] = [
             {
                 "type": "text",
-                "text": f"""[{event_data.timestamp}][{event_data.author.username}]({
-                    event_data.author.id
-                })[{event_data.message_type.name}]{message_type_flag}: {
-                    event_data.content
-                }
+                "text": f"""[{event_data.timestamp}][{
+                    getattr(event_data.author, "member_nickname", "未知")
+                }({event_data.author.username})]({event_data.author.id})[{
+                    event_data.message_type.name
+                }]{message_type_flag}: {event_data.content}
 [{"]\n[".join(message_metadata)}]
 
 ## 命中的记忆内容
@@ -352,9 +352,7 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
 @plugin.on_command(
     ("chat_black_list", "聊天黑名单"), "聊天黑名单", "关于聊天黑名单的各种操作"
 )
-async def chat_black_list_command(
-    event_data: qq_message.Message, bot: QQ_Bot
-):
+async def chat_black_list_command(event_data: qq_message.Message, bot: QQ_Bot):
     if isinstance(event_data, qq_message.GroupMessage):
         await bot.qq_api.send_group_message(
             event_data.group_openid,
@@ -363,9 +361,7 @@ async def chat_black_list_command(
 
 
 @plugin.on_command(("chat_clear", "重置上下文"), "重置上下文", "清除当前群聊的上下文")
-async def clear_command(
-    event_data: qq_message.Message, bot: QQ_Bot
-):
+async def clear_command(event_data: qq_message.Message, bot: QQ_Bot):
     if isinstance(event_data, qq_message.GroupMessage):
         await (
             await AIPlugin.get_group_worker(bot, event_data.group_openid)
