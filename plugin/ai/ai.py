@@ -3,6 +3,7 @@ from typing import ClassVar, cast
 
 import httpx2
 import openai
+import yarl
 from openai.types.chat import (
     ChatCompletionContentPartParam,
     ChatCompletionMessageParam,
@@ -48,7 +49,8 @@ class SendMessageToolParam(BaseModel):
     )
 
 
-async def get_image_from_url(url, filename):
+async def get_image_from_url(url, filename) -> ChatCompletionContentPartParam:
+    log.info(f"从URL获取图片: {url}, filename: {filename}")
     img = await httpx2.get(url).aread()
     file = await client.files.create(
         file=(filename, img),
@@ -58,14 +60,22 @@ async def get_image_from_url(url, filename):
             "seconds": 60 * 60 * 24 * 14,  # 14天后过期
         },
     )
-    return ({"type": "file", "file_id": file.id},)
-
+    return cast(
+        ChatCompletionContentPartParam,
+        {"type": "file", "file_id": file.id},
+    )
     # messages_content.append(
     #     {
     #         "type": "image_url",
     #         "image_url": {"url": attachment.url},
     #     }
     # )
+
+
+async def get_image_from_url_tool(url: str) -> ChatCompletionContentPartParam:
+    yarl_url = yarl.URL(url)
+    filename = yarl_url.name
+    return await get_image_from_url(url, filename)
 
 
 TOOLS = [
@@ -111,6 +121,12 @@ TOOLS = [
         description="获取网页内容，返回网页内容",
         model=web_search.WebFetchToolParam,
         function=web_search.web_fetch_tool_call,
+    ),
+    tool_calls_utils.Tool(
+        name="get_image_from_url",
+        description="从图片URL获取图片内容，返回图片内容",
+        model=web_search.WebFetchToolParam,
+        function=get_image_from_url,
     ),
 ]
 
@@ -232,27 +248,11 @@ class AIPlugin:
                 # if attachment.asr_refer_text:
                 #     event_data.content += f"\n[语音转文字]: {attachment.asr_refer_text}"
                 if attachment.content_type.startswith("image"):
-                    img = await httpx2.get(attachment.url).aread()
-                    file = await client.files.create(
-                        file=(attachment.filename, img),
-                        purpose="user_data",
-                        expires_after={
-                            "anchor": "created_at",
-                            "seconds": 60 * 60 * 24 * 14,  # 14天后过期
-                        },
-                    )
+                    log.debug(f"处理图片消息: {attachment}")
                     messages_content.append(
-                        cast(
-                            ChatCompletionContentPartParam,
-                            {"type": "file", "file_id": file.id},
-                        ),
+                        await get_image_from_url(attachment.url, attachment.filename)
                     )
-                    # messages_content.append(
-                    #     {
-                    #         "type": "image_url",
-                    #         "image_url": {"url": attachment.url},
-                    #     }
-                    # )
+
                 elif attachment.content_type.startswith("voice"):
                     if attachment.asr_refer_text:
                         messages_content.append(
