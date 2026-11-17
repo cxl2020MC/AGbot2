@@ -177,6 +177,7 @@ class AIPlugin:
                     description="发送一条消息，支持markdown格式，你只能使用此工具函数发送消息，不能直接输出消息内容",
                     model=SendMessageToolParam,
                     function=self.send_message_tool_call,
+                    need_scene=True,
                 ),
             )
             self.ai_chat_manager = AiChatManager(
