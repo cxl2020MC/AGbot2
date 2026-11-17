@@ -72,10 +72,11 @@ async def get_image_from_url(url, filename) -> ChatCompletionContentPartParam:
     # )
 
 
-async def get_image_from_url_tool(url: str) -> ChatCompletionContentPartParam:
-    yarl_url = yarl.URL(url)
+
+async def get_image_from_url_tool(tool_args: GetImageFromUrlToolParam) -> ChatCompletionContentPartParam:
+    yarl_url = yarl.URL(tool_args.url)
     filename = yarl_url.name
-    return await get_image_from_url(url, filename)
+    return await get_image_from_url(tool_args.url, filename)
 
 
 TOOLS = [
