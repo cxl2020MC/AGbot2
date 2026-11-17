@@ -238,15 +238,11 @@ class AIPlugin:
             event_data.content
         )
 
-        message_sticker_result_str = (
-            "\n".join(
-                [
-                    f"{sticker.raw}: {sticker.encoded_ext}"
-                    for sticker in message_sticker_result
-                ]
-            )
-            if message_sticker_result
-            else "无"
+        message_sticker_result_str = "\n".join(
+            [
+                f"{sticker.raw}: {sticker.encoded_ext}"
+                for sticker in message_sticker_result
+            ]
         )
         messages_content: list[ChatCompletionContentPartParam] = [
             {
@@ -261,7 +257,7 @@ class AIPlugin:
 ## 命中的记忆内容
 {"\n".join(str(memory) for memory in ai_memory_content) if ai_memory_content else "无"}
 
-## 消息中的表情符号转换结果
+## 消息中的表情转换结果
 {message_sticker_result_str if message_sticker_result else "无"}
 """,
             }
