@@ -45,7 +45,7 @@ class UserBase(BaseModel):
 class GroupUser(UserBase):
     member_openid: str
     member_role: UserRole
-    member_nickname: str | None = None
+    member_nickname: str = Field(..., description="群成员昵称") # 看起来不会是空的
 
 
 class C2CUser(UserBase):
