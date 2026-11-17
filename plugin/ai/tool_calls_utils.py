@@ -80,11 +80,8 @@ class ToolScene:
 
 
 class ToolCallManager:
-    def __init__(self, ai_obj: ai.AiChatManager) -> None:
-        # self.tools: list[ChatCompletionToolUnionParam] = []
+    def __init__(self) -> None:
         self.tools: list[Tool] = []
-        self.ai_obj = ai_obj
-
     # def add_tool(self, tool_call: ChatCompletionToolUnionParam):
     #     self.tools.append(tool_call)
 
