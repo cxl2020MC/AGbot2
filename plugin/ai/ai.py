@@ -140,9 +140,7 @@ class AIPlugin:
         self.group_openid = group_openid
         self.bot: QQ_Bot = bot
         self.ai_chat_manager: AiChatManager | None = None
-        self.group_message_queue: asyncio.Queue[
-            qq_message.Message
-        ] = asyncio.Queue()
+        self.group_message_queue: asyncio.Queue[qq_message.Message] = asyncio.Queue()
         self.worker_task = asyncio.create_task(
             self.worker(), name=f"AIPluginWorker-{group_openid}"
         )
@@ -200,9 +198,7 @@ class AIPlugin:
             )
         return self.ai_chat_manager
 
-    async def generate_message(
-        self, event_data: qq_message.GroupMessage | qq_message.GroupMessage
-    ):
+    async def generate_message(self, event_data: qq_message.Message):
         ai_memory_content = await ai_memory.search_memory(
             f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}",
             filiter_object_ids=self.load_memory_id_list,  # 传入已加载的记忆ID列表，避免重复加载
@@ -229,8 +225,10 @@ class AIPlugin:
         message_type_flag = []
         if event_data.author.union_openid == "1AE10B8401B2C79FAC54EA62A9EE2272":
             message_type_flag.append("主人")
-        if event_data.mentions:
-            for mention in event_data.mentions:
+
+        mentions = getattr(event_data, "mentions", None)
+        if mentions:
+            for mention in mentions:
                 if mention.id == (await self.bot.qq_api.get_bot_info()).union_openid:
                     message_type_flag.append("被@")
 
@@ -300,7 +298,7 @@ class AIPlugin:
 
     async def handle_ai(
         self,
-        event_data: qq_message.GroupMessage | qq_message.GroupMessage,
+        event_data: qq_message.Message,
         bot: QQ_Bot,
     ):
         messages = await self.generate_message(event_data)
@@ -355,7 +353,7 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
     ("chat_black_list", "聊天黑名单"), "聊天黑名单", "关于聊天黑名单的各种操作"
 )
 async def chat_black_list_command(
-    event_data: qq_message.GroupMessage | qq_message.GroupMessage, bot: QQ_Bot
+    event_data: qq_message.Message, bot: QQ_Bot
 ):
     if isinstance(event_data, qq_message.GroupMessage):
         await bot.qq_api.send_group_message(
@@ -366,7 +364,7 @@ async def chat_black_list_command(
 
 @plugin.on_command(("chat_clear", "重置上下文"), "重置上下文", "清除当前群聊的上下文")
 async def clear_command(
-    event_data: qq_message.GroupMessage | qq_message.GroupMessage, bot: QQ_Bot
+    event_data: qq_message.Message, bot: QQ_Bot
 ):
     if isinstance(event_data, qq_message.GroupMessage):
         await (

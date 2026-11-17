@@ -45,7 +45,7 @@ class UserBase(BaseModel):
 class GroupUser(UserBase):
     member_openid: str
     member_role: UserRole
-    member_nickname: str = Field(..., description="群成员昵称") # 看起来不会是空的
+    member_nickname: str = Field(..., description="群成员昵称")  # 看起来不会是空的
 
 
 class C2CUser(UserBase):
@@ -144,6 +144,8 @@ class MessageBase(BaseModel):
 
     ark_data: Any | None = None
     msg_elements: list[MsgElement] | None = None
+    # 文档没有这个, 不知道是只有群消息有还是全部都有
+    parallel_message: ParallelMessage | None = None
 
 
 class GroupMessage(MessageBase):
@@ -151,8 +153,6 @@ class GroupMessage(MessageBase):
     mentions: list[GroupUser] | None = None
     group_openid: str
     union_group_openid: str | None = None
-    # 文档没有这个
-    parallel_message: ParallelMessage | None = None
 
 
 class C2CMessage(MessageBase):
