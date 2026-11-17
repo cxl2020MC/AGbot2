@@ -126,7 +126,7 @@ TOOLS = [
         name="get_image_from_url",
         description="从图片URL获取图片内容，返回图片内容",
         model=web_search.WebFetchToolParam,
-        function=get_image_from_url,
+        function=get_image_from_url_tool,
     ),
 ]
 
