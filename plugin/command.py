@@ -14,7 +14,7 @@ plugin = plugin.Plugin("command", "一个简单的管理命令插件", "1.0.0")
 
 @plugin.on_command(("reboot",), "reboot", "重启命令")
 async def reboot_command(
-    event_data: qq_message.GroupMessage | qq_message.Message, bot: QQ_Bot
+    event_data: qq_message.Message, bot: QQ_Bot
 ):
     print(event_data)
     if isinstance(event_data, qq_message.GroupMessage):

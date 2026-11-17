@@ -34,15 +34,42 @@ class MessageType(IntEnum):
         return cls.其他类型
 
 
-class User(BaseModel):
+class UserBase(BaseModel):
     id: str
     username: str
+    avatar: str
     bot: bool
     union_openid: str | None = None
-    union_user_account: str | None = None
-    user_openid: str | None = None
-    member_openid: str | None = None
-    member_role: UserRole | None = None
+
+
+class GroupUser(UserBase):
+    member_openid: str
+    member_role: UserRole
+    member_nickname: str | None = None
+
+
+class C2CUser(UserBase):
+    user_openid: str
+
+
+class GroupAtScope(StrEnum):
+    全体成员 = "all"
+    指定对象 = "single"
+
+    # 自定义类型
+    未知 = "unknown"
+
+    @classmethod
+    def _missing_(cls, value):
+        return cls.未知
+
+
+class GroupMentionsUser(GroupUser):
+    avatar: str = Field("", description="群成员头像，目前为空")
+    is_you: bool = Field(False, description="是否是@的当前bot")
+    scope: GroupAtScope = Field(
+        ..., description="@的范围，all表示全体成员，single表示指定对象"
+    )
 
 
 def parse_ext(ext: list[str]) -> dict[str, str]:
@@ -87,7 +114,7 @@ class MessageAttachment(BaseModel):
 
 class MsgElement(BaseModel):
     msg_idx: str | None = None
-    author: User | None = None
+    author: GroupUser | None = None
     message_type: MessageType | None = None
     content: str
     attachments: list[MessageAttachment] | None = None
@@ -106,20 +133,30 @@ class MessageNode(BaseModel):
     message_type: MessageType
 
 
-class Message(BaseModel):
+class MessageBase(BaseModel):
     id: str
-    author: User
+    # author: UserBase | GroupUser | C2CUser
     content: str
     timestamp: datetime
     message_type: MessageType
     message_scene: MessageScene
     attachments: list[MessageAttachment] | None = None
-    mentions: list[User] | None = None
+
     ark_data: Any | None = None
     msg_elements: list[MsgElement] | None = None
+
+
+class GroupMessage(MessageBase):
+    author: GroupUser
+    mentions: list[GroupUser] | None = None
+    group_openid: str
+    union_group_openid: str | None = None
     # 文档没有这个
     parallel_message: ParallelMessage | None = None
 
 
-class GroupMessage(Message):
-    group_openid: str
+class C2CMessage(MessageBase):
+    author: C2CUser
+
+
+type Message = GroupMessage | C2CMessage

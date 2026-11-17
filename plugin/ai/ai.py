@@ -141,7 +141,7 @@ class AIPlugin:
         self.bot: QQ_Bot = bot
         self.ai_chat_manager: AiChatManager | None = None
         self.group_message_queue: asyncio.Queue[
-            qq_message.GroupMessage | qq_message.Message
+            qq_message.Message
         ] = asyncio.Queue()
         self.worker_task = asyncio.create_task(
             self.worker(), name=f"AIPluginWorker-{group_openid}"
@@ -201,7 +201,7 @@ class AIPlugin:
         return self.ai_chat_manager
 
     async def generate_message(
-        self, event_data: qq_message.GroupMessage | qq_message.Message
+        self, event_data: qq_message.GroupMessage | qq_message.GroupMessage
     ):
         ai_memory_content = await ai_memory.search_memory(
             f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}",
@@ -300,7 +300,7 @@ class AIPlugin:
 
     async def handle_ai(
         self,
-        event_data: qq_message.GroupMessage | qq_message.Message,
+        event_data: qq_message.GroupMessage | qq_message.GroupMessage,
         bot: QQ_Bot,
     ):
         messages = await self.generate_message(event_data)
@@ -320,7 +320,7 @@ class AIPlugin:
                 self.group_message_queue.task_done()
 
     async def handle_message(
-        self, event_data: qq_message.GroupMessage | qq_message.Message
+        self, event_data: qq_message.GroupMessage | qq_message.GroupMessage
     ):
         queue = self.group_message_queue
         await queue.put(event_data)
@@ -355,7 +355,7 @@ async def handle_group_message(event_data: qq_message.GroupMessage, bot: QQ_Bot)
     ("chat_black_list", "聊天黑名单"), "聊天黑名单", "关于聊天黑名单的各种操作"
 )
 async def chat_black_list_command(
-    event_data: qq_message.GroupMessage | qq_message.Message, bot: QQ_Bot
+    event_data: qq_message.GroupMessage | qq_message.GroupMessage, bot: QQ_Bot
 ):
     if isinstance(event_data, qq_message.GroupMessage):
         await bot.qq_api.send_group_message(
@@ -366,7 +366,7 @@ async def chat_black_list_command(
 
 @plugin.on_command(("chat_clear", "重置上下文"), "重置上下文", "清除当前群聊的上下文")
 async def clear_command(
-    event_data: qq_message.GroupMessage | qq_message.Message, bot: QQ_Bot
+    event_data: qq_message.GroupMessage | qq_message.GroupMessage, bot: QQ_Bot
 ):
     if isinstance(event_data, qq_message.GroupMessage):
         await (

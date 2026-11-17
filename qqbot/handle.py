@@ -77,7 +77,7 @@ async def event_handle(
 
 async def handle_message(
     event_types: list[bot_event.MessageEventType],
-    event_data: qq_message.Message,
+    event_data: qq_message.GroupMessage,
     bot_obj: QQ_Bot,
 ) -> None:
     plugin_manager = bot_obj.plugin_manager

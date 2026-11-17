@@ -37,7 +37,7 @@ class PluginManager:
     async def handle_message_event(
         self,
         message_event_types: list[bot_event.MessageEventType],
-        event_data: qq_message.Message,
+        event_data: qq_message.GroupMessage,
     ):
         for message_event_type in message_event_types:
             for plugin in self.plugins:
@@ -45,7 +45,7 @@ class PluginManager:
                     message_event_type, event_data, self.bot_obj
                 )
 
-    async def handle_command_event(self, event_data: qq_message.Message):
+    async def handle_command_event(self, event_data: qq_message.GroupMessage):
         command_start_with = "/"
         if event_data.content.startswith(command_start_with):
             command_text = event_data.content.strip().split()[0][
@@ -179,7 +179,7 @@ class Plugin:
     async def _message_event_handler(
         self,
         message_event_type: bot_event.MessageEventType,
-        event_data: qq_message.Message,
+        event_data: qq_message.GroupMessage,
         bot_obj,
     ):
         for listener in self.get_message_listeners([message_event_type]):
@@ -189,7 +189,7 @@ class Plugin:
                 log.exception("处理消息事件时发生异常")
 
     async def _command_event_handler(
-        self, command: str, event_data: qq_message.Message, bot_obj
+        self, command: str, event_data: qq_message.GroupMessage, bot_obj
     ):
         for command_listener in self.get_command_event_listeners(command) or []:
             try:
