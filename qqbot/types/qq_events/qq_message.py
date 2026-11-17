@@ -150,7 +150,7 @@ class MessageBase(BaseModel):
 
 class GroupMessage(MessageBase):
     author: GroupUser
-    mentions: list[GroupUser] | None = None
+    mentions: list[GroupMentionsUser] | None = None
     group_openid: str
     union_group_openid: str | None = None
 
