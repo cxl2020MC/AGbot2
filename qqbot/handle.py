@@ -33,7 +33,7 @@ async def handle_event(
                 message_metadata.append(f"消息节点: {event.parallel_message.msg_nodes}")
 
             log.info(
-                f"""收到群 {group_info.group_name}({event.group_openid}) 内 {event.author.username}({event.author.id} {event.author.member_openid} {event.author.union_openid})[{event.author.member_role.name if event.author.member_role else "未知"}] 的 {event.message_type.name} 消息: {event.content}
+                f"""收到群 {group_info.group_name}({event.group_openid}) 内 {event.author.member_nickname}({event.author.username}) ({event.author.id} {event.author.member_openid} {event.author.union_openid})[{event.author.member_role.name if event.author.member_role else "未知"}] 的 {event.message_type.name} 消息: {event.content}
 [{"]\n[".join(message_metadata)}]"""
             )
             await event_handle(
