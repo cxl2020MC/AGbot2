@@ -17,7 +17,7 @@ from qqbot.qq_bot import QQ_Bot
 # from qqbot.types.bot_event import MessageEventType
 from qqbot.types.qq_api import send_message
 from qqbot.types.qq_events import qq_message
-from qqbot.utils import command_utils
+from qqbot.utils import command_utils, message_sticker
 
 from . import ai_memory, system_prompt, tool_calls_utils, web_search
 from .ai_utils import AiChatManager
@@ -234,14 +234,36 @@ class AIPlugin:
                 if mention.id == (await self.bot.qq_api.get_bot_info()).union_openid:
                     message_type_flag.append("被@")
 
+        message_sticker_result = message_sticker.extract_faceType_tags(
+            event_data.content
+        )
+
+        message_sticker_result_str = (
+            "\n".join(
+                [
+                    f"{sticker.raw}: {sticker.encoded_ext}"
+                    for sticker in message_sticker_result
+                ]
+            )
+            if message_sticker_result
+            else "无"
+        )
         messages_content: list[ChatCompletionContentPartParam] = [
             {
                 "type": "text",
-                "text": f"""[{event_data.timestamp}][{event_data.author.username}]({event_data.author.id})[{event_data.message_type.name}]{message_type_flag}: {event_data.content}
+                "text": f"""[{event_data.timestamp}][{event_data.author.username}]({
+                    event_data.author.id
+                })[{event_data.message_type.name}]{message_type_flag}: {
+                    event_data.content
+                }
 [{"]\n[".join(message_metadata)}]
 
 ## 命中的记忆内容
-{"\n".join(str(memory) for memory in ai_memory_content) if ai_memory_content else "无"}""",
+{"\n".join(str(memory) for memory in ai_memory_content) if ai_memory_content else "无"}
+
+## 消息中的表情符号转换结果
+{message_sticker_result_str if message_sticker_result else "无"}
+""",
             }
         ]
 
