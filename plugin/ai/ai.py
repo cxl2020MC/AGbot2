@@ -23,7 +23,7 @@ from qqbot.types.qq_api import send_message
 from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils
 
-from . import ai_memory, tool_calls_utils, web_search
+from . import ai_memory, system_prompt, tool_calls_utils, web_search
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
@@ -36,74 +36,8 @@ client = openai.AsyncOpenAI(
 AI_MODEL = "deepseek-flash"
 # AI_MODEL = "deepseek-v4.1-flash-1017"
 
-SystemPrompt = """你是 早喵，是一只猫娘。你将在一个 QQ 群聊中与其他群友进行交流。
-你的主人是 cxl2020mc，你可以通过消息格式中的主人标识来区分。
+SystemPrompt = system_prompt.SystemPrompt
 
-## 角色设定
-
-身高：150cm
-体重：45kg(保密)
-每次发言之前 看一下历史的互动反馈 反馈不高一定不要发言
-## 核心目标
-
-1. 理解群成员消息，提供简明、友好、有帮助的信息、建议或轻松娱乐内容。
-2. 优先回应@你、回复你、叫你“早喵”、或明显向你提问的消息；普通群聊不抢话、不刷屏。
-3. 默认回答1-3句；复杂问题可分点，但保持简短。不确定时说明不确定，不编造。
-4. 请确定你想要回应的消息是否真的有必要被回应？如果为否，不要发送回应。
-
-## 语言风格
-
-1. 可使用“喵~”等猫娘口癖，但自然点缀即可，不要每句都加。
-2. 友好、礼貌、尊重，可调皮但不过度卖萌。
-
-## 消息格式
-
-[消息时间戳][群成员昵称]([群成员ID])[消息类型][消息标识]：[消息内容]
-[消息ID]
-[消息索引]
-[引用目标消息索引]
-[消息元素(可选)]
-[消息节点(可选)]
-
-
-消息标识可能包含@、回复、主人标识等
-
-如果命中了记忆中的关键词，会在下面输出命中的记忆内容
-
-
-## 群聊处理流程
-
-1. 解析消息格式。
-2. 判断是否需要发言：仅在被@、被回复、被点名、明显提问时回复。
-3. 每次发言之前, 可以看一下历史的互动反馈，如果没人理会/冷场，最好不要发言。
-3. 同一用户连续消息可合并理解；避免重复回答和刷屏。
-4. 回复时可自然称呼对方昵称。
-5. 如果用户的消息中有些信息值得记忆(如个人喜好、重要信息等)，可将关键词和内容调用 `add_memory` 工具存入记忆库，便于后续参考。
-
-
-## 发送消息时可以使用的特殊格式
-注: 不需要对引号进行转义
-
-at群成员： <qqbot-at-user id="群成员ID" /> 
-
-# 相关信息
-
-你的机器人ID是：{BOT_ID}
-当前的群聊名称是：{GROUP_NAME}
-群聊openid是：{GROUP_OPENID}
-
-## 注意事项
-
-你只可以在最终输出中输出给自己看的内容
-如果需要发送消息，必须使用 `send_message` 工具函数，不能直接输出消息内容
-
-## 输出
-
-你的输出是你写给自己的**思考与打算**，直接用自然语言输出即可，不会被发送给群成员。
-需要发送消息时，必须调用 `send_message` 工具函数发送，其他位置的文本不会被发送。
-
-"""
-# 或内容适合你参与
 
 GROUP_ID_BLACKLIST = [
     # "B274F145FD3D531A98184AD623AA9A88",
@@ -116,27 +50,6 @@ class SendMessageToolParam(BaseModel):
     ref_msg_idx: str | None = Field(
         None, description="引用消息时，需要引用的消息的消息索引"
     )
-
-
-async def send_message_tool_call(
-    tool_args: SendMessageToolParam, tool_scene: tool_calls_utils.ToolScene
-):
-    bot = tool_scene.bot
-    ref_msg_idx = tool_args.ref_msg_idx
-    return_data = await bot.qq_api.send_group_message(
-        tool_scene.group_openid,
-        send_message.GroupMessage(
-            msg_type=send_message.GroupMessageType.MARKDOWN,
-            markdown=send_message.MessageMarkdown(content=tool_args.content),
-            message_reference=send_message.MessageReference(message_id=ref_msg_idx)
-            if ref_msg_idx
-            else None,
-            msg_seq=tool_scene.run_count if ref_msg_idx else None,
-        ),
-    )
-    log.debug(f"发送消息返回: {return_data}")
-    return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
-    return return_mesage
 
 
 async def get_image_from_url(url, filename):
@@ -160,13 +73,13 @@ async def get_image_from_url(url, filename):
 
 
 TOOLS = [
-    tool_calls_utils.Tool(
-        name="send_message",
-        description="发送一条消息，支持markdown格式，你只能使用此工具函数发送消息，不能直接输出消息内容",
-        model=SendMessageToolParam,
-        function=send_message_tool_call,
-        need_scene=True,
-    ),
+    # tool_calls_utils.Tool(
+    #     name="send_message",
+    #     description="发送一条消息，支持markdown格式，你只能使用此工具函数发送消息，不能直接输出消息内容",
+    #     model=SendMessageToolParam,
+    #     function=send_message_tool_call,
+    #     need_scene=True,
+    # ),
     tool_calls_utils.Tool(
         name="add_memory",
         description="将消息内容存入记忆库，便于后续参考",
@@ -227,6 +140,26 @@ class AIPlugin:
             AIPlugin.workers[group_openid] = AIPlugin(group_openid, bot)
         return AIPlugin.workers[group_openid]
 
+    async def send_message_tool_call(
+        self, tool_args: SendMessageToolParam, tool_scene: tool_calls_utils.ToolScene
+    ):
+        bot = self.bot
+        ref_msg_idx = tool_args.ref_msg_idx
+        return_data = await bot.qq_api.send_group_message(
+            self.group_openid,
+            send_message.GroupMessage(
+                msg_type=send_message.GroupMessageType.MARKDOWN,
+                markdown=send_message.MessageMarkdown(content=tool_args.content),
+                message_reference=send_message.MessageReference(message_id=ref_msg_idx)
+                if ref_msg_idx
+                else None,
+                msg_seq=tool_scene.run_count if ref_msg_idx else None,
+            ),
+        )
+        log.debug(f"发送消息返回: {return_data}")
+        return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
+        return return_mesage
+
     async def get_ai_chat_manager(self):
         if self.ai_chat_manager is None:
             bot_info = await self.bot.qq_api.get_bot_info()
@@ -236,10 +169,19 @@ class AIPlugin:
                 GROUP_NAME=group_info.group_name,
                 GROUP_OPENID=self.group_openid,
             )
+            tools = TOOLS.copy()
+            tools.insert(
+                0,
+                tool_calls_utils.Tool(
+                    name="send_message",
+                    description="发送一条消息，支持markdown格式，你只能使用此工具函数发送消息，不能直接输出消息内容",
+                    model=SendMessageToolParam,
+                    function=self.send_message_tool_call,
+                ),
+            )
             self.ai_chat_manager = AiChatManager(
-                self.bot,
-                self.group_openid,
                 system_message_content,
+                tool_calls=tools,
             )
         return self.ai_chat_manager
 
@@ -420,15 +362,18 @@ async def clear_command(
 
 
 class AiChatManager:
-    def __init__(self, bot: QQ_Bot, group_openid: str, system_message_content: str):
-        self.bot = bot
-        self.group_openid = group_openid
+    def __init__(
+        self,
+        system_message_content: str,
+        tool_calls: list[tool_calls_utils.Tool] | None = None,
+    ):
         self.ai_messages: list[ChatCompletionMessageParam] = []
         self.system_message_content: str = system_message_content
         self.system_message: ChatCompletionMessageParam | None = None
         self._tool_call_manager = tool_calls_utils.ToolCallManager(self)
 
-        self._tool_call_manager.add_tools(TOOLS)
+        if tool_calls:
+            self._tool_call_manager.add_tools(tool_calls)
 
         log.debug(f"已注册工具函数: {self._tool_call_manager.get_tools_list()}")
 
@@ -568,9 +513,6 @@ class AiChatManager:
         )
         if tool_calls:
             tool_call_scene = tool_calls_utils.ToolScene(
-                group_openid=self.group_openid,
-                bot=self.bot,
-                ai_obj=self,
                 run_count=run_count,
             )
             tool_result = await self._tool_call_manager.run_tool_calls(

@@ -76,10 +76,6 @@ class Tool:
 
 @dataclass
 class ToolScene:
-    # event: qq_message.GroupMessage
-    group_openid: str
-    bot: QQ_Bot
-    ai_obj: ai.AiChatManager
     run_count: int
 
 
@@ -121,7 +117,7 @@ class ToolCallManager:
     async def run_tool_calls(
         self,
         tool_calls: list[ParsedFunctionToolCall],
-        tool_scene: ToolScene | None = None,
+        tool_scene: ToolScene,
     ) -> list[ChatCompletionToolMessageParam]:
         results = []
         for tool_call in tool_calls or []:
