@@ -15,7 +15,7 @@ from qqbot.log import logger as log
 from qqbot.qq_bot import QQ_Bot
 
 # from qqbot.types.bot_event import MessageEventType
-from qqbot.types.qq_api import send_message
+from qqbot.types.qq_api import api_type, send_message
 from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, message_sticker
 
@@ -47,6 +47,10 @@ class SendMessageToolParam(BaseModel):
     ref_msg_idx: str | None = Field(
         None, description="引用消息时，需要引用的消息的消息索引"
     )
+
+
+class DeleteMessageToolParam(BaseModel):
+    message_id: str = Field(..., description="需要删除的消息的消息id")
 
 
 async def get_image_from_url(url, filename) -> ChatCompletionContentPartParam:
@@ -172,6 +176,15 @@ class AIPlugin:
         return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
         return return_mesage
 
+    async def delete_message_tool_call(self, tool_args: DeleteMessageToolParam):
+        bot = self.bot
+        await bot.qq_api.delete_message(
+            api_type.ApiType.GROUP,
+            open_id=self.group_openid,
+            message_id=tool_args.message_id,
+        )
+        return "删除消息成功"
+
     async def get_ai_chat_manager(self):
         if self.ai_chat_manager is None:
             bot_info = await self.bot.qq_api.get_bot_info()
@@ -190,6 +203,14 @@ class AIPlugin:
                     model=SendMessageToolParam,
                     function=self.send_message_tool_call,
                     need_scene=True,
+                ),
+            )
+            tools.append(
+                tool_calls_utils.Tool(
+                    name="delete_message",
+                    description="撤回一条已经发送的消息",
+                    model=DeleteMessageToolParam,
+                    function=self.delete_message_tool_call,
                 ),
             )
             self.ai_chat_manager = AiChatManager(
