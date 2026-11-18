@@ -93,12 +93,12 @@ class FileUploader:
         else:
             raw: bytes = await file_data.read()
 
-        # 校验大小（5M 限制）
-        if len(raw) > 5 * 1024 * 1024:
-            raise ValueError(
-                f"文件 {file_name} 大小 {len(raw)} 字节超过 5M,"
-                "请改用 URL 上传或分片上传路径"
-            )
+        # # 校验大小（5M 限制）
+        # if len(raw) > 5 * 1024 * 1024:
+        #     raise ValueError(
+        #         f"文件 {file_name} 大小 {len(raw)} 字节超过 5M,"
+        #         "请改用 URL 上传或分片上传路径"
+        #     )
 
         # base64 编码
         file_data_str = base64.b64encode(raw).decode("ascii")
