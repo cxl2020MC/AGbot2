@@ -272,7 +272,8 @@ class QQ_Bot:
         log.info("启动 access_token 更新循环")
         while True:
             try:
-                next_update_in = self.access_token_expires_in - 60
+                # 过期前 60 秒可以更新
+                next_update_in = self.access_token_expires_in - 45
                 log.info(f"下次更新 access_token 在 {next_update_in} 秒后")
                 await asyncio.sleep(next_update_in)
                 await self.fetch_access_token(app_id, client_secret)
