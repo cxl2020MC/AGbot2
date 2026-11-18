@@ -46,7 +46,7 @@ async def video_send_test_command(event_data: qq_message.Message, bot: QQ_Bot):
             type=qq_api.file_update.ApiType.GROUP,
             open_id=event_data.group_openid,
             file_type=qq_api.file_update.FileType.视频,
-            file_name="test.webm",
-            file_data=await anyio.open_file("data/test.webm", "rb"),
+            file_name="test.mp4",
+            file_data=await anyio.open_file("data/test.mp4", "rb"),
             srv_send_msg=True,
         )
