@@ -20,7 +20,10 @@ async def close_browser():
 
 async def screenshot(url: str, full_page: bool = True):
     browser = await get_browser()
-    page = await browser.new_page()
+    context = await browser.new_context(
+        viewport={"width": 1920, "height": 1080}, device_scale_factor=2
+    )
+    page = await context.new_page()
     await page.goto(url)
     await page.wait_for_load_state("networkidle")
     screenshot_bytes = await page.screenshot(full_page=full_page)
