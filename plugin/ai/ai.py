@@ -208,7 +208,7 @@ class AIPlugin:
             tools.append(
                 tool_calls_utils.Tool(
                     name="delete_message",
-                    description="撤回一条已经发送的消息",
+                    description="撤回一条自己已经发送的消息",
                     model=DeleteMessageToolParam,
                     function=self.delete_message_tool_call,
                 ),
