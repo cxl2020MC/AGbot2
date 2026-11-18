@@ -1,6 +1,7 @@
+import asyncio
 from datetime import datetime
-from typing import Annotated
 
+# from typing import Annotated
 from bson import ObjectId
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
 from pydantic_mongo import ObjectIdField
@@ -22,7 +23,8 @@ async def init():
     global db_collection
     db_collection = (await db.get_db()).get_collection("ai_memory")
     await db_collection.create_index({"keywords": 1})
-
+    log.info("记忆数据库初始化完成")
+    asyncio.create_task(memory_cleanup_task(), name="ai_memory_cleanup_task")
 
 async def get_collection() -> db.AsyncCollection:
     if db_collection is None:
@@ -40,6 +42,12 @@ class Memory(BaseModel):
     )
     keywords: list[str]
     content: str
+    ttl: int = Field(
+        default=24 * 3,
+        ge=0,
+        le=24 * 30,
+        description="记忆有效期（小时），0表示永久有效，其他值表示从上次更新时间开始的有效期",
+    )
     create_time: datetime = Field(default_factory=datetime.now)
     latest_read_time: datetime = Field(default_factory=datetime.now)
     last_update_time: datetime = Field(default_factory=datetime.now)
@@ -120,6 +128,12 @@ class MemoryWriteToolPram(BaseModel):
         description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
     )
     content: str = Field(..., description="记忆内容")
+    ttl: int = Field(
+        default=24 * 3,
+        ge=0,
+        le=24 * 30,
+        description="记忆有效期（小时），0表示永久有效，其他值表示从上次更新时间开始的有效期",
+    )
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
 
@@ -133,6 +147,12 @@ class MemoryUpdateToolPram(BaseModel):
         description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
     )
     content: str = Field(..., description="记忆内容")
+    ttl: int = Field(
+        default=24 * 3,
+        ge=0,
+        le=24 * 30,
+        description="记忆有效期（小时），0表示永久有效，其他值表示从上次更新时间开始的有效期",
+    )
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
 
@@ -152,6 +172,7 @@ async def write_memory_tool_call(tool_param: MemoryWriteToolPram):
         level=tool_param.level,
         keywords=tool_param.keywords,
         content=tool_param.content,
+        ttl=tool_param.ttl,
     )
     await write_memory(memory)
     return f"记忆写入成功, 记忆ID: {memory.id}"
@@ -163,6 +184,7 @@ async def update_memory_tool_call(tool_param: MemoryUpdateToolPram):
         level=tool_param.level,
         keywords=tool_param.keywords,
         content=tool_param.content,
+        ttl=tool_param.ttl,
     )
     await update_memory(str(memory.id), memory)
     return f"记忆更新成功, 记忆ID: {memory.id}"
@@ -176,3 +198,36 @@ async def search_memory_tool_call(content: str, limit: int = 10):
 async def delete_memory_tool_call(memory_id: str):
     await delete_memory(memory_id)
     return f"记忆删除成功, 记忆ID: {memory_id}"
+
+
+async def memory_cleanup_task():
+    log.info("启动记忆清理任务...")
+    db_collection = await get_collection()
+    while True:
+        now = datetime.now()
+        expired_memories = await db_collection.find(
+            {
+                "ttl": {"$gt": 0},
+                "$expr": {
+                    "$lt": [
+                        {"$add": ["$last_update_time", {"$multiply": ["$ttl", 3600]}]},
+                        now,
+                    ]
+                },
+            }
+        ).to_list(length=100)
+        if expired_memories:
+            log.info(f"清理过期记忆: {len(expired_memories)} 条")
+            for memory in expired_memories:
+                await delete_memory(str(memory["_id"]))
+        await asyncio.sleep(3600)  # 每小时检查一次
+
+
+# if __name__ == "__main__":
+    # asyncio.run(memory_cleanup_task())
+    # async def update_memory_test():
+    #     db_collection = await get_collection()
+    #     await db_collection.update_many(
+    #         {"status": {"$exists": False}}, {"$set": {"ttl": 24 * 3}}
+    #     )
+    # asyncio.run(update_memory_test())
