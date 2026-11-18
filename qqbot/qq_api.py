@@ -142,7 +142,7 @@ class FileUploader:
         type: file_update.ApiType,
         open_id: str,
         file_name: str,
-        file_type: file_update.FileType,        
+        file_type: file_update.FileType,
         file_data: anyio.AsyncFile[bytes] | bytes,
         *,
         srv_send_msg: bool = False,
