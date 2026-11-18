@@ -3,6 +3,7 @@ from qqbot.qq_bot import QQ_Bot
 
 # from qqbot.types.bot_event import MessageEventType
 # from qqbot.types.qq_api import send_message
+from qqbot.types.qq_api import api_type
 from qqbot.types.qq_events import qq_message
 from qqbot.utils import browser
 
@@ -18,7 +19,7 @@ async def screenshot_command(event_data: qq_message.Message, bot: QQ_Bot):
         url = event_data.content.strip().split()[1]
         img_bytes = await browser.screenshot(url)
         await (await bot.qq_api.get_file_uploader()).auto_update_file(
-            type=qq_api.file_update.ApiType.GROUP,
+            type=api_type.ApiType.GROUP,
             open_id=event_data.group_openid,
             file_type=qq_api.file_update.FileType.图片,
             file_name="screenshot.jpg",

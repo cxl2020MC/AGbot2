@@ -1,11 +1,6 @@
-from enum import IntEnum, StrEnum
+from enum import IntEnum
 
 from pydantic import BaseModel, Field
-
-
-class ApiType(StrEnum):
-    GROUP = "groups"
-    USER = "users"
 
 
 class FileType(IntEnum):

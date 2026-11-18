@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 lazy import base64
 lazy import hashlib
 
+from qqbot.types.qq_api import api_type 
+
 from . import http_client
 from .log import logger as log
 from .types.qq_api import file_update, group_bot_info, group_info, user_info
@@ -70,7 +72,7 @@ class FileUploader:
 
     async def _update_file(
         self,
-        type: file_update.ApiType,
+        type: api_type.ApiType,
         open_id: str,
         file_update_request: file_update.FileUpdateRequest,
     ):
@@ -79,7 +81,7 @@ class FileUploader:
 
     async def auto_update_file(
         self,
-        type: file_update.ApiType,
+        type: api_type.ApiType,
         open_id: str,
         file_type: file_update.FileType,
         file_name: str,
@@ -111,7 +113,7 @@ class FileUploader:
 
     async def update_small_file(
         self,
-        type: file_update.ApiType,
+        type: api_type.ApiType,
         open_id: str,
         file_type: file_update.FileType,
         file_name: str,
@@ -139,7 +141,7 @@ class FileUploader:
 
     async def update_large_file(
         self,
-        type: file_update.ApiType,
+        type: api_type.ApiType,
         open_id: str,
         file_name: str,
         file_type: file_update.FileType,
@@ -219,7 +221,7 @@ class FileUploader:
 
     async def _upload_prepare_large_file(
         self,
-        type: file_update.ApiType,
+        type: api_type.ApiType,
         open_id: str,
         file_update_prepare_request: file_update.FileUpdatePrepareRequest,
     ):
@@ -239,7 +241,7 @@ class FileUploader:
 
     async def _upload_large_file_finish(
         self,
-        type: file_update.ApiType,
+        type: api_type.ApiType,
         open_id: str,
         upload_id: str,
         part_index: int,
@@ -256,7 +258,7 @@ class FileUploader:
 
     async def _merge_large_file(
         self,
-        type: file_update.ApiType,
+        type: api_type.ApiType,
         open_id: str,
         upload_id: str,
         file_name: str,
