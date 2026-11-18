@@ -162,7 +162,6 @@ class FileUploader:
                 f"上传大文件 {file_name} 的第 {part.index} 个分片，范围 [{start}:{end}]"
             )
             part_data = raw[start:end]
-            print(part_data)
             md5_part = hashlib.md5(part_data).hexdigest()
             log.debug(
                 f"上传大文件 {file_name} 的第 {part.index} 个分片到 {part.presigned_url}，大小 {len(part_data)} 字节，范围 [{start}:{end}]，MD5 {md5_part}"
