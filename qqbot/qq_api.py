@@ -78,6 +78,8 @@ class FileUploader:
         file_type: file_update.FileType,
         file_name: str,
         file_data: anyio.AsyncFile[bytes],
+        *,
+        srv_send_msg: bool = False,
     ):
         # 1. 读出二进制内容
         raw: bytes = await file_data.read()
@@ -96,6 +98,7 @@ class FileUploader:
             file_type=file_type,
             file_name=file_name,
             file_data=file_data_str,
+            srv_send_msg=srv_send_msg,
         )
 
         return await self._update_file(type, open_id, file_update_request)
