@@ -1,7 +1,3 @@
-"""QQ 官方机器人客户端。"""
-
-from __future__ import annotations
-
 import asyncio
 import contextlib
 from typing import Any, ClassVar
@@ -58,7 +54,6 @@ class QQ_Bot:
         type(self).bot_list.append(self)
 
     # HTTP API
-
     async def _api_request(
         self, method: str, api_path: str, **kwargs: Any
     ) -> dict[str, Any]:
@@ -137,19 +132,21 @@ class QQ_Bot:
     async def connect_ws(self) -> None:
         """保持 WebSocket 连接，断线后自动重连。"""
         while True:
+            correct_reconnect_delay = RECONNECT_DELAY_SECONDS
             try:
                 await self._connect_ws()
-            except QQBotReconnect:
+            except* QQBotReconnect:
                 log.info("服务端要求重连，重新建立 WebSocket")
-            except asyncio.CancelledError:
-                log.info("WebSocket 连接被取消")
+                correct_reconnect_delay = 0
+            except* asyncio.CancelledError:
+                log.info("asyncio 任务被取消")
                 raise
-            except Exception:  # noqa: BLE001
+            except* Exception:  # noqa: BLE001
                 log.exception(f"WebSocket 连接异常，{RECONNECT_DELAY_SECONDS} 秒后重试")
             finally:
                 await self._stop_heartbeat()
                 self._ws = None
-            await asyncio.sleep(RECONNECT_DELAY_SECONDS)
+            await asyncio.sleep(correct_reconnect_delay)
 
     async def _handle_ws_message(self, message: ws_data.WsData) -> None:
         if message.s is not None:
@@ -175,7 +172,6 @@ class QQ_Bot:
                 log.debug(f"忽略未处理的 op: {message.op}")
 
     # 事件处理
-
     async def _on_hello(self, data: dict[str, Any] | None) -> None:
         if not data or "heartbeat_interval" not in data:
             log.warning("HELLO 消息缺少 heartbeat_interval")
@@ -237,7 +233,6 @@ class QQ_Bot:
         await handle.handle_event(event_type, message.d, self)
 
     # 心跳
-
     async def _heartbeat_loop(self, interval_ms: int) -> None:
         interval = interval_ms / 1000
         log.debug(f"开始发送心跳，间隔 {interval}s")
