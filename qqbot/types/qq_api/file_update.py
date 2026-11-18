@@ -92,6 +92,6 @@ class FileUploadConfig(BaseModel):
 class FileUploadPartFinish(BaseModel):
     upload_id: str = Field(..., description="上传任务 ID，来自预上传响应")
     part_index: int = Field(..., description="分片序号，对应 UploadPart.index")
-    # 我不明白为啥文档这里类型是str
+    # 我不明白为啥文档这里类型是 str， 实测 int 也可以过
     block_size: int = Field(..., description="该分块的实际大小（字节）")
     md5: str = Field(..., description="该分片的 MD5 校验值")
