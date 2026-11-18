@@ -1,6 +1,8 @@
 lazy import sys
 
-from qqbot import plugin
+lazy import anyio
+
+from qqbot import plugin, qq_api
 from qqbot.qq_bot import QQ_Bot
 
 # from qqbot.types.bot_event import MessageEventType
@@ -22,3 +24,25 @@ async def reboot_command(
             event_data.group_openid, send_message.GroupMessage(content="正在重启...")
         )
         sys.exit(0)  # 退出程序，假设有外部进程管理器会自动重启
+
+
+
+@plugin.on_command(("img_send_test",), "img send test", "图片发送测试命令")
+async def img_send_test_command(
+    event_data: qq_message.Message, bot: QQ_Bot
+):
+    print(event_data)
+    if isinstance(event_data, qq_message.GroupMessage):
+        # await bot.qq_api.send_group_message(
+        #     event_data.group_openid, send_message.GroupMessage(content="正在重启...")
+        # )
+        # sys.exit(0)  # 退出程序，假设有外部进程管理器会自动重启
+        await qq_api.FileUploader(bot.qq_api).update_small_file(
+            type=qq_api.file_update.ApiType.GROUP,
+            open_id=event_data.group_openid,
+            file_type=qq_api.file_update.FileType.图片,
+            file_name="test.jpg",
+            file_data=await anyio.open_file("data/test.jpg", "rb"),
+            srv_send_msg=True,
+        )
+
