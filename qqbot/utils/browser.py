@@ -1,3 +1,5 @@
+import os
+
 from playwright.async_api import Browser, async_playwright
 
 browser: Browser | None = None
@@ -8,7 +10,8 @@ async def get_browser() -> Browser:
     if browser is None:
         p = async_playwright()
         p = await p.start()
-        browser = await p.chromium.connect("ws://127.0.0.1:3000/")
+        endpoint = os.getenv("BROWSER_WS_ENDPOINT", "ws://127.0.0.1:3000/")
+        browser = await p.chromium.connect(endpoint)
 
     return browser
 
