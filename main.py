@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-from plugin import command, echo
+from plugin import browser, command, echo
 from plugin.ai import ai
 from qqbot import qq_bot
 
@@ -12,6 +12,7 @@ async def main():
     qq.plugin_manager.add_plugin(echo.plugin)
     qq.plugin_manager.add_plugin(command.plugin)
     qq.plugin_manager.add_plugin(ai.plugin)
+    qq.plugin_manager.add_plugin(browser.plugin)
     await qq.run()
 
 
