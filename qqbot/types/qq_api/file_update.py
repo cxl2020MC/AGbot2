@@ -40,6 +40,24 @@ class FileUpdateRequest(BaseModel):
     )
 
 
+class FileUpdateResult(BaseModel):
+    file_uuid: str = Field(..., description="文件唯一 ID")
+    file_info: str = Field(
+        ...,
+        description="文件信息，用于发送消息接口的 media.file_info 字段。 内部为序列化的二进制数据，开发者无需解析，直接透传即可",
+    )
+    ttl: int = Field(
+        ..., description="file_info 有效期（秒）。到期后需重新上传。 0 表示可长期使用"
+    )
+    id: str | None = Field(
+        None, description="发送消息的唯一 ID。仅 srv_send_msg=true 时返回"
+    )
+    raw_url: str | None = Field(
+        default=None,
+        description="文件下载链接（COS 预签名 GET URL），有效期与 ttl 一致 仅分片上传合并（upload_id 路径）且 file_type 为图片/视频/语音时返回； URL 直传和文件类型(file_type=4)不返回此字段",
+    )
+
+
 class FileUpdatePrepareRequest(BaseModel):
     file_type: FileType = Field(..., description="文件类型")
     file_size: int = Field(..., description="文件大小，单位字节")
@@ -73,5 +91,6 @@ class FileUploadConfig(BaseModel):
 class FileUploadPartFinish(BaseModel):
     upload_id: str = Field(..., description="上传任务 ID，来自预上传响应")
     part_index: int = Field(..., description="分片序号，对应 UploadPart.index")
-    block_size: str = Field(..., description="该分块的实际大小（字节）")
+    # 我不明白为啥文档这里类型是str
+    block_size: int = Field(..., description="该分块的实际大小（字节）")
     md5: str = Field(..., description="该分片的 MD5 校验值")
