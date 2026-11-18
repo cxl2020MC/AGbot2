@@ -17,7 +17,7 @@ async def screenshot_command(event_data: qq_message.Message, bot: QQ_Bot):
     if isinstance(event_data, qq_message.GroupMessage):
         url = event_data.content.strip().split()[1]
         img_bytes = await browser.screenshot(url)
-        await (await bot.qq_api.get_file_uploader()).update_small_file(
+        await (await bot.qq_api.get_file_uploader()).auto_update_file(
             type=qq_api.file_update.ApiType.GROUP,
             open_id=event_data.group_openid,
             file_type=qq_api.file_update.FileType.图片,

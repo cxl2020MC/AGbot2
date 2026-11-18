@@ -77,7 +77,7 @@ class FileUploader:
         data = _from_model_to_json(file_update_request)
         return await self.QQ_BOT.post_qqbot_api(f"v2/{type}/{open_id}/files", json=data)
 
-    async def update_small_file(
+    async def auto_update_file(
         self,
         type: file_update.ApiType,
         open_id: str,
@@ -93,12 +93,37 @@ class FileUploader:
         else:
             raw: bytes = await file_data.read()
 
-        # # 校验大小（5M 限制）
-        # if len(raw) > 5 * 1024 * 1024:
-        #     raise ValueError(
-        #         f"文件 {file_name} 大小 {len(raw)} 字节超过 5M,"
-        #         "请改用 URL 上传或分片上传路径"
-        #     )
+        # 校验大小（5M 限制）
+        if len(raw) > 5 * 1024 * 1024:
+            log.info(
+                f"文件 {file_name} 大小 {len(raw)} 字节超过 5M，使用大文件上传路径"
+            )
+            return await self.update_large_file(
+                type, open_id, file_name, file_type, raw, srv_send_msg=srv_send_msg
+            )
+        else:
+            log.info(
+                f"文件 {file_name} 大小 {len(raw)} 字节未超过 5M，使用小文件上传路径"
+            )
+            return await self.update_small_file(
+                type, open_id, file_type, file_name, raw, srv_send_msg=srv_send_msg
+            )
+
+    async def update_small_file(
+        self,
+        type: file_update.ApiType,
+        open_id: str,
+        file_type: file_update.FileType,
+        file_name: str,
+        file_data: anyio.AsyncFile[bytes] | bytes,
+        *,
+        srv_send_msg: bool = False,
+    ):
+        # 读出二进制内容
+        if isinstance(file_data, bytes):
+            raw = file_data
+        else:
+            raw: bytes = await file_data.read()
 
         # base64 编码
         file_data_str = base64.b64encode(raw).decode("ascii")
@@ -117,8 +142,8 @@ class FileUploader:
         type: file_update.ApiType,
         open_id: str,
         file_name: str,
+        file_type: file_update.FileType,        
         file_data: anyio.AsyncFile[bytes] | bytes,
-        file_type: file_update.FileType,
         *,
         srv_send_msg: bool = False,
     ):
