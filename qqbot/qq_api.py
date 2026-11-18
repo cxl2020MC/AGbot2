@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
+lazy import base64
 
-from .types.qq_api import group_bot_info, group_info, user_info
+from .types.qq_api import file_update, group_bot_info, group_info, user_info
 
 if TYPE_CHECKING:
+    import anyio
     from pydantic import BaseModel
 
     from .qq_bot import QQ_Bot
@@ -53,3 +55,55 @@ class QQ_Api:
         data = await self.QQ_BOT.get_qqbot_api(f"v2/users/{user_openid}/info")
 
         return user_info.UserInfoResponse.model_validate(data)
+
+
+class FileUploader:
+    def __init__(self, qq_api: QQ_Api) -> None:
+        self.qq_api = qq_api
+        self.QQ_BOT = qq_api.QQ_BOT
+
+    async def _update_file(
+        self,
+        type: file_update.ApiType,
+        open_id: str,
+        file_update_request: file_update.FileUpdateRequest,
+    ):
+        data = _from_model_to_json(file_update_request)
+        return await self.QQ_BOT.post_qqbot_api(f"v2/{type}/{open_id}/files", json=data)
+
+    async def update_small_file(
+        self,
+        type: file_update.ApiType,
+        open_id: str,
+        file_type: file_update.FileType,
+        file_name: str,
+        file_data: anyio.AsyncFile[bytes],
+    ):
+        # 1. 读出二进制内容
+        raw: bytes = await file_data.read()
+
+        # 2. 校验大小（5M 限制）
+        if len(raw) > 5 * 1024 * 1024:
+            raise ValueError(
+                f"文件 {file_name} 大小 {len(raw)} 字节超过 5M,"
+                "请改用 URL 上传或分片上传路径"
+            )
+
+        # 3. 按接口要求转成字符串（这里假设是 base64，请按文档确认）
+        file_data_str = base64.b64encode(raw).decode("ascii")
+
+        file_update_request = file_update.FileUpdateRequest(
+            file_type=file_type,
+            file_name=file_name,
+            file_data=file_data_str,
+        )
+
+        return await self._update_file(type, open_id, file_update_request)
+
+    async def update_large_file(
+        self,
+        type: file_update.ApiType,
+        open_id: str,
+        file_update_request: file_update.FileUpdateRequest,
+    ):
+        pass
