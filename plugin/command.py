@@ -44,7 +44,7 @@ async def video_send_test_command(event_data: qq_message.Message, bot: QQ_Bot):
     print(event_data)
     if isinstance(event_data, qq_message.GroupMessage):
         await (await bot.qq_api.get_file_uploader()).update_large_file(
-            type=qqbot.types.qq_api.api_type.ApiType.GROUP,
+            type=api_type.ApiType.GROUP,
             open_id=event_data.group_openid,
             file_type=qq_api.file_update.FileType.视频,
             file_name="test.mp4",
