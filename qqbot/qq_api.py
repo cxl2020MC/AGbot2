@@ -165,8 +165,8 @@ class FileUploader:
             )
 
             await self._upload_large_file_part(
-                type,
-                part_data,
+                url=part.presigned_url,
+                part_data=part_data,
             )
 
             await self._upload_large_file_finish(
