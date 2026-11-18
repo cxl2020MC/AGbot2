@@ -158,10 +158,12 @@ class FileUploader:
         for part in prepare_result.parts:
             start = part.index * prepare_result.block_size
             end = min(start + prepare_result.block_size, len(raw))
+            log.debug(f"上传大文件 {file_name} 的第 {part.index} 个分片，范围 [{start}:{end}]")
             part_data = raw[start:end]
+            print(part_data)
             md5_part = hashlib.md5(part_data).hexdigest()
-            log.info(
-                f"上传大文件 {file_name} 的第 {part.index} 个分片，大小 {len(part_data)} 字节"
+            log.debug(
+                f"上传大文件 {file_name} 的第 {part.index} 个分片到 {part.presigned_url}，大小 {len(part_data)} 字节，范围 [{start}:{end}]，MD5 {md5_part}"
             )
 
             await self._upload_large_file_part(
@@ -183,6 +185,7 @@ class FileUploader:
             open_id,
             prepare_result.upload_id,
             file_name,
+            file_type,
             srv_send_msg=srv_send_msg,
         )
 
@@ -229,10 +232,11 @@ class FileUploader:
         open_id: str,
         upload_id: str,
         file_name: str,
+        file_type: file_update.FileType,
         srv_send_msg: bool = False,
     ):
         file_update_request = file_update.FileUpdateRequest(
-            file_type=file_update.FileType.图片,
+            file_type=file_type,
             file_name=file_name,
             upload_id=upload_id,
             srv_send_msg=srv_send_msg,
