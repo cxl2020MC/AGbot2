@@ -56,6 +56,9 @@ class QQ_Api:
 
         return user_info.UserInfoResponse.model_validate(data)
 
+    async def get_file_uploader(self):
+        return FileUploader(self)
+
 
 class FileUploader:
     def __init__(self, qq_api: QQ_Api) -> None:
@@ -81,17 +84,17 @@ class FileUploader:
         *,
         srv_send_msg: bool = False,
     ):
-        # 1. 读出二进制内容
+        # 读出二进制内容
         raw: bytes = await file_data.read()
 
-        # 2. 校验大小（5M 限制）
+        # 校验大小（5M 限制）
         if len(raw) > 5 * 1024 * 1024:
             raise ValueError(
                 f"文件 {file_name} 大小 {len(raw)} 字节超过 5M,"
                 "请改用 URL 上传或分片上传路径"
             )
 
-        # 3. 按接口要求转成字符串（这里假设是 base64，请按文档确认）
+        # base64 编码
         file_data_str = base64.b64encode(raw).decode("ascii")
 
         file_update_request = file_update.FileUpdateRequest(
