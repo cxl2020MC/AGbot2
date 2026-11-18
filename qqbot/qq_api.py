@@ -156,9 +156,11 @@ class FileUploader:
         )
 
         for part in prepare_result.parts:
-            start = part.index * prepare_result.block_size
+            start = (part.index - 1) * prepare_result.block_size
             end = min(start + prepare_result.block_size, len(raw))
-            log.debug(f"上传大文件 {file_name} 的第 {part.index} 个分片，范围 [{start}:{end}]")
+            log.debug(
+                f"上传大文件 {file_name} 的第 {part.index} 个分片，范围 [{start}:{end}]"
+            )
             part_data = raw[start:end]
             print(part_data)
             md5_part = hashlib.md5(part_data).hexdigest()
