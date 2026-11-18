@@ -25,3 +25,12 @@ async def post(
     if isinstance(url, yarl.URL):
         url = str(url)
     return await client.post(url, json=json, headers=headers)
+
+
+async def delete(
+    url: str | yarl.URL,
+    headers: dict | None = None,
+):
+    if isinstance(url, yarl.URL):
+        url = str(url)
+    return await client.delete(url, headers=headers)

@@ -1,6 +1,6 @@
 import asyncio
 import contextlib
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
 import yarl
 
@@ -55,9 +55,18 @@ class QQ_Bot:
 
     # HTTP API
     async def _api_request(
-        self, method: str, api_path: str, **kwargs: Any
+        self, method: Literal["GET", "POST", "DELETE"], api_path: str, **kwargs: Any
     ) -> dict[str, Any]:
-        requester = http_client.post if method == "POST" else http_client.get
+        log.debug(f"请求 API {api_path}，方法 {method}，参数 {kwargs}")
+        match method:
+            case "GET":
+                requester = http_client.get
+            case "POST":
+                requester = http_client.post
+            case "DELETE":
+                requester = http_client.delete
+            case _:
+                raise ValueError(f"不支持的 HTTP 方法: {method}")
         resp = await requester(
             API_HOST / api_path, headers=self._http_headers, **kwargs
         )
@@ -80,6 +89,9 @@ class QQ_Bot:
 
     async def get_qqbot_api(self, api_path: str) -> dict[str, Any]:
         return await self._api_request("GET", api_path)
+
+    async def delete_qqbot_api(self, api_path: str) -> dict[str, Any]:
+        return await self._api_request("DELETE", api_path)
 
     # 鉴权与 Gateway
     async def fetch_access_token(

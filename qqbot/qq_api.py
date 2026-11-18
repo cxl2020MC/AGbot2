@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 lazy import base64
 lazy import hashlib
 
-from qqbot.types.qq_api import api_type 
+from qqbot.types.qq_api import api_type
 
 from . import http_client
 from .log import logger as log
@@ -63,6 +63,14 @@ class QQ_Api:
 
     async def get_file_uploader(self):
         return FileUploader(self)
+
+    async def delete_message(
+        self, type: api_type.ApiType, open_id: str, message_id: str
+    ):
+        """撤回消息"""
+        return await self.QQ_BOT.delete_qqbot_api(
+            f"v2/{type}/{open_id}/messages/{message_id}"
+        )
 
 
 class FileUploader:
