@@ -80,12 +80,15 @@ class FileUploader:
         open_id: str,
         file_type: file_update.FileType,
         file_name: str,
-        file_data: anyio.AsyncFile[bytes],
+        file_data: anyio.AsyncFile[bytes] | bytes,
         *,
         srv_send_msg: bool = False,
     ):
         # 读出二进制内容
-        raw: bytes = await file_data.read()
+        if isinstance(file_data, bytes):
+            raw = file_data
+        else:
+            raw: bytes = await file_data.read()
 
         # 校验大小（5M 限制）
         if len(raw) > 5 * 1024 * 1024:

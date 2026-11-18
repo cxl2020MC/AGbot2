@@ -35,7 +35,8 @@ class FileUpdateRequest(BaseModel):
     )
     file_data: str | None = Field(
         default=None,
-        description="直接上传二进制数据。 直接上传二进制有大小限制，需要在5M以内，如果超过则需要使用URL上传或者分片上传。",
+        # 官方文档写的直接上传二进制数据，实际上是base64编码后的数据（tx nmsl）
+        description="直接上传Base64数据。 直接上传Base64数据有大小限制，需要在5M以内，如果超过则需要使用URL上传或者分片上传。",
     )
 
 
