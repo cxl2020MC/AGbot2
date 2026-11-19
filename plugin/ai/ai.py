@@ -120,7 +120,7 @@ TOOLS = [
     ),
     tool_calls_utils.Tool(
         name="get_image_from_url",
-        description="从图片URL获取图片内容，返回图片内容",
+        description="从图片URL获取图片，返回图片",
         model=web_search.WebFetchToolParam,
         function=get_image_from_url_tool,
     ),
