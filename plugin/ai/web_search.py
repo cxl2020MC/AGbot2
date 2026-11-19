@@ -67,9 +67,10 @@ async def web_search_tool_call(tool_param: WebSearchToolParam):
             query=tool_param.query,
             count=tool_param.count,
             need_content=tool_param.need_content,
-        )
+        ),
+        ensure_ascii=False,
     )
 
 
 async def web_fetch_tool_call(tool_param: WebFetchToolParam):
-    return json.dumps(await web_fetch(url=tool_param.url))
+    return json.dumps(await web_fetch(url=tool_param.url), ensure_ascii=False)
