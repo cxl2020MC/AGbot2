@@ -136,10 +136,7 @@ class QQ_Bot:
                 except Exception:  # noqa: BLE001
                     log.exception("解析 WebSocket 消息失败")
                     continue
-                try:
-                    await self._handle_ws_message(message)
-                except Exception:  # noqa: BLE001
-                    log.exception("处理 WebSocket 消息时发生异常")
+                await self._handle_ws_message(message)
 
     async def connect_ws(self) -> None:
         """保持 WebSocket 连接，断线后自动重连。"""
@@ -165,7 +162,7 @@ class QQ_Bot:
             self._latest_s = message.s
         try:
             await self.ws_message_handler(message)
-        except QQBotReconnect:
+        except (QQBotReconnect, asyncio.CancelledError):
             raise
         except Exception:  # noqa: BLE001
             log.exception("处理 WebSocket 消息时发生异常")
