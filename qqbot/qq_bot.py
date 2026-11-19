@@ -145,13 +145,13 @@ class QQ_Bot:
             try:
                 await self._connect_ws()
             except* QQBotReconnect:
-                log.info("服务端要求重连，重新建立 WebSocket")
+                log.info("服务端要求重连，重新建立 WebSocket 连接")
                 correct_reconnect_delay = 0
             except* asyncio.CancelledError:
                 log.info("asyncio 任务被取消")
                 raise
             except* Exception:  # noqa: BLE001
-                log.exception(f"WebSocket 连接异常，{RECONNECT_DELAY_SECONDS} 秒后重试")
+                log.exception(f"WebSocket 连接异常，{correct_reconnect_delay} 秒后重试")
             finally:
                 await self._stop_heartbeat()
                 self._ws = None
