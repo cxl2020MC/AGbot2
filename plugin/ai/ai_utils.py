@@ -16,7 +16,7 @@ from . import tool_calls_utils
 
 client = openai.AsyncOpenAI(
     # api_key="your-api-key",
-    base_url="https://api.deepseek.com"
+    # base_url="https://api.deepseek.com"
     # base_url="https://ai.yumeyuki.moe/v1"
 )
 
