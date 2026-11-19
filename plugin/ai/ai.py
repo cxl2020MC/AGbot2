@@ -20,18 +20,10 @@ from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, message_sticker
 
 from . import ai_memory, system_prompt, tool_calls_utils, web_search
-from .ai_utils import AiChatManager
+from .ai_utils import AiChatManager, client
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
-client = openai.AsyncOpenAI(
-    # api_key="your-api-key",
-    # base_url="https://api.deepseek.com"
-    # base_url="https://ai.yumeyuki.moe/v1"
-)
-
-AI_MODEL = "deepseek-flash"
-# AI_MODEL = "deepseek-v4.1-flash-1017"
 
 SystemPrompt = system_prompt.SystemPrompt
 
