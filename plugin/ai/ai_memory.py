@@ -229,7 +229,12 @@ async def memory_cleanup_task():
                 "ttl": {"$gt": 0},
                 "$expr": {
                     "$lt": [
-                        {"$add": ["$last_update_time", {"$multiply": ["$ttl", 3600]}]},
+                        {
+                            "$add": [
+                                "$last_update_time",
+                                {"$multiply": ["$ttl", 3600, 1000]},
+                            ]
+                        },
                         now,
                     ]
                 },
