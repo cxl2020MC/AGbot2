@@ -55,23 +55,23 @@ class DeleteMessageToolParam(BaseModel):
 
 async def get_image_from_url(url, filename) -> ChatCompletionContentPartParam:
     log.info(f"从URL获取图片: {url}, filename: {filename}")
-    # img = await httpx2.get(url).aread()
-    # file = await client.files.create(
-    #     file=(filename, img),
-    #     purpose="user_data",
-    #     expires_after={
-    #         "anchor": "created_at",
-    #         "seconds": 60 * 60 * 24 * 14,  # 14天后过期
-    #     },
-    # )
-    # return cast(
-    #     ChatCompletionContentPartParam,
-    #     {"type": "file", "file_id": file.id},
-    # )
-    return {
-            "type": "image_url",
-            "image_url": {"url": url},
-    }
+    img = await httpx2.get(url).aread()
+    file = await client.files.create(
+        file=(filename, img),
+        purpose="user_data",
+        expires_after={
+            "anchor": "created_at",
+            "seconds": 60 * 60 * 24 * 14,  # 14天后过期
+        },
+    )
+    return cast(
+        ChatCompletionContentPartParam,
+        {"type": "file", "file_id": file.id},
+    )
+    # return {
+    #         "type": "image_url",
+    #         "image_url": {"url": url},
+    # }
 
 
 async def get_image_from_url_tool(
