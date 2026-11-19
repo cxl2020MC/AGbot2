@@ -162,7 +162,7 @@ class QQ_Bot:
             self._latest_s = message.s
         try:
             await self.ws_message_handler(message)
-        except (QQBotReconnect, asyncio.CancelledError):
+        except QQBotReconnect, asyncio.CancelledError:
             raise
         except Exception:  # noqa: BLE001
             log.exception("处理 WebSocket 消息时发生异常")
