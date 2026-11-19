@@ -26,6 +26,7 @@ async def init():
     log.info("记忆数据库初始化完成")
     asyncio.create_task(memory_cleanup_task(), name="ai_memory_cleanup_task")
 
+
 async def get_collection() -> db.AsyncCollection:
     if db_collection is None:
         await init()
@@ -90,6 +91,21 @@ async def search_memory(
     # db_results = await db_collection.find(
     #     {"keywords": {"$in": match_keywords}}
     # ).to_list(length=limit)
+    return await search_memory_by_keywords(
+        match_keywords=match_keywords,
+        limit=limit,
+        update_read_time=update_read_time,
+        filiter_object_ids=filiter_object_ids,
+    )
+
+
+async def search_memory_by_keywords(
+    match_keywords: list[str],
+    limit: int = 10,
+    update_read_time: bool = True,
+    filiter_object_ids: list[str] | None = None,
+):
+    db_collection = await get_collection()
     db_results = await (
         await db_collection.aggregate(
             [
@@ -157,7 +173,7 @@ class MemoryUpdateToolPram(BaseModel):
 
 
 class MemorySearchToolPram(BaseModel):
-    content: str = Field(..., description="搜索内容")
+    keywords: list[str] = Field(..., description="搜索关键词")
     limit: int = Field(
         default=10, ge=1, le=20, description="搜索结果数量, 范围1～20, 默认为10"
     )
@@ -190,14 +206,17 @@ async def update_memory_tool_call(tool_param: MemoryUpdateToolPram):
     return f"记忆更新成功, 记忆ID: {memory.id}"
 
 
-async def search_memory_tool_call(content: str, limit: int = 10):
-    results = await search_memory(content, limit)
-    return [memory.model_dump() for memory in results]
+async def search_memory_tool_call(tool_param: MemorySearchToolPram):
+    results = await search_memory_by_keywords(
+        match_keywords=tool_param.keywords,
+        limit=tool_param.limit,
+    )
+    return str([memory.model_dump() for memory in results])
 
 
-async def delete_memory_tool_call(memory_id: str):
-    await delete_memory(memory_id)
-    return f"记忆删除成功, 记忆ID: {memory_id}"
+async def delete_memory_tool_call(tool_param: MemoryDeleteToolPram):
+    await delete_memory(str(tool_param.id))
+    return "记忆删除成功"
 
 
 async def memory_cleanup_task():
@@ -224,10 +243,10 @@ async def memory_cleanup_task():
 
 
 # if __name__ == "__main__":
-    # asyncio.run(memory_cleanup_task())
-    # async def update_memory_test():
-    #     db_collection = await get_collection()
-    #     await db_collection.update_many(
-    #         {"status": {"$exists": False}}, {"$set": {"ttl": 24 * 3}}
-    #     )
-    # asyncio.run(update_memory_test())
+# asyncio.run(memory_cleanup_task())
+# async def update_memory_test():
+#     db_collection = await get_collection()
+#     await db_collection.update_many(
+#         {"status": {"$exists": False}}, {"$set": {"ttl": 24 * 3}}
+#     )
+# asyncio.run(update_memory_test())
