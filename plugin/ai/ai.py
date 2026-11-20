@@ -205,6 +205,7 @@ class AIPlugin:
             self.ai_chat_manager = AiChatManager(
                 system_message_content,
                 tool_calls=tools,
+                name=f"AIPlugin-{group_info.group_name}",
             )
         return self.ai_chat_manager
 
@@ -327,9 +328,7 @@ class AIPlugin:
             finally:
                 self.group_message_queue.task_done()
 
-    async def handle_message(
-        self, event_data: qq_message.GroupMessage
-    ):
+    async def handle_message(self, event_data: qq_message.GroupMessage):
         queue = self.group_message_queue
         await queue.put(event_data)
 
