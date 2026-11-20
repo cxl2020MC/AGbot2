@@ -90,9 +90,7 @@ async def search_memory(
     ]
     if filter_object_ids:
         log.debug(f"搜索记忆时过滤的ObjectId: {filter_object_ids}")
-        pipeline[0].update(
-            {"$vectorSearch": {"filter": {"_id": {"$nin": filter_object_ids}}}}
-        )
+        pipeline[0]["$vectorSearch"]["filter"] = {"_id": {"$nin": filter_object_ids}}
     db_results = await (await db_collection.aggregate(pipeline)).to_list()
     print(f"搜索记忆结果: {db_results}")
     results = [Memory.model_validate(memory) for memory in db_results]
