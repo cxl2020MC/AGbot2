@@ -30,7 +30,8 @@ vector_search_index = SearchIndexModel(
                 "numDimensions": 768,
                 "similarity": "cosine",
                 "quantization": "scalar",
-            }
+            },
+            {"type": "filter", "path": "_id"},
         ]
     },
 )
