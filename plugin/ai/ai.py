@@ -211,7 +211,7 @@ class AIPlugin:
     async def generate_message(self, event_data: qq_message.Message):
         ai_memory_content = await ai_memory.search_memory(
             f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}",
-            filiter_object_ids=self.load_memory_id_list,  # 传入已加载的记忆ID列表，避免重复加载
+            filter_object_ids=self.load_memory_id_list,  # 传入已加载的记忆ID列表，避免重复加载
         )
         for memory in ai_memory_content:
             log.debug(f"添加已加载记忆ID: {memory.id}")
