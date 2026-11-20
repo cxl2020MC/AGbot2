@@ -32,7 +32,7 @@ async def read_json_file(file_path: Path):
         return json.loads(content)
 
 
-async def write_json_file(file_path: Path, data: dict):
+async def write_json_file(file_path: Path, data: dict | list):
     await create_file_dir(file_path)
     async with await anyio.open_file(file_path, "w", encoding="utf-8") as f:
         await f.write(json.dumps(data, ensure_ascii=False, indent=4))
@@ -53,9 +53,7 @@ async def write_jsonl_file(file_path: Path, data: dict | str):
     await create_file_dir(file_path)
     async with await anyio.open_file(file_path, "a", encoding="utf-8") as f:
         data_str = (
-            data
-            if isinstance(data, str)
-            else json.dumps(data, ensure_ascii=False)
+            data if isinstance(data, str) else json.dumps(data, ensure_ascii=False)
         )
         await f.write(data_str + "\n")
 

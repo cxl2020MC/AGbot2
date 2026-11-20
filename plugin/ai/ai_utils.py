@@ -11,6 +11,7 @@ from openai.types.chat import (
 )
 
 from qqbot.log import logger as log
+from qqbot.utils import data_utils
 
 from . import tool_calls_utils
 
@@ -29,12 +30,13 @@ class AiChatManager:
         self,
         system_message_content: str,
         tool_calls: list[tool_calls_utils.Tool] | None = None,
+        name: str | None = None,
     ):
         self.ai_messages: list[ChatCompletionMessageParam] = []
         self.system_message_content: str = system_message_content
         self.system_message: ChatCompletionMessageParam | None = None
         self._tool_call_manager = tool_calls_utils.ToolCallManager()
-
+        self.name: str | None = name
         if tool_calls:
             self._tool_call_manager.add_tools(tool_calls)
 
@@ -117,6 +119,18 @@ class AiChatManager:
         log.info("清理AI上下文消息完成。")
 
     async def use_ai(self, messages: Sequence[ChatCompletionMessageParam]):
+        if self.name:
+            message_json_path = data_utils.get_file_path(
+                f"/ai_messages/{self.name}.json"
+            )
+            log.debug(f"向 {message_json_path} 写入AI请求消息")
+            await data_utils.write_json_file(
+                message_json_path,
+                list(messages),
+            )
+            log.debug("写入AI请求消息完成")
+        else:
+            log.debug(f"AI请求消息: {messages}")
         completion = await client.chat.completions.parse(
             model=AI_MODEL,
             messages=messages,
@@ -140,7 +154,6 @@ class AiChatManager:
         await self.add_messages(messages)
         log.debug(f"处理AI请求: {messages}")
         ai_messages = await self.get_messages()
-        log.debug(f"AI请求消息: {ai_messages}")
 
         completion = await self.use_ai(ai_messages)
         ai_ret_messages = completion.choices[0].message
