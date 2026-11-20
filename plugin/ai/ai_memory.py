@@ -1,28 +1,47 @@
 import asyncio
+import os
 from datetime import datetime
+
+import openai
 
 # from typing import Annotated
 from bson import ObjectId
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
+from pydantic import BaseModel, Field
 from pydantic_mongo import ObjectIdField
+from pymongo.operations import SearchIndexModel
 
 from qqbot.log import logger as log
 from qqbot.utils import db
 
-# 定义一个可复用的 ObjectId 类型
-# type PyObjectId = Annotated[
-#     ObjectId,
-#     BeforeValidator(lambda v: ObjectId(v) if isinstance(v, (str, ObjectId)) else v),
-#     PlainSerializer(lambda v: str(v), return_type=str, when_used="json"),
-# ]
-
+client = openai.AsyncOpenAI(
+    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"), api_key="ollama"
+)
 db_collection: db.AsyncCollection | None = None
+
+
+vector_search_index = SearchIndexModel(
+    name="vector_search_index",
+    type="vectorSearch",
+    definition={
+        "fields": [
+            {
+                "type": "vector",
+                "path": "embedding",
+                "numDimensions": 768,
+                "similarity": "cosine",
+                "quantization": "scalar",
+            }
+        ]
+    },
+)
 
 
 async def init():
     global db_collection
     db_collection = (await db.get_db()).get_collection("ai_memory")
-    await db_collection.create_index({"keywords": 1})
+    log.info("初始化记忆数据库……")
+    # await db_collection.create_index({"keywords": 1})
+    await db_collection.create_search_index(vector_search_index)
     log.info("记忆数据库初始化完成")
     asyncio.create_task(memory_cleanup_task(), name="ai_memory_cleanup_task")
 
@@ -32,6 +51,59 @@ async def get_collection() -> db.AsyncCollection:
         await init()
     assert db_collection is not None
     return db_collection
+
+
+async def get_embedding(text: str) -> list[float]:
+    response = await client.embeddings.create(
+        model="embeddinggemma-2:270m",
+        input=text,
+    )
+    embedding = response.data[0].embedding
+    log.debug(f"获取文本 {text} 向量成功, embedding 维度: {len(embedding)}")
+    return embedding
+
+
+async def search_memory(
+    content: str,
+    limit: int = 5,
+    update_read_time: bool = True,
+    *,
+    filter_object_ids: list[str] | None = None,
+):
+    db_collection = await get_collection()
+    embedding = await get_embedding(content)
+    pipeline = [
+        {
+            "$vectorSearch": {
+                "index": "vector_search_index",
+                "queryVector": embedding,
+                "path": "embedding",
+                "numCandidates": limit * 20,
+                "limit": limit,
+            },
+        },
+        {
+            "$project": {
+                "embedding": 0,
+            },
+        },
+    ]
+    if filter_object_ids:
+        log.debug(f"搜索记忆时过滤的ObjectId: {filter_object_ids}")
+        pipeline[0].update(
+            {"$vectorSearch": {"filter": {"_id": {"$nin": filter_object_ids}}}}
+        )
+    db_results = await (await db_collection.aggregate(pipeline)).to_list()
+    print(f"搜索记忆结果: {db_results}")
+    results = [Memory.model_validate(memory) for memory in db_results]
+    if update_read_time:
+        for result in results:
+            result.latest_read_time = datetime.now()
+            await update_memory(
+                str(result.id), result, update_time=False, update_embedding=False
+            )
+    log.debug(f"搜索记忆结果: {results}")
+    return results
 
 
 class Memory(BaseModel):
@@ -53,49 +125,40 @@ class Memory(BaseModel):
     latest_read_time: datetime = Field(default_factory=datetime.now)
     last_update_time: datetime = Field(default_factory=datetime.now)
 
+    embedding: list[float] | None = Field(
+        default=None,
+        description="记忆内容的向量表示，用于向量搜索",
+    )
     # metadata: dict = {}
 
 
 async def write_memory(memory: Memory):
+    if memory.embedding is None:
+        embedding = await get_embedding(memory.content)
+        memory.embedding = embedding
+    memory_dict = memory.model_dump(by_alias=True)
     db_collection = await get_collection()
-    await db_collection.insert_one(memory.model_dump(by_alias=True))
+    await db_collection.insert_one(memory_dict)
 
 
-async def update_memory(memory_id: str, memory: Memory, update_time: bool = True):
+async def update_memory(
+    memory_id: str,
+    memory: Memory,
+    *,
+    update_time: bool = True,
+    update_embedding: bool = True,
+):
     db_collection = await get_collection()
+    model_exclude = {"id", "embedding"}
+    if memory.embedding is None and update_embedding:
+        embedding = await get_embedding(memory.content)
+        memory.embedding = embedding
+        model_exclude.remove("embedding")
     if update_time:
         memory.last_update_time = datetime.now()
     await db_collection.update_one(
         {"_id": ObjectId(memory_id)},
-        {"$set": memory.model_dump(by_alias=True, exclude={"id"})},
-    )
-
-
-async def search_memory(
-    content: str,
-    limit: int = 10,
-    update_read_time: bool = True,
-    filiter_object_ids: list[str] | None = None,
-):
-    db_collection = await get_collection()
-    all_keywords = await db_collection.distinct("keywords")
-    match_keywords = []
-    for keyword in all_keywords:
-        if keyword in content:
-            log.debug(f"搜索到记忆关键词: {keyword}")
-            match_keywords.append(keyword)
-    if not match_keywords:
-        log.debug(f"未搜索到记忆关键词, content: {content}")
-        return []
-
-    # db_results = await db_collection.find(
-    #     {"keywords": {"$in": match_keywords}}
-    # ).to_list(length=limit)
-    return await search_memory_by_keywords(
-        match_keywords=match_keywords,
-        limit=limit,
-        update_read_time=update_read_time,
-        filiter_object_ids=filiter_object_ids,
+        {"$set": memory.model_dump(by_alias=True, exclude=model_exclude)},
     )
 
 
@@ -103,7 +166,7 @@ async def search_memory_by_keywords(
     match_keywords: list[str],
     limit: int = 10,
     update_read_time: bool = True,
-    filiter_object_ids: list[str] | None = None,
+    filter_object_ids: list[str] | None = None,
 ):
     db_collection = await get_collection()
     db_results = await (
@@ -112,7 +175,7 @@ async def search_memory_by_keywords(
                 {
                     "$match": {
                         "keywords": {"$in": match_keywords},
-                        "_id": {"$nin": filiter_object_ids or []},
+                        "_id": {"$nin": filter_object_ids or []},
                     }
                 },
                 # {"$sort": {"level": -1, "latest_read_time": 1}},
@@ -173,9 +236,9 @@ class MemoryUpdateToolPram(BaseModel):
 
 
 class MemorySearchToolPram(BaseModel):
-    keywords: list[str] = Field(..., description="搜索关键词")
+    content: str = Field(..., description="搜索内容")
     limit: int = Field(
-        default=10, ge=1, le=20, description="搜索结果数量, 范围1～20, 默认为10"
+        default=5, ge=1, le=20, description="搜索结果数量, 范围1～20, 默认为5"
     )
 
 
@@ -207,8 +270,8 @@ async def update_memory_tool_call(tool_param: MemoryUpdateToolPram):
 
 
 async def search_memory_tool_call(tool_param: MemorySearchToolPram):
-    results = await search_memory_by_keywords(
-        match_keywords=tool_param.keywords,
+    results = await search_memory(
+        content=tool_param.content,
         limit=tool_param.limit,
     )
     return str([memory.model_dump() for memory in results])
@@ -247,11 +310,39 @@ async def memory_cleanup_task():
         await asyncio.sleep(3600)  # 每小时检查一次
 
 
-# if __name__ == "__main__":
-# asyncio.run(memory_cleanup_task())
-# async def update_memory_test():
-#     db_collection = await get_collection()
-#     await db_collection.update_many(
-#         {"status": {"$exists": False}}, {"$set": {"ttl": 24 * 3}}
-#     )
-# asyncio.run(update_memory_test())
+async def memory_embedding_update():
+    log.info("启动记忆向量更新任务...")
+    db_collection = await get_collection()
+    memories_without_embedding = await db_collection.find({"embedding": None}).to_list(
+        length=100
+    )
+    if memories_without_embedding:
+        log.info(f"更新记忆向量: {len(memories_without_embedding)} 条")
+        for memory in memories_without_embedding:
+            memory_obj = Memory.model_validate(memory)
+            await update_memory(str(memory_obj.id), memory_obj, update_embedding=True)
+
+
+if __name__ == "__main__":
+    # asyncio.run(memory_cleanup_task())
+    # async def update_memory_test():
+    #     db_collection = await get_collection()
+    #     await db_collection.update_many(
+    #         {"status": {"$exists": False}}, {"$set": {"ttl": 24 * 3}}
+    #     )
+    # asyncio.run(update_memory_test())
+    async def test():
+        # await write_memory(
+        #     Memory(
+        #         level=1,
+        #         keywords=["向量"],
+        #         content='群友 米葱苓sama🅥⁧~喵⁧‭(ID 3D8574CD681F77EE1448095A26ED5F9A) 有个人博客「葱苓小筑」，会写技术教程（如 new-api 的 docker-compose 部署）。文章末尾带"本文来自 葱苓小筑，作者 米葱苓，转载请注明出处"。另：她会做前端/站点（此前问过 header 导航栏用灵动岛还是胶囊）。',
+        #         ttl=24,
+        #     )
+        # )
+        await memory_embedding_update()
+        await search_memory(
+            "米葱苓sama🅥⁧~喵⁧‭[3D8574CD681F77EE1448095A26ED5F9A]: 去哪开gemini", limit=10
+        )
+
+    asyncio.run(test())

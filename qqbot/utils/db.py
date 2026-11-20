@@ -16,7 +16,8 @@ _client: AsyncMongoClient | None = None
 async def init_db() -> None:
     """在应用启动时调用一次。AsyncMongoClient 是惰性连接，此处不会真正建立 TCP 连接。"""
     global _client
-    log.info(f"初始化数据库连接池，MongoDB URI: {MONGODB_URI}")
+    log.info("初始化数据库连接池……")
+    log.debug(f"MongoDB URI: {MONGODB_URI}")
     if _client is not None:
         log.warning("数据库已初始化，重复调用 init_db() 将被忽略。")
         return

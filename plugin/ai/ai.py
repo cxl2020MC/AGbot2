@@ -2,7 +2,6 @@ import asyncio
 from typing import ClassVar, cast
 
 import httpx2
-import openai
 import yarl
 from openai.types.chat import (
     ChatCompletionContentPartParam,
@@ -329,7 +328,7 @@ class AIPlugin:
                 self.group_message_queue.task_done()
 
     async def handle_message(
-        self, event_data: qq_message.GroupMessage | qq_message.GroupMessage
+        self, event_data: qq_message.GroupMessage
     ):
         queue = self.group_message_queue
         await queue.put(event_data)
