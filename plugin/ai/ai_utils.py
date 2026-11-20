@@ -121,7 +121,7 @@ class AiChatManager:
     async def use_ai(self, messages: Sequence[ChatCompletionMessageParam]):
         if self.name:
             message_json_path = data_utils.get_file_path(
-                f"/ai_messages/{self.name}.json"
+                f"ai_messages/{self.name}.json"
             )
             log.debug(f"向 {message_json_path} 写入AI请求消息")
             await data_utils.write_json_file(
