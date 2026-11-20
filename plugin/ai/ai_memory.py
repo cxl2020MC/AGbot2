@@ -331,14 +331,6 @@ if __name__ == "__main__":
     #     )
     # asyncio.run(update_memory_test())
     async def test():
-        # await write_memory(
-        #     Memory(
-        #         level=1,
-        #         keywords=["向量"],
-        #         content='群友 米葱苓sama🅥⁧~喵⁧‭(ID 3D8574CD681F77EE1448095A26ED5F9A) 有个人博客「葱苓小筑」，会写技术教程（如 new-api 的 docker-compose 部署）。文章末尾带"本文来自 葱苓小筑，作者 米葱苓，转载请注明出处"。另：她会做前端/站点（此前问过 header 导航栏用灵动岛还是胶囊）。',
-        #         ttl=24,
-        #     )
-        # )
         await memory_embedding_update()
         await search_memory(
             "米葱苓sama🅥⁧~喵⁧‭[3D8574CD681F77EE1448095A26ED5F9A]: 去哪开gemini", limit=10
