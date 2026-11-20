@@ -40,7 +40,7 @@ vector_search_index = SearchIndexModel(
 async def init():
     global db_collection
     db_collection = (await db.get_db()).get_collection("ai_memory")
-    log.info("初始化记忆数据库……")
+    log.info("初始化记忆数据库")
     # await db_collection.create_index({"keywords": 1})
     await db_collection.create_search_index(vector_search_index)
     log.info("记忆数据库初始化完成")
@@ -69,6 +69,7 @@ async def search_memory(
     limit: int = 5,
     update_read_time: bool = True,
     *,
+    filter_score: float = 0.7,
     filter_object_ids: list[str] | None = None,
 ):
     db_collection = await get_collection()
@@ -84,9 +85,15 @@ async def search_memory(
             },
         },
         {
-            "$project": {
-                "embedding": 0,
+            "$addFields": {
+                "score": {"$meta": "vectorSearchScore"},
             },
+        },
+        {
+            "$match": {"score": {"$gt": filter_score}},
+        },
+        {
+            "$project": {"embedding": 0},
         },
     ]
     if filter_object_ids:
