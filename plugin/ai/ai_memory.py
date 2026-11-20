@@ -67,7 +67,6 @@ async def get_embedding(text: str) -> list[float]:
 async def search_memory(
     content: str,
     limit: int = 5,
-    update_read_time: bool = True,
     *,
     filter_score: float = 0.7,
     filter_object_ids: list[str] | None = None,
@@ -102,12 +101,6 @@ async def search_memory(
     db_results = await (await db_collection.aggregate(pipeline)).to_list()
     print(f"搜索记忆结果: {db_results}")
     results = [Memory.model_validate(memory) for memory in db_results]
-    if update_read_time:
-        for result in results:
-            result.latest_read_time = datetime.now()
-            await update_memory(
-                str(result.id), result, update_time=False, update_embedding=False
-            )
     log.debug(f"搜索记忆结果: {results}")
     return results
 
@@ -127,9 +120,12 @@ class Memory(BaseModel):
         le=24 * 30,
         description="记忆有效期（小时），0表示永久有效，其他值表示从上次更新时间开始的有效期",
     )
-    create_time: datetime = Field(default_factory=datetime.now)
-    latest_read_time: datetime = Field(default_factory=datetime.now)
-    last_update_time: datetime = Field(default_factory=datetime.now)
+    create_time: datetime = Field(
+        default_factory=datetime.now, description="记忆创建时间"
+    )
+    last_update_time: datetime = Field(
+        default_factory=datetime.now, description="记忆最后更新时间"
+    )
 
     embedding: list[float] | None = Field(
         default=None,
@@ -160,9 +156,10 @@ async def update_memory(
         embedding = await get_embedding(memory.content)
         memory.embedding = embedding
         model_exclude.remove("embedding")
+
     if update_time:
         memory.last_update_time = datetime.now()
-    await db_collection.update_one(
+    return await db_collection.update_one(
         {"_id": ObjectId(memory_id)},
         {"$set": memory.model_dump(by_alias=True, exclude=model_exclude)},
     )
@@ -171,7 +168,7 @@ async def update_memory(
 async def search_memory_by_keywords(
     match_keywords: list[str],
     limit: int = 10,
-    update_read_time: bool = True,
+    *,
     filter_object_ids: list[str] | None = None,
 ):
     db_collection = await get_collection()
@@ -191,10 +188,6 @@ async def search_memory_by_keywords(
         )
     ).to_list()
     results = [Memory.model_validate(memory) for memory in db_results]
-    if update_read_time:
-        for result in results:
-            result.latest_read_time = datetime.now()
-            await update_memory(str(result.id), result, update_time=False)
     log.debug(f"搜索记忆结果: {results}")
     return results
 
