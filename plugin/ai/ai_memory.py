@@ -109,25 +109,32 @@ async def search_memory(
             "$project": {"embedding": 0},
         },
     ]
+    if (
+        group_open_id
+        and user_open_id
+        and "$and" not in pipeline[0]["$vectorSearch"]["filter"]
+    ):
+        pipeline[0]["$vectorSearch"]["filter"]["$and"] = []
+
     if group_open_id:
         log.debug(f"搜索记忆时的群ID: {group_open_id}")
-        if "$or" not in pipeline[0]["$vectorSearch"]["filter"]:
-            pipeline[0]["$vectorSearch"]["filter"]["$or"] = []
-        pipeline[0]["$vectorSearch"]["filter"]["$or"].extend(
-            [
-                {"group_open_id": group_open_id},
-                {"group_open_id": None},
-            ]
+        pipeline[0]["$vectorSearch"]["filter"]["$and"].append(
+            {
+                "$or": [
+                    {"group_open_id": group_open_id},
+                    {"group_open_id": None},
+                ]
+            }
         )
     if user_open_id:
         log.debug(f"搜索记忆时的用户ID: {user_open_id}")
-        if "$or" not in pipeline[0]["$vectorSearch"]["filter"]:
-            pipeline[0]["$vectorSearch"]["filter"]["$or"] = []
-        pipeline[0]["$vectorSearch"]["filter"]["$or"].extend(
-            [
-                {"user_open_id": user_open_id},
-                {"user_open_id": None},
-            ]
+        pipeline[0]["$vectorSearch"]["filter"]["$and"].append(
+            {
+                "$or": [
+                    {"user_open_id": user_open_id},
+                    {"user_open_id": None},
+                ]
+            }
         )
     if filter_object_ids:
         log.debug(f"搜索记忆时过滤的ObjectId: {filter_object_ids}")
