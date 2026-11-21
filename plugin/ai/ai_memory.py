@@ -109,11 +109,9 @@ async def search_memory(
             "$project": {"embedding": 0},
         },
     ]
-    if (
-        group_open_id
-        and user_open_id
-        and "$and" not in pipeline[0]["$vectorSearch"]["filter"]
-    ):
+    if (group_open_id or user_open_id) and "$and" not in pipeline[0]["$vectorSearch"][
+        "filter"
+    ]:
         pipeline[0]["$vectorSearch"]["filter"]["$and"] = []
 
     if group_open_id:
