@@ -102,12 +102,12 @@ async def search_memory(
     if group_open_id:
         log.debug(f"搜索记忆时的群ID: {group_open_id}")
         pipeline[0]["$vectorSearch"]["filter"].update(
-            {"group_open_id": {"nin": [group_open_id, None]}}
+            {"group_open_id": {"$nin": [group_open_id, None]}}
         )
     if user_open_id:
         log.debug(f"搜索记忆时的用户ID: {user_open_id}")
         pipeline[0]["$vectorSearch"]["filter"].update(
-            {"user_open_id": {"nin": [user_open_id, None]}}
+            {"user_open_id": {"$nin": [user_open_id, None]}}
         )
     if filter_object_ids:
         log.debug(f"搜索记忆时过滤的ObjectId: {filter_object_ids}")
