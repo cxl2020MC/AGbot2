@@ -33,6 +33,9 @@ vector_search_index = SearchIndexModel(
                 "quantization": "scalar",
             },
             {"type": "filter", "path": "_id"},
+            {"type": "filter", "path": "group_open_id"},
+            {"type": "filter", "path": "user_open_id"},
+
         ]
     },
 )
