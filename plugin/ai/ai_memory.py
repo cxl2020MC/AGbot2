@@ -105,8 +105,8 @@ async def search_memory(
             {
                 "group_open_id": {
                     "$or": [
-                        {"group_open_id": group_open_id},
-                        {"group_open_id": None},
+                        {"$eq": ["$group_open_id", group_open_id]},
+                        {"$eq": ["$group_open_id", None]},
                     ]
                 }
             }
@@ -116,7 +116,10 @@ async def search_memory(
         pipeline[0]["$vectorSearch"]["filter"].update(
             {
                 "user_open_id": {
-                    "$or": [{"user_open_id": user_open_id}, {"user_open_id": None}]
+                    "$or": [
+                        {"$eq": ["$user_open_id", user_open_id]},
+                        {"$eq": ["$user_open_id", None]},
+                    ]
                 }
             }
         )
