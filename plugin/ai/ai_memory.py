@@ -103,7 +103,7 @@ async def search_memory(
         log.debug(f"搜索记忆时的群ID: {group_open_id}")
         if "$or" not in pipeline[0]["$vectorSearch"]["filter"]:
             pipeline[0]["$vectorSearch"]["filter"]["$or"] = []
-        pipeline[0]["$vectorSearch"]["filter"]["$or"].append(
+        pipeline[0]["$vectorSearch"]["filter"]["$or"].extend(
             [
                 {"group_open_id": group_open_id},
                 {"group_open_id": None},
@@ -113,7 +113,7 @@ async def search_memory(
         log.debug(f"搜索记忆时的用户ID: {user_open_id}")
         if "$or" not in pipeline[0]["$vectorSearch"]["filter"]:
             pipeline[0]["$vectorSearch"]["filter"]["$or"] = []
-        pipeline[0]["$vectorSearch"]["filter"]["$or"].append(
+        pipeline[0]["$vectorSearch"]["filter"]["$or"].extend(
             [
                 {"user_open_id": user_open_id},
                 {"user_open_id": None},
