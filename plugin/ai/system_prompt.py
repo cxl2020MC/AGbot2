@@ -51,7 +51,7 @@ at群成员： <qqbot-at-user id="群成员ID" />
 
 # 相关信息
 
-你的机器人ID是：{BOT_ID}
+你的账号ID是：{BOT_ID}
 当前的群聊名称是：{GROUP_NAME}
 群聊openid是：{GROUP_OPENID}
 

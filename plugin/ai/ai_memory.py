@@ -1,6 +1,7 @@
 import asyncio
 import os
 from datetime import datetime
+from enum import StrEnum
 
 import openai
 
@@ -67,6 +68,8 @@ async def get_embedding(text: str) -> list[float]:
 async def search_memory(
     content: str,
     limit: int = 5,
+    group_open_id: str | None = None,
+    user_open_id: str | None = None,
     *,
     filter_score: float = 0.7,
     filter_object_ids: list[str] | None = None,
@@ -81,6 +84,7 @@ async def search_memory(
                 "path": "embedding",
                 "numCandidates": limit * 20,
                 "limit": limit,
+                "filter": {},
             },
         },
         {
@@ -95,14 +99,31 @@ async def search_memory(
             "$project": {"embedding": 0},
         },
     ]
+    if group_open_id:
+        log.debug(f"搜索记忆时的群ID: {group_open_id}")
+        pipeline[0]["$vectorSearch"]["filter"].update(
+            {"group_open_id": {"nin": [group_open_id, None]}}
+        )
+    if user_open_id:
+        log.debug(f"搜索记忆时的用户ID: {user_open_id}")
+        pipeline[0]["$vectorSearch"]["filter"].update(
+            {"user_open_id": {"nin": [user_open_id, None]}}
+        )
     if filter_object_ids:
         log.debug(f"搜索记忆时过滤的ObjectId: {filter_object_ids}")
-        pipeline[0]["$vectorSearch"]["filter"] = {"_id": {"$nin": filter_object_ids}}
+        pipeline[0]["$vectorSearch"]["filter"].update(
+            {"_id": {"$nin": filter_object_ids}}
+        )
     db_results = await (await db_collection.aggregate(pipeline)).to_list()
-    print(f"搜索记忆结果: {db_results}")
+    log.debug(f"搜索记忆原始结果: {db_results}")
     results = [Memory.model_validate(memory) for memory in db_results]
     log.debug(f"搜索记忆结果: {results}")
     return results
+
+
+class MemoryType(StrEnum):
+    GROUP = "group"
+    USER = "user"
 
 
 class Memory(BaseModel):
@@ -120,6 +141,12 @@ class Memory(BaseModel):
         le=24 * 30,
         description="记忆有效期（小时），0表示永久有效，其他值表示从上次更新时间开始的有效期",
     )
+    memory_type: MemoryType = Field(
+        default=MemoryType.GROUP,
+        description="记忆类型, group表示群记忆, user表示用户记忆",
+    )
+    group_open_id: str | None = Field(default=None, description="记忆绑定的群ID")
+    user_open_id: str | None = Field(default=None, description="记忆绑定的用户ID")
     create_time: datetime = Field(
         default_factory=datetime.now, description="记忆创建时间"
     )
@@ -212,6 +239,14 @@ class MemoryWriteToolPram(BaseModel):
         le=24 * 30,
         description="记忆有效期（小时），0表示永久有效，其他值表示从上次更新时间开始的有效期",
     )
+    memory_type: MemoryType = Field(
+        default=MemoryType.GROUP,
+        description="记忆类型, group表示群记忆, user表示用户记忆",
+    )
+    group_open_id: str | None = Field(default=None, description="记忆绑定的群ID")
+    user_open_id: str | None = Field(
+        default=None, description="记忆绑定的用户ID, 没有则表示不绑定到任何用户"
+    )
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
 
@@ -230,6 +265,14 @@ class MemoryUpdateToolPram(BaseModel):
         ge=0,
         le=24 * 30,
         description="记忆有效期（小时），0表示永久有效，其他值表示从上次更新时间开始的有效期",
+    )
+    memory_type: MemoryType = Field(
+        default=MemoryType.GROUP,
+        description="记忆类型, group表示群记忆, user表示用户记忆",
+    )
+    group_open_id: str | None = Field(default=None, description="记忆绑定的群ID")
+    user_open_id: str | None = Field(
+        default=None, description="记忆绑定的用户ID, 没有则表示不绑定到任何用户"
     )
     # metadata: dict = Field(default_factory=dict, description="记忆元数据")
 
@@ -251,6 +294,9 @@ async def write_memory_tool_call(tool_param: MemoryWriteToolPram):
         keywords=tool_param.keywords,
         content=tool_param.content,
         ttl=tool_param.ttl,
+        memory_type=tool_param.memory_type,
+        group_open_id=tool_param.group_open_id,
+        user_open_id=tool_param.user_open_id,
     )
     await write_memory(memory)
     return f"记忆写入成功, 记忆ID: {memory.id}"
@@ -263,6 +309,9 @@ async def update_memory_tool_call(tool_param: MemoryUpdateToolPram):
         keywords=tool_param.keywords,
         content=tool_param.content,
         ttl=tool_param.ttl,
+        memory_type=tool_param.memory_type,
+        group_open_id=tool_param.group_open_id,
+        user_open_id=tool_param.user_open_id,
     )
     await update_memory(str(memory.id), memory)
     return f"记忆更新成功, 记忆ID: {memory.id}"
