@@ -250,7 +250,7 @@ class MemoryWriteToolPram(BaseModel):
     )
     keywords: list[str] = Field(
         ...,
-        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
+        description="记忆关键词列表",
     )
     content: str = Field(..., description="记忆内容")
     ttl: int = Field(
@@ -277,7 +277,7 @@ class MemoryUpdateToolPram(BaseModel):
     )
     keywords: list[str] = Field(
         ...,
-        description="记忆关键词列表, 用于搜索匹配, 如果要绑定到群成员上最好包含群成员ID",
+        description="记忆关键词列表",
     )
     content: str = Field(..., description="记忆内容")
     ttl: int = Field(
