@@ -9,6 +9,7 @@ import openai
 from bson import ObjectId
 from pydantic import BaseModel, Field
 from pydantic_mongo import ObjectIdField
+from pymongo.errors import OperationFailure
 from pymongo.operations import SearchIndexModel
 
 from qqbot.log import logger as log
@@ -20,24 +21,25 @@ client = openai.AsyncOpenAI(
 db_collection: db.AsyncCollection | None = None
 
 
+search_index_definition = {
+    "fields": [
+        {
+            "type": "vector",
+            "path": "embedding",
+            "numDimensions": 768,
+            "similarity": "cosine",
+            "quantization": "scalar",
+        },
+        {"type": "filter", "path": "_id"},
+        {"type": "filter", "path": "group_open_id"},
+        {"type": "filter", "path": "user_open_id"},
+    ]
+}
+
 vector_search_index = SearchIndexModel(
     name="vector_search_index",
     type="vectorSearch",
-    definition={
-        "fields": [
-            {
-                "type": "vector",
-                "path": "embedding",
-                "numDimensions": 768,
-                "similarity": "cosine",
-                "quantization": "scalar",
-            },
-            {"type": "filter", "path": "_id"},
-            {"type": "filter", "path": "group_open_id"},
-            {"type": "filter", "path": "user_open_id"},
-
-        ]
-    },
+    definition=search_index_definition,
 )
 
 
@@ -46,7 +48,12 @@ async def init():
     db_collection = (await db.get_db()).get_collection("ai_memory")
     log.info("初始化记忆数据库")
     # await db_collection.create_index({"keywords": 1})
-    await db_collection.create_search_index(vector_search_index)
+    try:
+        await db_collection.create_search_index(vector_search_index)
+    except OperationFailure:
+        await db_collection.update_search_index(
+            "vector_search_index", search_index_definition
+        )
     log.info("记忆数据库初始化完成")
     asyncio.create_task(memory_cleanup_task(), name="ai_memory_cleanup_task")
 
