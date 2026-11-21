@@ -10,11 +10,11 @@ if TYPE_CHECKING:
     from .qq_bot import QQ_Bot
     from .types.qq_events import qq_message
 
-type MeaasgePluginEventListener = collections.abc.Callable[
+type MeaasgePluginEventListenerFunction = collections.abc.Callable[
     Concatenate[qq_message.Message, QQ_Bot, ...], collections.abc.Awaitable[Any]
 ]
 
-type PluginEventListener = collections.abc.Callable[
+type PluginEventListenerFunction = collections.abc.Callable[
     Concatenate[dict, QQ_Bot, ...], collections.abc.Awaitable[Any]
 ]
 
@@ -93,7 +93,7 @@ class Plugin:
         if message_event_type not in self._MessageEventListeners:
             self._MessageEventListeners[message_event_type] = []
         log.debug(
-            f"注册消息事件监听器: {message_event_type}[{listener}]"
+            f"插件 {self.name} 注册消息事件监听器: {message_event_type}[{listener}]"
         )
         self._MessageEventListeners[message_event_type].append(listener)
 
@@ -105,7 +105,7 @@ class Plugin:
     ):
         if commands not in self._CommandEventListeners:
             self._CommandEventListeners[commands] = []
-        log.debug(f"注册命令事件监听器: {commands}[{listener}]")
+        log.debug(f"插件 {self.name} 注册命令事件监听器: {commands}[{listener}]")
         self._CommandEventListeners[commands].append(listener)
 
     def get_all_command_event_listeners(self):
@@ -115,12 +115,12 @@ class Plugin:
         find_commands: list[CommandListener] = []
         for cmd, listeners in self._CommandEventListeners.items():
             if command in cmd:
-                log.debug(f"匹配到命令 {command} : {listeners}")
+                log.debug(f"插件 {self.name} 匹配到命令 {command} : {listeners}")
                 find_commands.extend(listeners)
         if not find_commands:
-            log.warning(f"未匹配到命令 {command}")
+            log.debug(f"插件 {self.name} 未匹配到命令 {command}")
         elif len(find_commands) > 1:
-            log.info(f"命令 {command} 共匹配到多个监听器: {find_commands}")
+            log.info(f"插件 {self.name} 命令 {command} 共匹配到多个监听器: {find_commands}")
         return find_commands
 
     def __str__(self):
@@ -152,7 +152,7 @@ class Plugin:
         command_description: str | None = None,
     ):
 
-        def decorator(func: MeaasgePluginEventListener):
+        def decorator(func: MeaasgePluginEventListenerFunction):
             self.register_command_event_listener(
                 command,
                 CommandListener(
@@ -203,19 +203,19 @@ class Plugin:
 @dataclass
 class EventListener:
     event_name: str
-    listener: PluginEventListener
+    listener: PluginEventListenerFunction
 
 
 @dataclass
 class MessageListener:
     listener_name: str
     message_type: str
-    listener: PluginEventListener
+    listener: PluginEventListenerFunction
 
 
 @dataclass
 class CommandListener:
-    function: MeaasgePluginEventListener
+    function: MeaasgePluginEventListenerFunction
 
     command: str
     command_name: str | None = None
