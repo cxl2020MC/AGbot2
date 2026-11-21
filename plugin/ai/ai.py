@@ -213,7 +213,7 @@ class AIPlugin:
         ai_memory_content = await ai_memory.search_memory(
             f"[{event_data.author.username}] [{event_data.author.id}] {event_data.content}",
             group_open_id=self.group_openid,
-            user_open_id=event_data.author.union_openid,
+            # user_open_id=event_data.author.union_openid,
             filter_object_ids=self.load_memory_id_list,  # 传入已加载的记忆ID列表，避免重复加载
         )
         for memory in ai_memory_content:
