@@ -171,19 +171,19 @@ class AiChatManager:
         )
         tool_calls = ai_ret_messages.tool_calls
 
-        parse_tool_calls = []
-        if tool_calls:
-            for tool_call in tool_calls:
-                parse_tool_calls.append(
-                    ChatCompletionMessageFunctionToolCallParam(
-                        id=tool_call.id,
-                        type="function",
-                        function={
-                            "name": tool_call.function.name,
-                            "arguments": tool_call.function.arguments,  # 已经是 JSON 字符串
-                        },
-                    ),
-                )
+        # parse_tool_calls = []
+        # if tool_calls:
+        #     for tool_call in tool_calls:
+        #         parse_tool_calls.append(
+        #             ChatCompletionMessageFunctionToolCallParam(
+        #                 id=tool_call.id,
+        #                 type="function",
+        #                 function={
+        #                     "name": tool_call.function.name,
+        #                     "arguments": tool_call.function.arguments,  # 已经是 JSON 字符串
+        #                 },
+        #             ),
+        #         )
         # await self.add_assistant_message(
         #     content=ai_ret_messages.content if ai_ret_messages.content else "",
         #     reasoning_content=reasoning_content,
