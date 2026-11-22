@@ -1,8 +1,8 @@
 import traceback
 from collections.abc import Awaitable, Callable, Iterable, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
+# from typing import TYPE_CHECKING
 import openai
 from openai.types.chat import (
     # ChatCompletionContentPartParam,
@@ -19,10 +19,8 @@ from qqbot.log import logger as log
 from qqbot.types.qq_events import qq_message
 
 # from pydantic import BaseModel, Field
-if TYPE_CHECKING:
-    from qqbot.qq_bot import QQ_Bot
-
-    from . import ai
+# if TYPE_CHECKING:
+#     from . import ai
 
 
 def make_tool_call_result(
@@ -82,6 +80,7 @@ class ToolScene:
 class ToolCallManager:
     def __init__(self) -> None:
         self.tools: list[Tool] = []
+
     # def add_tool(self, tool_call: ChatCompletionToolUnionParam):
     #     self.tools.append(tool_call)
 

@@ -8,6 +8,8 @@ from openai.types.chat import (
     ChatCompletionMessageParam,
     ChatCompletionToolUnionParam,
     ParsedFunctionToolCall,
+    ChatCompletionUserMessageParam,
+    ChatCompletionToolMessageParam,
 )
 
 from qqbot.log import logger as log
@@ -49,15 +51,15 @@ class AiChatManager:
         self.ai_messages.extend(messages)
 
     async def add_user_message(self, content: str):
-        message: ChatCompletionMessageParam = {
-            "role": "user",
-            "content": [
+        message = ChatCompletionUserMessageParam(
+            role="user",
+            content=[
                 {
                     "type": "text",
                     "text": content,
                 }
             ],
-        }
+        )
         await self.add_message(message)
 
     async def add_tool_message(
@@ -65,11 +67,11 @@ class AiChatManager:
         tool_call_id: str,
         content: str | Iterable[ChatCompletionContentPartTextParam],
     ):
-        message: ChatCompletionMessageParam = {
-            "role": "tool",
-            "tool_call_id": tool_call_id,
-            "content": content,
-        }
+        message = ChatCompletionToolMessageParam(
+            role="tool",
+            tool_call_id=tool_call_id,
+            content=content,
+        )
         await self.add_message(message)
 
     async def add_assistant_message(
@@ -182,10 +184,13 @@ class AiChatManager:
                         },
                     ),
                 )
-        await self.add_assistant_message(
-            content=ai_ret_messages.content if ai_ret_messages.content else "",
-            reasoning_content=reasoning_content,
-            tool_calls=parse_tool_calls if parse_tool_calls else None,
+        # await self.add_assistant_message(
+        #     content=ai_ret_messages.content if ai_ret_messages.content else "",
+        #     reasoning_content=reasoning_content,
+        #     tool_calls=parse_tool_calls if parse_tool_calls else None,
+        # )
+        await self.add_message(
+            cast(ChatCompletionMessageParam, ai_ret_messages.to_dict(mode="json"))
         )
         if tool_calls:
             tool_call_scene = tool_calls_utils.ToolScene(
