@@ -143,7 +143,7 @@ class AIPlugin:
         bot = self.bot
         ref_msg_idx = tool_args.ref_msg_idx
         msg_type = send_message.GroupMessageType.TXT
-        for mark in ["#", "`", "!["]:
+        for mark in ["#", "`", "![", "<qqbot-at-"]:
             if mark in tool_args.content:
                 msg_type = send_message.GroupMessageType.MARKDOWN
                 break
