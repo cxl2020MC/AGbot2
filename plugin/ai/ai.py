@@ -142,11 +142,22 @@ class AIPlugin:
     ):
         bot = self.bot
         ref_msg_idx = tool_args.ref_msg_idx
+        msg_type = send_message.GroupMessageType.TXT
+        for mark in ["#", "`", "!["]:
+            if mark in tool_args.content:
+                msg_type = send_message.GroupMessageType.MARKDOWN
+                break
+
         return_data = await bot.qq_api.send_group_message(
             self.group_openid,
             send_message.GroupMessage(
-                msg_type=send_message.GroupMessageType.MARKDOWN,
-                markdown=send_message.MessageMarkdown(content=tool_args.content),
+                msg_type=msg_type,
+                markdown=send_message.MessageMarkdown(content=tool_args.content)
+                if msg_type == send_message.GroupMessageType.MARKDOWN
+                else None,
+                content=tool_args.content
+                if msg_type == send_message.GroupMessageType.TXT
+                else None,
                 message_reference=send_message.MessageReference(message_id=ref_msg_idx)
                 if ref_msg_idx
                 else None,

@@ -12,7 +12,7 @@ class GroupMessageType(IntEnum):
 
 class GroupMessage(BaseModel):
     msg_type: GroupMessageType = GroupMessageType.TXT
-    content: str = ""
+    content: str | None = None
     markdown: MessageMarkdown | None = None
     keyboard: Keyboard | None = None
     msg_id: str | None = None
