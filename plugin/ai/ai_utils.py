@@ -27,7 +27,8 @@ client = openai.AsyncOpenAI(
     }
 )
 
-AI_MODEL = "deepseek-flash"
+# AI_MODEL = "deepseek-flash"
+AI_MODEL = "deepseek-v4.1-flash"
 # AI_MODEL = "deepseek-v4.1-flash-1017"
 
 
