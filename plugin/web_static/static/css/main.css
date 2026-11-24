@@ -1,6 +1,31 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+        --lightningcss-light: ;
+        --lightningcss-dark: initial
+    }
+}
+
 :root {
-    --border-radius: 1em;
-    
+    --background-color: #fafafa;
+    --text-color: #000;
+    --blur-background-color: #ffffff4d;
+    --blur-background-color-hover: #ffffff80;
+    --blur-filter: blur(1em);
+    --card-border: 1px solid var(--blur-background-color);
+    --card-border-radius: 1em;
+}
+
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #121212;
+        --text-color: #fff;
+        --blur-background-color: #0000004d
+    }
+
+    img {
+        filter: brightness(75%)
+    }
 }
 
 * {
