@@ -1,1 +1,0 @@
-from qqbot import plugin

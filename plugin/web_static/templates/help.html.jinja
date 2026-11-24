@@ -2,12 +2,25 @@
 {% block title %}帮助{% endblock %}
 {% block head %}
   {{ super() }}
-  <style type="text/css"></style>
+  <style>
+    .card-help {
+      
+    }
+  </style>
 {% endblock %}
 {% block header %}
   <h1>帮助</h1>
 {% endblock %}
 {% block content %}
-  <h1>Index</h1>
-  <p class="important">Welcome to my awesome homepage.</p>
+<div class="card card-help">
+  <div class="card-header">帮助</div>
+  <div class="card-body">
+    <p>这是一个帮助页面，您可以在这里找到有关如何使用该应用程序的信息。</p>
+    <ul>
+      <li>功能1: 描述功能1的用途和使用方法。</li>
+      <li>功能2: 描述功能2的用途和使用方法。</li>
+      <li>功能3: 描述功能3的用途和使用方法。</li>
+    </ul>
+  </div>
+</div>
 {% endblock %}

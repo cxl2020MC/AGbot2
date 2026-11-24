@@ -1,9 +1,9 @@
 from qqbot import plugin
-from qqbot.qq_bot import QQ_Bot
 
 # from qqbot.types.bot_event import MessageEventType
 from qqbot.types.qq_api import send_message
 from qqbot.types.qq_events import qq_message
+lazy from qqbot.qq_bot import QQ_Bot
 
 plugin = plugin.Plugin("echo", "一个简单的回声插件", "1.0.0")
 

@@ -25,6 +25,14 @@
     box-sizing: border-box;
 }
 
+:root {
+    color-scheme: light dark;
+}
+
+/* html {
+    background-color: var(--background-color);
+    color: var(--text-color);
+} */
 
 .card {
     background-color: var(--blur-background-color);

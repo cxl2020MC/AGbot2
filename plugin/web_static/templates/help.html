@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<head>
+  <link rel="stylesheet" href="../static/css/main.css" />
+  <style>
+    .background-img {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    body {
+      background-color: #c1e8ff
+    }
+
+    .card {
+      box-shadow: 0.3em 0.3em 1em .3em rgba(0 0 0 / 0.1);
+    }
+
+    .header-div {
+      text-align: center;
+
+      h1 {
+        margin: 0;
+      }
+    }
+
+    .footer-info {
+      text-align: center;
+      padding: 10px;
+
+      p {
+        margin: .5em 0;
+      }
+    }
+
+    .help-card {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-content: center;
+      gap: 1em;
+    }
+
+    .plugin-item {
+      flex: 1 1 40em;
+
+      .plugin-item-header {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 0.5em;
+        background-color: var(--blur-background-color);
+        border-radius: .5em;
+        padding: .5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <img class="background-img"
+    src="https://cxl2020mc-1304820025.file.myqcloud.com/img/%E5%A3%81%E7%BA%B8/%E5%8E%9F%E7%A5%9E/%E5%8E%9F%E6%91%84/5.8%E5%A4%8F%E6%B4%BB/58d59efed3d0d6135e3edbf03172137b.png">
+  <header> -->
+  <div class="header-div card">
+    <h1>帮助</h1>
+  </div>
+  </header>
+  <main>
+    <div class="help-card">
+      <div class="plugin-item card">
+        <div class="plugin-item-header">我是插件1的名称</div>
+        <div class="plugin-item-body">
+          <p>这是一个帮助页面，您可以在这里找到有关如何使用该应用程序的信息。</p>
+          <ul>
+            <li>功能1: 描述功能1的用途和使用方法。</li>
+            <li>功能2: 描述功能2的用途和使用方法。</li>
+            <li>功能3: 描述功能3的用途和使用方法。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="plugin-item card">
+        <div class="plugin-item-header">我是插件2的名称</div>
+        <div class="plugin-item-body">
+          <p>这是一个帮助页面，您可以在这里找到有关如何使用该应用程序的信息。</p>
+          <ul>
+            <li>功能1: 描述功能1的用途和使用方法。</li>
+            <li>功能2: 描述功能2的用途和使用方法。</li>
+            <li>功能3: 描述功能3的用途和使用方法。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="footer-info card">
+      <p>代码由 cxl2020mc 编写</p>
+      <p>由 cxl2020mc 编写的具有超级牛力的 AGbot2 渲染</p>
+    </div>
+
+  </footer>
+</body>
