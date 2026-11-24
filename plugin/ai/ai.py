@@ -1,8 +1,6 @@
 import asyncio
 from typing import ClassVar, cast
 
-# from .ai_utils import AiChatManager, client
-import ai_utils
 import httpx2
 import yarl
 from openai.types.chat import (
@@ -20,7 +18,8 @@ from qqbot.types.qq_api import api_type, send_message
 from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, message_sticker
 
-from . import ai_memory, system_prompt, tool_calls_utils, web_search
+# from .ai_utils import AiChatManager, client
+from . import ai_memory, ai_utils, system_prompt, tool_calls_utils, web_search
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
