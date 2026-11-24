@@ -3,8 +3,9 @@ from typing import ClassVar, cast
 
 import httpx2
 import yarl
-from openai.types.responses import (
-    ResponseInputMessageContentListParam,
+from openai.types.chat import (
+    ChatCompletionContentPartParam,
+    ChatCompletionMessageParam,
 )
 from pydantic import BaseModel, Field
 
@@ -17,7 +18,7 @@ from qqbot.types.qq_api import api_type, send_message
 from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, message_sticker
 
-from . import ai_memory, ai_utils, system_prompt, tool_calls_utils, web_search
+from . import ai_memory, system_prompt, tool_calls_utils, web_search
 from .ai_utils import AiChatManager, client
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
@@ -43,7 +44,7 @@ class DeleteMessageToolParam(BaseModel):
     message_id: str = Field(..., description="需要删除的消息的消息id")
 
 
-async def get_image_from_url(url, filename):
+async def get_image_from_url(url, filename) -> ChatCompletionContentPartParam:
     log.info(f"从URL获取图片: {url}, filename: {filename}")
     img = await httpx2.get(url).aread()
     file = await client.files.create(
@@ -54,12 +55,19 @@ async def get_image_from_url(url, filename):
             "seconds": 60 * 60 * 24 * 14,  # 14天后过期
         },
     )
-    return ai_utils.make_image_content(file_id=file.id)
+    return cast(
+        ChatCompletionContentPartParam,
+        {"type": "file", "file_id": file.id},
+    )
+    # return {
+    #         "type": "image_url",
+    #         "image_url": {"url": url},
+    # }
 
 
 async def get_image_from_url_tool(
     tool_args: web_search.WebFetchToolParam,
-):
+) -> list[ChatCompletionContentPartParam]:
     yarl_url = yarl.URL(tool_args.url)
     filename = yarl_url.name
     return [await get_image_from_url(tool_args.url, filename)]
@@ -258,11 +266,14 @@ class AIPlugin:
                 for sticker in message_sticker_result
             ]
         )
-        messages_content_str = f"""[{event_data.timestamp}][{
-            getattr(event_data.author, "member_nickname", "未知")
-        }({event_data.author.username})]({event_data.author.id})[{
-            event_data.message_type.name
-        }]{message_type_flag}: {event_data.content}
+        messages_content: list[ChatCompletionContentPartParam] = [
+            {
+                "type": "text",
+                "text": f"""[{event_data.timestamp}][{
+                    getattr(event_data.author, "member_nickname", "未知")
+                }({event_data.author.username})]({event_data.author.id})[{
+                    event_data.message_type.name
+                }]{message_type_flag}: {event_data.content}
 [{"]\n[".join(message_metadata)}]
 
 ## 命中的记忆内容
@@ -270,10 +281,8 @@ class AIPlugin:
 
 ## 消息中的表情转换结果
 {message_sticker_result_str if message_sticker_result else "无"}
-"""
-
-        messages_content: ResponseInputMessageContentListParam = [
-            ai_utils.make_text_content(messages_content_str)
+""",
+            }
         ]
 
         if event_data.attachments:
@@ -289,16 +298,26 @@ class AIPlugin:
                 elif attachment.content_type.startswith("voice"):
                     if attachment.asr_refer_text:
                         messages_content.append(
-                            ai_utils.make_text_content(
-                                f"[语音转文字]: {attachment.asr_refer_text}"
-                            )
+                            {
+                                "type": "text",
+                                "text": f"[语音转文字]: {attachment.asr_refer_text}",
+                            }
                         )
                     else:
                         messages_content.append(
-                            ai_utils.make_text_content("[语音消息]: 无法识别语音内容")
+                            {
+                                "type": "text",
+                                "text": "[语音消息]: 无法识别语音内容",
+                            }
                         )
 
-        messages = ai_utils.make_user_message(content=messages_content)
+        messages: list[ChatCompletionMessageParam] = [
+            {
+                "role": "user",
+                "content": messages_content,
+            }
+        ]
+
         return messages
 
     async def handle_ai(
@@ -309,7 +328,7 @@ class AIPlugin:
         messages = await self.generate_message(event_data)
 
         ai_chat_manager = await self.get_ai_chat_manager()
-        return await ai_chat_manager.handle_ai([messages])
+        return await ai_chat_manager.handle_ai(messages)
 
     async def worker(self):
         log.debug(f"启动AI插件工作线程，处理群聊 {self.group_openid} 的消息。")
