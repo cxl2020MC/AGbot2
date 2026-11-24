@@ -1,15 +1,8 @@
-@media (prefers-color-scheme: dark) {
-    :root {
-        --lightningcss-light: ;
-        --lightningcss-dark: initial
-    }
-}
-
 :root {
-    --background-color: #fafafa;
+    --background-color: rgb(250 250 250);
     --text-color: #000;
-    --blur-background-color: #ffffff4d;
-    --blur-background-color-hover: #ffffff80;
+    --blur-background-color: rgb(255 255 255 / 0.3);
+    --blur-background-color-hover: rgb(255 255 255 / 0.5);
     --blur-filter: blur(1em);
     --card-border: 1px solid var(--blur-background-color);
     --card-border-radius: 1em;
@@ -20,7 +13,7 @@
     :root {
         --background-color: #121212;
         --text-color: #fff;
-        --blur-background-color: #0000004d
+        --blur-background-color: rgba(0 0 0 / 0.3)
     }
 
     img {
@@ -30,4 +23,14 @@
 
 * {
     box-sizing: border-box;
+}
+
+
+.card {
+    background-color: var(--blur-background-color);
+    border: var(--card-border);
+    border-radius: var(--card-border-radius);
+    backdrop-filter: var(--blur-filter);
+    padding: 1em;
+    margin: 1em;
 }

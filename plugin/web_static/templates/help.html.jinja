@@ -1,14 +1,13 @@
-{% extends "base/html_base.html.jinja" %}
+{% extends "base/base.html.jinja" %}
 {% block title %}帮助{% endblock %}
 {% block head %}
-    {{ super() }}
-    <style type="text/css">
-        
-    </style>
+  {{ super() }}
+  <style type="text/css"></style>
+{% endblock %}
+{% block header %}
+  <h1>帮助</h1>
 {% endblock %}
 {% block content %}
-    <h1>Index</h1>
-    <p class="important">
-      Welcome to my awesome homepage.
-    </p>
+  <h1>Index</h1>
+  <p class="important">Welcome to my awesome homepage.</p>
 {% endblock %}
