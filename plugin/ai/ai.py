@@ -16,7 +16,7 @@ from qqbot.qq_bot import QQ_Bot
 # from qqbot.types.bot_event import MessageEventType
 from qqbot.types.qq_api import api_type, send_message
 from qqbot.types.qq_events import qq_message
-from qqbot.utils import command_utils, message_sticker
+from qqbot.utils import command_utils, message_sticker, data_url_utils
 
 # from .ai_utils import AiChatManager, client
 from . import ai_memory, ai_utils, system_prompt, tool_calls_utils, web_search
@@ -48,15 +48,19 @@ async def get_image_from_url(url, filename):
     log.info(f"从URL获取图片: {url}, filename: {filename}")
     img = await httpx2.get(url).aread()
 
-    file = await ai_utils.client.files.create(
-        file=(filename, img),
-        purpose="user_data",
-        expires_after={
-            "anchor": "created_at",
-            "seconds": 60 * 60 * 24 * 14,  # 14天后过期
-        },
+    # file = await ai_utils.client.files.create(
+    #     file=(filename, img),
+    #     purpose="user_data",
+    #     expires_after={
+    #         "anchor": "created_at",
+    #         "seconds": 60 * 60 * 24 * 14,  # 14天后过期
+    #     },
+    # )
+    # return ai_utils.make_image_content(file_id=file.id)
+    data_url = await data_url_utils.get_data_url_by_bytes(
+        img, await data_url_utils.get_filename_minetype(filename)
     )
-    return ai_utils.make_image_content(file_id=file.id)
+    return ai_utils.make_image_content(image_url=data_url)
 
 
 async def get_image_from_url_tool(

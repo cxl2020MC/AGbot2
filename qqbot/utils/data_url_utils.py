@@ -17,3 +17,14 @@ async def get_data_url_by_file(path: PathLike[str]):
         data = await f.read()
         encoded_data = base64.b64encode(data).decode("utf-8")
         return f"data:{mime_type};base64,{encoded_data}"
+
+
+async def get_filename_minetype(path: PathLike[str]):
+    mime_type, _ = mimetypes.guess_file_type(path)
+    if mime_type is None:
+        raise ValueError(f"无法猜测文件的MIME类型: {path}")
+    return mime_type
+
+async def get_data_url_by_bytes(data: bytes, mime_type: str):
+    encoded_data = base64.b64encode(data).decode("utf-8")
+    return f"data:{mime_type};base64,{encoded_data}"
