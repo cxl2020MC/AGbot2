@@ -20,7 +20,12 @@ from qqbot.utils import data_utils
 
 from . import tool_calls_utils
 
-client = openai.AsyncOpenAI()
+client = openai.AsyncOpenAI(
+    default_headers={
+        "User-Agent": "AGbot2/5.0.0",
+        "x-opencode-session": "cxl2020mc-AGbot2",
+    }
+)
 
 AI_MODEL = "deepseek-flash"
 # AI_MODEL = "deepseek-v4.1-flash-1017"
