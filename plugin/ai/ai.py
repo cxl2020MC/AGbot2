@@ -1,6 +1,8 @@
 import asyncio
 from typing import ClassVar, cast
 
+# from .ai_utils import AiChatManager, client
+import ai_utils
 import httpx2
 import yarl
 from openai.types.chat import (
@@ -19,7 +21,6 @@ from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, message_sticker
 
 from . import ai_memory, system_prompt, tool_calls_utils, web_search
-from .ai_utils import AiChatManager, client
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
@@ -44,10 +45,11 @@ class DeleteMessageToolParam(BaseModel):
     message_id: str = Field(..., description="需要删除的消息的消息id")
 
 
-async def get_image_from_url(url, filename) -> ChatCompletionContentPartParam:
+async def get_image_from_url(url, filename):
     log.info(f"从URL获取图片: {url}, filename: {filename}")
     img = await httpx2.get(url).aread()
-    file = await client.files.create(
+
+    file = await ai_utils.client.files.create(
         file=(filename, img),
         purpose="user_data",
         expires_after={
@@ -55,14 +57,7 @@ async def get_image_from_url(url, filename) -> ChatCompletionContentPartParam:
             "seconds": 60 * 60 * 24 * 14,  # 14天后过期
         },
     )
-    return cast(
-        ChatCompletionContentPartParam,
-        {"type": "file", "file_id": file.id},
-    )
-    # return {
-    #         "type": "image_url",
-    #         "image_url": {"url": url},
-    # }
+    return ai_utils.make_image_content(file_id=file.id)
 
 
 async def get_image_from_url_tool(
@@ -132,7 +127,7 @@ class AIPlugin:
     def __init__(self, group_openid: str, bot: QQ_Bot):
         self.group_openid = group_openid
         self.bot: QQ_Bot = bot
-        self.ai_chat_manager: AiChatManager | None = None
+        self.ai_chat_manager: ai_utils.AiChatManager | None = None
         self.group_message_queue: asyncio.Queue[qq_message.Message] = asyncio.Queue()
         self.worker_task = asyncio.create_task(
             self.worker(), name=f"AIPluginWorker-{group_openid}"
@@ -213,7 +208,7 @@ class AIPlugin:
                     function=self.delete_message_tool_call,
                 ),
             )
-            self.ai_chat_manager = AiChatManager(
+            self.ai_chat_manager = ai_utils.AiChatManager(
                 system_message_content,
                 tool_calls=tools,
                 name=f"AIPlugin-{group_info.group_name}",
@@ -266,14 +261,11 @@ class AIPlugin:
                 for sticker in message_sticker_result
             ]
         )
-        messages_content: list[ChatCompletionContentPartParam] = [
-            {
-                "type": "text",
-                "text": f"""[{event_data.timestamp}][{
-                    getattr(event_data.author, "member_nickname", "未知")
-                }({event_data.author.username})]({event_data.author.id})[{
-                    event_data.message_type.name
-                }]{message_type_flag}: {event_data.content}
+        messages_content_str = f"""[{event_data.timestamp}][{
+            getattr(event_data.author, "member_nickname", "未知")
+        }({event_data.author.username})]({event_data.author.id})[{
+            event_data.message_type.name
+        }]{message_type_flag}: {event_data.content}
 [{"]\n[".join(message_metadata)}]
 
 ## 命中的记忆内容
@@ -281,10 +273,10 @@ class AIPlugin:
 
 ## 消息中的表情转换结果
 {message_sticker_result_str if message_sticker_result else "无"}
-""",
-            }
+"""
+        messages_content: list[ChatCompletionContentPartParam] = [
+            ai_utils.make_text_content(messages_content_str)
         ]
-
         if event_data.attachments:
             for attachment in event_data.attachments:
                 # if attachment.asr_refer_text:
@@ -298,24 +290,19 @@ class AIPlugin:
                 elif attachment.content_type.startswith("voice"):
                     if attachment.asr_refer_text:
                         messages_content.append(
-                            {
-                                "type": "text",
-                                "text": f"[语音转文字]: {attachment.asr_refer_text}",
-                            }
+                            ai_utils.make_text_content(
+                                f"[语音转文字]: {attachment.asr_refer_text}",
+                            )
                         )
                     else:
                         messages_content.append(
-                            {
-                                "type": "text",
-                                "text": "[语音消息]: 无法识别语音内容",
-                            }
+                            ai_utils.make_text_content(
+                                "[语音消息]: 无法识别语音内容",
+                            )
                         )
 
         messages: list[ChatCompletionMessageParam] = [
-            {
-                "role": "user",
-                "content": messages_content,
-            }
+            ai_utils.make_user_message(messages_content),
         ]
 
         return messages

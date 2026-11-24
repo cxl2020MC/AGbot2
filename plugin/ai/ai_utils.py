@@ -3,13 +3,16 @@ from typing import cast
 
 import openai
 from openai.types.chat import (
+    ChatCompletionContentPartImageParam,
+    ChatCompletionContentPartParam,
     ChatCompletionContentPartTextParam,
     ChatCompletionMessageFunctionToolCallParam,
     ChatCompletionMessageParam,
-    ChatCompletionToolUnionParam,
-    ParsedFunctionToolCall,
-    ChatCompletionUserMessageParam,
+    ChatCompletionSystemMessageParam,
     ChatCompletionToolMessageParam,
+    ChatCompletionToolUnionParam,
+    ChatCompletionUserMessageParam,
+    ParsedFunctionToolCall,
 )
 
 from qqbot.log import logger as log
@@ -17,14 +20,47 @@ from qqbot.utils import data_utils
 
 from . import tool_calls_utils
 
-client = openai.AsyncOpenAI(
-    # api_key="your-api-key",
-    # base_url="https://api.deepseek.com"
-    # base_url="https://ai.yumeyuki.moe/v1"
-)
+client = openai.AsyncOpenAI()
 
 AI_MODEL = "deepseek-flash"
 # AI_MODEL = "deepseek-v4.1-flash-1017"
+
+
+def make_user_message(content: str | Iterable[ChatCompletionContentPartParam]):
+    message = ChatCompletionUserMessageParam(role="user", content=content)
+    return message
+
+
+def make_text_content(text: str):
+    message = ChatCompletionContentPartTextParam(
+        type="text",
+        text=text,
+    )
+    return message
+
+
+def make_image_content(image_url: str | None = None, file_id: str | None = None):
+    if image_url:
+        message = ChatCompletionContentPartImageParam(
+            type="image_url", image_url={"url": image_url}
+        )
+    else:
+        message = cast(
+            ChatCompletionContentPartImageParam, {"type": "file", "file_id": file_id}
+        )
+    return message
+
+
+def make_tool_call_message(
+    tool_call_id: str,
+    content: str | Iterable[ChatCompletionContentPartTextParam],
+):
+    message = ChatCompletionToolMessageParam(
+        role="tool",
+        tool_call_id=tool_call_id,
+        content=content,
+    )
+    return message
 
 
 class AiChatManager:
@@ -36,7 +72,9 @@ class AiChatManager:
     ):
         self.ai_messages: list[ChatCompletionMessageParam] = []
         self.system_message_content: str = system_message_content
-        self.system_message: ChatCompletionMessageParam | None = None
+        self.system_message = ChatCompletionSystemMessageParam(
+            role="system", content=system_message_content
+        )
         self._tool_call_manager = tool_calls_utils.ToolCallManager()
         self.name: str | None = name
         if tool_calls:
@@ -47,18 +85,14 @@ class AiChatManager:
     async def add_message(self, message: ChatCompletionMessageParam):
         self.ai_messages.append(message)
 
-    async def add_messages(self, messages: Sequence[ChatCompletionMessageParam]):
+    async def add_messages(self, messages: Iterable[ChatCompletionMessageParam]):
         self.ai_messages.extend(messages)
 
-    async def add_user_message(self, content: str):
-        message = ChatCompletionUserMessageParam(
-            role="user",
-            content=[
-                {
-                    "type": "text",
-                    "text": content,
-                }
-            ],
+    async def add_user_message(
+        self, content: str | Iterable[ChatCompletionContentPartParam]
+    ):
+        message = make_user_message(
+            content,
         )
         await self.add_message(message)
 
@@ -74,43 +108,24 @@ class AiChatManager:
         )
         await self.add_message(message)
 
-    async def add_assistant_message(
-        self,
-        content: str | Iterable[ChatCompletionContentPartTextParam],
-        reasoning_content: str | None = None,
-        tool_calls: Sequence[ChatCompletionToolUnionParam] | None = None,
-    ):
-        message: ChatCompletionMessageParam = cast(
-            ChatCompletionMessageParam,
-            {
-                "role": "assistant",
-                "content": content,
-                "reasoning_content": reasoning_content,
-                "tool_calls": tool_calls,
-            },
-        )
-        await self.add_message(message)
+    # async def add_assistant_message(
+    #     self,
+    #     content: str | Iterable[ChatCompletionContentPartTextParam],
+    #     reasoning_content: str | None = None,
+    #     tool_calls: Iterable[ChatCompletionToolUnionParam] | None = None,
+    # ):
+    #     message: ChatCompletionMessageParam = cast(
+    #         ChatCompletionMessageParam,
+    #         {
+    #             "role": "assistant",
+    #             "content": content,
+    #             "reasoning_content": reasoning_content,
+    #             "tool_calls": tool_calls,
+    #         },
+    #     )
+    #     await self.add_message(message)
 
-    async def set_system_message(self, content: str):
-        message: ChatCompletionMessageParam = {
-            "role": "system",
-            "content": [
-                {
-                    "type": "text",
-                    "text": content,
-                }
-            ],
-        }
-        self.system_message = message
-
-    async def get_messages(self) -> list[ChatCompletionMessageParam]:
-        if self.system_message is None:
-            await self.set_system_message(self.system_message_content)
-        # 理论上永远不会被运行的 if 这一块
-        if self.system_message is None:
-            raise ValueError(
-                "系统消息未设置，请先调用 set_system_message 方法设置系统消息。"
-            )
+    async def get_messages(self):
         ai_messages: list[ChatCompletionMessageParam] = [self.system_message]
         ai_messages.extend(self.ai_messages)
         return ai_messages
@@ -145,14 +160,11 @@ class AiChatManager:
 
     async def handle_ai(
         self,
-        messages: Sequence[ChatCompletionMessageParam],
+        messages: Iterable[ChatCompletionMessageParam],
         system_message: str | None = None,
         *,
         run_count: int = 0,
     ):
-        if system_message is not None:
-            await self.set_system_message(system_message)
-
         await self.add_messages(messages)
         log.debug(f"处理AI请求: {messages}")
         ai_messages = await self.get_messages()
@@ -171,24 +183,6 @@ class AiChatManager:
         )
         tool_calls = ai_ret_messages.tool_calls
 
-        # parse_tool_calls = []
-        # if tool_calls:
-        #     for tool_call in tool_calls:
-        #         parse_tool_calls.append(
-        #             ChatCompletionMessageFunctionToolCallParam(
-        #                 id=tool_call.id,
-        #                 type="function",
-        #                 function={
-        #                     "name": tool_call.function.name,
-        #                     "arguments": tool_call.function.arguments,  # 已经是 JSON 字符串
-        #                 },
-        #             ),
-        #         )
-        # await self.add_assistant_message(
-        #     content=ai_ret_messages.content if ai_ret_messages.content else "",
-        #     reasoning_content=reasoning_content,
-        #     tool_calls=parse_tool_calls if parse_tool_calls else None,
-        # )
         await self.add_message(
             cast(ChatCompletionMessageParam, ai_ret_messages.to_dict(mode="json"))
         )
@@ -209,21 +203,20 @@ class AiChatManager:
 
     async def context_completion(self):
         message_content = "对话内容过长，请总结之前的对话内容(不包括系统提示词)，保留核心信息，删除冗余内容，以便继续对话。只需要总结最近10～20条的对话内容，然后直接输出总结后的对话内容，并确保保留必要的上下文信息。"
-        message: ChatCompletionMessageParam = {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": message_content,
-                }
-            ],
-        }
+        message = make_user_message(
+            content=[
+                make_text_content(message_content),
+            ]
+        )
         ai_return = await self.handle_ai(messages=[message], run_count=1)
         completion_message = ai_return.choices[0].message.content
         log.info(f"总结后的对话内容: {completion_message}")
         self.ai_messages = [
-            {
-                "role": "user",
-                "content": f"由于前文上下文过长，已进行总结: {completion_message}",
-            }
+            make_user_message(
+                content=[
+                    make_text_content(
+                        f"由于前文上下文过长，已进行总结: {completion_message}"
+                    ),
+                ]
+            )
         ]
