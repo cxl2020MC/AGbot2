@@ -70,7 +70,7 @@ class FileUpdatePrepareResponse(BaseModel):
 
 
 class FileUploadPart(BaseModel):
-    # cnm tx 官方文档写的 index 从 0 开始，但实际上是从 1 开始的
+    # cnm tx，官方文档写的 index 从 0 开始，但实际上是从 1 开始的
     index: int = Field(..., description="分片序号，从 1 开始")
     presigned_url: str = Field(
         ..., description="预签名上传 URL，客户端通过 HTTP PUT 将分片数据上传到此 URL"
