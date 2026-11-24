@@ -58,7 +58,7 @@ async def get_image_from_url(url, filename):
     # )
     # return ai_utils.make_image_content(file_id=file.id)
     data_url = await data_url_utils.get_data_url_by_bytes(
-        img, await data_url_utils.get_filename_minetype(filename)
+        img, await data_url_utils.get_bytes_minetype(img)
     )
     return ai_utils.make_image_content(image_url=data_url)
 
