@@ -19,7 +19,7 @@ from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, data_url_utils, message_sticker
 
 # from .ai_utils import AiChatManager, client
-from . import ai_memory, ai_utils, system_prompt, tool_calls_utils, web_search
+from . import ai_memory, ai_utils, system_prompt, tool_calls_utils, web_search, nbnhhsh
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
@@ -120,6 +120,12 @@ TOOLS = [
         description="从图片URL获取图片，返回图片",
         model=web_search.WebFetchToolParam,
         function=get_image_from_url_tool,
+    ),
+    tool_calls_utils.Tool(
+        name="nbnhhsh",
+        description="获取拼音首字母缩写的全称（能不能好好说话？）",
+        model=nbnhhsh.NbnhhshToolParam,
+        function=nbnhhsh.get_nbnhhsh_tool_call,
     ),
 ]
 
