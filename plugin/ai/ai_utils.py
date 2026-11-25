@@ -69,6 +69,21 @@ def make_tool_call_message(
     return message
 
 
+def pretty(obj):
+    if isinstance(obj, dict):
+        return {
+            k: (
+                f"<base64 image data: {len(v)} chars>"
+                if isinstance(v, str) and v.startswith("data:image/")
+                else pretty(v)
+            )  # 递归处理嵌套
+            for k, v in obj.items()
+        }
+    if isinstance(obj, list):
+        return [pretty(x) for x in obj]
+    return obj
+
+
 class AiChatManager:
     def __init__(
         self,
@@ -155,7 +170,7 @@ class AiChatManager:
     ):
         if messages:
             await self.add_messages(messages)
-        log.debug(f"处理AI请求: {messages}")
+        log.debug(f"处理AI请求: {pretty(messages)}")
         ai_messages = await self.get_messages()
 
         completion = await self.use_ai(ai_messages)
