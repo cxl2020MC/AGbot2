@@ -16,7 +16,7 @@ from qqbot.qq_bot import QQ_Bot
 # from qqbot.types.bot_event import MessageEventType
 from qqbot.types.qq_api import api_type, send_message
 from qqbot.types.qq_events import qq_message
-from qqbot.utils import command_utils, message_sticker, data_url_utils
+from qqbot.utils import command_utils, data_url_utils, message_sticker
 
 # from .ai_utils import AiChatManager, client
 from . import ai_memory, ai_utils, system_prompt, tool_calls_utils, web_search
@@ -312,10 +312,12 @@ class AIPlugin:
 
     async def handle_ai(
         self,
-        event_data: qq_message.Message,
+        event_datas: list[qq_message.Message],
         bot: QQ_Bot,
     ):
-        messages = await self.generate_message(event_data)
+        messages: list[ChatCompletionMessageParam] = []
+        for event_data in event_datas:
+            messages.extend(await self.generate_message(event_data))
 
         ai_chat_manager = await self.get_ai_chat_manager()
         return await ai_chat_manager.handle_ai(messages)
@@ -323,9 +325,17 @@ class AIPlugin:
     async def worker(self):
         log.debug(f"启动AI插件工作线程，处理群聊 {self.group_openid} 的消息。")
         while True:
-            event_data = await self.group_message_queue.get()
+            event_datas = [await self.group_message_queue.get()]
             try:
-                await self.handle_ai(event_data, self.bot)
+                while True:
+                    event_datas.append(self.group_message_queue.get_nowait())
+            except asyncio.QueueEmpty:
+                pass
+            log.debug(
+                f"群聊 {self.group_openid} 在上次处理期间收到 {len(event_datas)} 条消息，开始处理AI请求。"
+            )
+            try:
+                await self.handle_ai(event_datas, self.bot)
             except Exception:  # noqa: BLE001
                 log.exception("AI 插件处理消息时发生异常")
             finally:

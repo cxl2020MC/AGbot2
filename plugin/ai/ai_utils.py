@@ -114,23 +114,6 @@ class AiChatManager:
         )
         await self.add_message(message)
 
-    # async def add_assistant_message(
-    #     self,
-    #     content: str | Iterable[ChatCompletionContentPartTextParam],
-    #     reasoning_content: str | None = None,
-    #     tool_calls: Iterable[ChatCompletionToolUnionParam] | None = None,
-    # ):
-    #     message: ChatCompletionMessageParam = cast(
-    #         ChatCompletionMessageParam,
-    #         {
-    #             "role": "assistant",
-    #             "content": content,
-    #             "reasoning_content": reasoning_content,
-    #             "tool_calls": tool_calls,
-    #         },
-    #     )
-    #     await self.add_message(message)
-
     async def get_messages(self):
         ai_messages: list[ChatCompletionMessageParam] = [self.system_message]
         ai_messages.extend(self.ai_messages)
@@ -166,12 +149,12 @@ class AiChatManager:
 
     async def handle_ai(
         self,
-        messages: Iterable[ChatCompletionMessageParam],
-        system_message: str | None = None,
+        messages: Iterable[ChatCompletionMessageParam] | None = None,
         *,
         run_count: int = 0,
     ):
-        await self.add_messages(messages)
+        if messages:
+            await self.add_messages(messages)
         log.debug(f"处理AI请求: {messages}")
         ai_messages = await self.get_messages()
 
