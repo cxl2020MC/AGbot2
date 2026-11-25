@@ -1,4 +1,6 @@
 import asyncio
+from collections.abc import Iterable
+from dataclasses import dataclass
 from typing import ClassVar, cast
 
 import httpx2
@@ -19,7 +21,7 @@ from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, data_url_utils, message_sticker
 
 # from .ai_utils import AiChatManager, client
-from . import ai_memory, ai_utils, system_prompt, tool_calls_utils, web_search, nbnhhsh
+from . import ai_memory, ai_utils, nbnhhsh, system_prompt, tool_calls_utils, web_search
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
@@ -42,6 +44,11 @@ class SendMessageToolParam(BaseModel):
 
 class DeleteMessageToolParam(BaseModel):
     message_id: str = Field(..., description="需要删除的消息的消息id")
+
+
+@dataclass
+class AiRawMessages:
+    content: ChatCompletionMessageParam
 
 
 async def get_image_from_url(url, filename):
@@ -319,11 +326,17 @@ class AIPlugin:
 
     async def handle_ai(
         self,
-        event_datas: list[qq_message.Message],
+        event_datas: Iterable[qq_message.Message | AiRawMessages],
     ):
         messages: list[ChatCompletionMessageParam] = []
         for event_data in event_datas:
-            messages.extend(await self.generate_message(event_data))
+            if isinstance(event_data, qq_message.GroupMessage):
+                messages.extend(await self.generate_message(event_data))
+            elif isinstance(event_data, AiRawMessages):
+                messages.append(event_data.content)
+            else:
+                log.warning(f"未知的消息类型: {type(event_data)}，跳过处理。")
+                continue
 
         # pylance 还没支持这种写法，到时候看看
         # messages = [*(await self.generate_message(event_data)) for event_data in event_datas]
