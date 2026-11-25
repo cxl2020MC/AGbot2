@@ -191,7 +191,7 @@ class QQ_Bot:
 
         await self._stop_heartbeat()
         await self._identify_or_resume()
-        self._heartbeat_task = asyncio.create_task(self._heartbeat_loop(interval_ms))
+        self._heartbeat_task = asyncio.create_task(self._heartbeat_loop(interval_ms), name="heartbeat_loop")
 
     async def _identify_or_resume(self) -> None:
         token = f"QQBot {self.access_token}"
