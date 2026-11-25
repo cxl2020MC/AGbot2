@@ -45,7 +45,7 @@ async def asyncio_get_all_tasks_command(event_data: qq_message.Message, bot: QQ_
     if isinstance(event_data, qq_message.GroupMessage):
         await bot.qq_api.send_group_message(
             event_data.group_openid,
-            send_message.GroupMessage(content=str(asyncio.all_tasks())),
+            send_message.GroupMessage(content="\n".join(str(task) for task in asyncio.all_tasks())),
         )
 
 
