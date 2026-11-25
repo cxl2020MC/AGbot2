@@ -320,7 +320,6 @@ class AIPlugin:
     async def handle_ai(
         self,
         event_datas: list[qq_message.Message],
-        bot: QQ_Bot,
     ):
         messages: list[ChatCompletionMessageParam] = []
         for event_data in event_datas:
@@ -345,11 +344,12 @@ class AIPlugin:
                 f"群聊 {self.group_openid} 在上次处理期间收到 {len(event_datas)} 条消息，开始处理AI请求。"
             )
             try:
-                await self.handle_ai(event_datas, self.bot)
+                await self.handle_ai(event_datas)
             except Exception:  # noqa: BLE001
                 log.exception("AI 插件处理消息时发生异常")
             finally:
-                self.group_message_queue.task_done()
+                for _ in event_datas:
+                    self.group_message_queue.task_done()
 
     async def handle_message(self, event_data: qq_message.GroupMessage):
         queue = self.group_message_queue
