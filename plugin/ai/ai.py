@@ -188,6 +188,7 @@ class AIPlugin:
             bot_info = await self.bot.qq_api.get_bot_info()
             group_info = await self.bot.qq_api.get_group_info(self.group_openid)
             system_message_content = SystemPrompt.format(
+                BOT_NICKNAME=bot_info.username,
                 BOT_ID=bot_info.union_openid,
                 GROUP_NAME=group_info.group_name,
                 GROUP_OPENID=self.group_openid,
@@ -318,6 +319,9 @@ class AIPlugin:
         messages: list[ChatCompletionMessageParam] = []
         for event_data in event_datas:
             messages.extend(await self.generate_message(event_data))
+
+        # pylance 还没支持这种写法，到时候看看
+        # messages = [*(await self.generate_message(event_data)) for event_data in event_datas]
 
         ai_chat_manager = await self.get_ai_chat_manager()
         return await ai_chat_manager.handle_ai(messages)
