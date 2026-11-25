@@ -175,7 +175,7 @@ class QQ_Bot:
                 raise QQBotReconnect("服务端要求重连")
             case ws_data.OpType.DISPATCH:
                 await self._on_dispatch(message)
-            case ws_data.OpType.Heartbeat_ACK:
+            case ws_data.OpType.HEARTBEAT_ACK:
                 log.debug(f"收到心跳 ACK，seq={self._latest_s}")
             case _:
                 log.debug(f"忽略未处理的 op: {message.op}")
@@ -198,7 +198,7 @@ class QQ_Bot:
         if self._session_id and self._latest_s is not None:
             log.info(f"恢复会话 session_id={self._session_id} seq={self._latest_s}")
             payload = ws_data.WsData(
-                op=ws_data.OpType.Resume,
+                op=ws_data.OpType.RESUME,
                 d={
                     "token": token,
                     "session_id": self._session_id,

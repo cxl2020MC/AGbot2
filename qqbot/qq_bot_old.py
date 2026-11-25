@@ -86,7 +86,7 @@ class QQ_Bot:
                         if self._latest_s:
                             log.debug(f"发送尝试恢复登陆态: {self._latest_s}")
                             heartbeat_data = ws_data.WsData(
-                                op=ws_data.OpType.Resume,
+                                op=ws_data.OpType.RESUME,
                                 d={
                                     "token": self.access_token,
                                     "session_id": self._session_id,

@@ -5,9 +5,9 @@ class OpType(IntEnum):
     DISPATCH = 0
     HEARTBEAT = 1
     IDENTIFY = 2
-    Resume = 6
+    RESUME = 6
     RECONNECT = 7
-    Invalid_Session = 9
+    INVALID_SESSION = 9
     HELLO = 10
-    Heartbeat_ACK = 11
+    HEARTBEAT_ACK = 11
     # HTTP_Callback_ACK = 12
