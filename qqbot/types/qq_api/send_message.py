@@ -44,7 +44,7 @@ class PrivateMessageType(IntEnum):
 
 
 class InputNotify(BaseModel):
-    input_type = 1
+    input_type: int = 1
     input_second: int = Field(..., description="状态持续时间，最长60s")
 
 
