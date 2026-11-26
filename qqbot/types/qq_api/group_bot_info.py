@@ -30,4 +30,3 @@ class GroupBotInfo(BaseModel):
 #     "share_url": "https://qun.qq.com/qunpro/robot/qunshare?robot_uin=3889000629&robot_appid=102072641&biz_type=0",
 #     "welcome_msg": "",
 # }
-

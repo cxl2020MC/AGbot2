@@ -5,6 +5,7 @@ class GroupInfo(BaseModel):
     """
     群组信息模型
     """
+
     group_openid: str = Field(..., description="群 OpenID")
     group_name: str = Field(..., description="群名称")
     group_finger_memo: str = Field(..., description="群简介")

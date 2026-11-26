@@ -26,11 +26,13 @@ async def get_filename_minetype(path: PathLike[str]):
         raise ValueError(f"无法猜测文件的MIME类型: {path}")
     return mime_type
 
+
 async def get_bytes_minetype(data: bytes):
     kind = filetype.guess(data)
     if kind is None:
         raise ValueError("无法猜测字节数据的MIME类型")
     return kind.mime
+
 
 async def get_data_url_by_bytes(data: bytes, mime_type: str):
     encoded_data = base64.b64encode(data).decode("utf-8")

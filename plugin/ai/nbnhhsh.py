@@ -12,7 +12,6 @@ async def get_nbnhhsh(word: str):
     return data
 
 
-
 async def get_nbnhhsh_tool_call(args: NbnhhshToolParam):
     return json.dumps(await get_nbnhhsh(args.word), ensure_ascii=False)
 
@@ -25,6 +24,7 @@ class NbnhhshToolParam(BaseModel):
 
 if __name__ == "__main__":
     import asyncio
+
     args = NbnhhshToolParam(word="hyw")
     result = asyncio.run(get_nbnhhsh_tool_call(args))
     print(result)

@@ -268,6 +268,12 @@ class AIPlugin:
                 if mention.id == (await self.bot.qq_api.get_bot_info()).union_openid:
                     message_type_flag.append("被@")
 
+        matched_message = (
+            "\n".join(memory.model_dump_json() for memory in ai_memory_content)
+            if ai_memory_content
+            else "无"
+        )
+
         message_sticker_result = message_sticker.extract_faceType_tags(
             event_data.content
         )
@@ -286,7 +292,7 @@ class AIPlugin:
 [{"]\n[".join(message_metadata)}]
 
 ## 命中的记忆内容
-{"\n".join(memory.model_dump_json() for memory in ai_memory_content) if ai_memory_content else "无"}
+{matched_message}
 
 ## 消息中的表情转换结果
 {message_sticker_result_str if message_sticker_result else "无"}

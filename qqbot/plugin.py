@@ -120,7 +120,9 @@ class Plugin:
         if not find_commands:
             log.debug(f"插件 {self.name} 未匹配到命令 {command}")
         elif len(find_commands) > 1:
-            log.info(f"插件 {self.name} 命令 {command} 共匹配到多个监听器: {find_commands}")
+            log.info(
+                f"插件 {self.name} 命令 {command} 共匹配到多个监听器: {find_commands}"
+            )
         return find_commands
 
     def __str__(self):

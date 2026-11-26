@@ -34,13 +34,11 @@ AI_MODEL = "deepseek-flash"
 # AI_MODEL = "deepseek-v4.1-flash-1017"
 
 
-def make_user_message(
-    content: str | ResponseInputMessageContentListParam
-):
+def make_user_message(content: str | ResponseInputMessageContentListParam):
     message: ResponseInputItemParam = {
         "type": "message",
         "role": "user",
-        "content": content
+        "content": content,
     }
     return message
 

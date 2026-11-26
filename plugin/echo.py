@@ -9,9 +9,7 @@ plugin = plugin.Plugin("echo", "一个简单的回声插件", "1.0.0")
 
 
 @plugin.on_command(("echo",), "echo", "回声命令")
-async def echo_message(
-    event_data: qq_message.Message, bot: QQ_Bot
-):
+async def echo_message(event_data: qq_message.Message, bot: QQ_Bot):
     print(event_data)
     if isinstance(event_data, qq_message.GroupMessage):
         message_content = event_data.content
