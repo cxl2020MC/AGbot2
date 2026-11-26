@@ -7,7 +7,7 @@ from dataclasses import dataclass
 class FaceTypeTag:
     raw: str
     faceType: str
-    faceId: int
+    faceId: str
     ext: str | None
     encoded_ext: str | None
 
@@ -41,7 +41,7 @@ def extract_faceType_tags(text):
         result = FaceTypeTag(
             raw=tag,
             faceType=attrs.get("faceType", 1),
-            faceId=int(attrs.get("faceId", 0)),
+            faceId=attrs.get("faceId", 0),
             ext=base64_str,
             encoded_ext=decoded_str,
         )
