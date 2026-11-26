@@ -1,7 +1,6 @@
 import asyncio
 from collections.abc import Iterable
-from dataclasses import dataclass
-from typing import ClassVar, cast
+from typing import ClassVar
 
 import httpx2
 import yarl
@@ -11,6 +10,7 @@ from openai.types.chat import (
 )
 from pydantic import BaseModel, Field
 
+from plugin.ai.ai_utils import AiRawMessages
 from qqbot import plugin
 from qqbot.log import logger as log
 from qqbot.qq_bot import QQ_Bot
@@ -21,7 +21,15 @@ from qqbot.types.qq_events import qq_message
 from qqbot.utils import command_utils, data_url_utils, message_sticker
 
 # from .ai_utils import AiChatManager, client
-from . import ai_memory, ai_utils, nbnhhsh, system_prompt, tool_calls_utils, web_search
+from . import (
+    ai_memory,
+    ai_utils,
+    nbnhhsh,
+    subagent_utils,
+    system_prompt,
+    tool_calls_utils,
+    web_search,
+)
 
 plugin = plugin.Plugin("ai", "一个简单的AI插件", "1.0.0")
 
@@ -44,11 +52,6 @@ class SendMessageToolParam(BaseModel):
 
 class DeleteMessageToolParam(BaseModel):
     message_id: str = Field(..., description="需要删除的消息的消息id")
-
-
-@dataclass
-class AiRawMessages:
-    content: ChatCompletionMessageParam
 
 
 async def get_image_from_url(url, filename):
@@ -144,7 +147,10 @@ class AIPlugin:
         self.group_openid = group_openid
         self.bot: QQ_Bot = bot
         self.ai_chat_manager: ai_utils.AiChatManager | None = None
-        self.group_message_queue: asyncio.Queue[qq_message.Message] = asyncio.Queue()
+        # self.subagent_manager: subagent_utils.SubAgent | None = None
+        self.group_message_queue: asyncio.Queue[qq_message.Message | AiRawMessages] = (
+            asyncio.Queue()
+        )
         self.worker_task = asyncio.create_task(
             self.worker(), name=f"AIPluginWorker-{group_openid}"
         )
@@ -196,6 +202,12 @@ class AIPlugin:
         )
         return "删除消息成功"
 
+    async def ask_ai_tool_call(self, tool_args: subagent_utils.AskAIToolParam):
+        subagent = subagent_utils.SubAgent(
+            ai_plugin=self, agent_name=tool_args.agent_name
+        )
+        return await subagent.ask_ai_tools(tool_args)
+
     async def get_ai_chat_manager(self):
         if self.ai_chat_manager is None:
             bot_info = await self.bot.qq_api.get_bot_info()
@@ -217,13 +229,21 @@ class AIPlugin:
                     need_scene=True,
                 ),
             )
-            tools.append(
-                tool_calls_utils.Tool(
-                    name="delete_message",
-                    description="撤回一条自己已经发送的消息",
-                    model=DeleteMessageToolParam,
-                    function=self.delete_message_tool_call,
-                ),
+            tools.extend(
+                [
+                    tool_calls_utils.Tool(
+                        name="delete_message",
+                        description="撤回一条自己已经发送的消息",
+                        model=DeleteMessageToolParam,
+                        function=self.delete_message_tool_call,
+                    ),
+                    tool_calls_utils.Tool(
+                        name="ask_ai",
+                        description="向AI提问，用于处理短时间无法直接回答的问题，可以用于深度研究等多的用途，作为异步函数调用，返回AI的回答",
+                        model=subagent_utils.AskAIToolParam,
+                        function=self.ask_ai_tool_call,
+                    ),
+                ]
             )
             self.ai_chat_manager = ai_utils.AiChatManager(
                 system_message_content,
@@ -370,7 +390,7 @@ class AIPlugin:
                 for _ in event_datas:
                     self.group_message_queue.task_done()
 
-    async def handle_message(self, event_data: qq_message.GroupMessage):
+    async def handle_message(self, event_data: qq_message.GroupMessage | AiRawMessages):
         queue = self.group_message_queue
         await queue.put(event_data)
 

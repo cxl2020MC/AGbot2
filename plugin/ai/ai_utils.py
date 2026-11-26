@@ -1,4 +1,5 @@
 from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
 from typing import cast
 
 import openai
@@ -22,7 +23,7 @@ from . import tool_calls_utils
 
 client = openai.AsyncOpenAI(
     default_headers={
-        "User-Agent": "AGbot2/5.0.0",
+        "User-Agent": "AGbot2/2.0.0",
         "x-opencode-session": "cxl2020mc-AGbot2",
     }
 )
@@ -224,3 +225,8 @@ class AiChatManager:
                 ]
             )
         ]
+
+
+@dataclass
+class AiRawMessages:
+    content: ChatCompletionMessageParam
