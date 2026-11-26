@@ -6,14 +6,19 @@ from qqbot.types.qq_api import api_type
 
 from . import http_client
 from .log import logger as log
-from .types.qq_api import file_update, group_bot_info, group_info, user_info
+from .types.qq_api import (
+    file_update,
+    group_bot_info,
+    group_info,
+    send_message,
+    user_info,
+)
 
 if TYPE_CHECKING:
     import anyio
     from pydantic import BaseModel
 
     from .qq_bot import QQ_Bot
-    from .types.qq_api import send_message
 
 
 def _from_model_to_json(model: BaseModel) -> dict:
