@@ -239,7 +239,7 @@ class AIPlugin:
                     ),
                     tool_calls_utils.Tool(
                         name="ask_ai",
-                        description="向AI提问，用于处理短时间无法直接回答的问题，可以用于深度研究等多的用途，作为异步函数调用，返回AI的回答",
+                        description="向AI提问，用于处理短时间无法直接回答的问题，可以用于深度研究等多的用途，作为异步函数调用，会在处理完成后异步返回AI的回答",
                         model=subagent_utils.AskAIToolParam,
                         function=self.ask_ai_tool_call,
                     ),
