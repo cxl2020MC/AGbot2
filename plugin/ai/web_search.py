@@ -27,7 +27,7 @@ async def web_search(query: str, count: int = 10, need_content: bool = False):
         "need_content": need_content,
     }
 
-    response = await http_client.client.post(url, json=payload, headers=headers, timeout=30)
+    response = await http_client.post(url, json=payload, headers=headers)
     # response.raise_for_status()
     return response.json()
 
@@ -42,7 +42,7 @@ async def web_fetch(url: str):
     payload = {
         "url": url,
     }
-    response = await http_client.client.post(fetch_url, json=payload, headers=headers, timeout=30)
+    response = await http_client.post(fetch_url, json=payload, headers=headers)
     # response.raise_for_status()
     return response.json()
 

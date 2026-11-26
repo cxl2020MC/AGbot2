@@ -2,7 +2,7 @@ import httpx2
 import yarl
 from httpx2.websockets._api import AsyncWebSocketSession
 
-client = httpx2.AsyncClient(http2=True)
+client = httpx2.AsyncClient(http2=True, timeout=httpx2.Timeout(timeout=15.0))
 
 type WebSocketSession = AsyncWebSocketSession
 
