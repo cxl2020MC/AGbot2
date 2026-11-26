@@ -1,6 +1,6 @@
 import os
 
-from playwright.async_api import Browser, async_playwright
+lazy from playwright.async_api import Browser, async_playwright
 
 browser: Browser | None = None
 
