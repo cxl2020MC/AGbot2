@@ -31,9 +31,20 @@ class QQ_Api:
     ):
         data = _from_model_to_json(message)
 
-        return await self.QQ_BOT.post_qqbot_api(
+        requests = await self.QQ_BOT.post_qqbot_api(
             f"v2/groups/{group_openid}/messages", json=data
         )
+        return send_message.GroupMessageResponse.model_validate(requests)
+
+    async def send_private_message(
+        self, user_openid: str, message: send_message.PrivateMessage
+    ):
+        data = _from_model_to_json(message)
+
+        requests = await self.QQ_BOT.post_qqbot_api(
+            f"v2/users/{user_openid}/messages", json=data
+        )
+        return send_message.PrivateMessageResponse.model_validate(requests)
 
     async def _get_group_info(self, group_openid: str):
         data = await self.QQ_BOT.get_qqbot_api(f"v2/groups/{group_openid}/info")

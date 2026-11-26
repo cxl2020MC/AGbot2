@@ -1,4 +1,5 @@
 from enum import IntEnum
+lazy import datetime
 
 from pydantic import BaseModel, Field
 
@@ -8,6 +9,12 @@ class GroupMessageType(IntEnum):
     MARKDOWN = 2
     MEDIA = 7
     CARD = 8
+
+
+class MessageExtInfo(BaseModel):
+    ref_idx: str = Field(
+        ..., description="引用消息索引。对应消息时间ext里的msg_idx与ref_msg_idx"
+    )
 
 
 class GroupMessage(BaseModel):
@@ -20,6 +27,45 @@ class GroupMessage(BaseModel):
     msg_seq: int | None = None
     media: MediaInfo | None = None
     message_reference: MessageReference | None = None
+
+
+class GroupMessageResponse(BaseModel):
+    id: str = Field(..., description="消息ID")
+    timestamp: datetime.datetime = Field(..., description="消息时间戳")
+    ext_info: MessageExtInfo = Field(..., description="扩展信息")
+
+
+class PrivateMessageType(IntEnum):
+    TXT = 0
+    MARKDOWN = 2
+    INPUT_NOTIFY = 6
+    MEDIA = 7
+    CARD = 8
+
+
+class InputNotify(BaseModel):
+    input_type = 1
+    input_second: int = Field(..., description="状态持续时间，最长60s")
+
+
+class PrivateMessage(BaseModel):
+    msg_type: PrivateMessageType = PrivateMessageType.TXT
+    content: str | None = None
+    markdown: MessageMarkdown | None = None
+    keyboard: Keyboard | None = None
+    msg_id: str | None = None
+    event_id: str | None = None
+    msg_seq: int | None = None
+    media: MediaInfo | None = None
+    message_reference: MessageReference | None = None
+    is_wakeup: bool | None = None
+    input_notify: InputNotify | None = None
+
+
+class PrivateMessageResponse(BaseModel):
+    id: str = Field(..., description="消息ID")
+    timestamp: datetime.datetime = Field(..., description="消息时间戳")
+    ext_info: MessageExtInfo | None = Field(..., description="扩展信息")
 
 
 class MessageMarkdown(BaseModel):

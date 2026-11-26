@@ -184,7 +184,7 @@ class AIPlugin:
             ),
         )
         log.debug(f"发送消息返回: {return_data}")
-        return_mesage = f"发送消息成功: 消息id={return_data['id']}, 消息索引={return_data['ext_info']['ref_idx']}"
+        return_mesage = f"发送消息成功: 消息id={return_data.id}, 消息索引={return_data.ext_info.ref_idx}"
         return return_mesage
 
     async def delete_message_tool_call(self, tool_args: DeleteMessageToolParam):
