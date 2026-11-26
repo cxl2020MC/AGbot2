@@ -245,7 +245,7 @@ class FileUploader:
         part_data: bytes,
     ):
         client = http_client.client
-        return await client.put(url, content=part_data, timeout=60)
+        return await client.put(url, content=part_data, timeout=30)
 
     async def _upload_large_file_finish(
         self,
