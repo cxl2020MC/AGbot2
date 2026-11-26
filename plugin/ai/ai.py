@@ -286,7 +286,7 @@ class AIPlugin:
 [{"]\n[".join(message_metadata)}]
 
 ## 命中的记忆内容
-{"\n".join(str(memory) for memory in ai_memory_content) if ai_memory_content else "无"}
+{"\n".join(memory.model_dump_json() for memory in ai_memory_content) if ai_memory_content else "无"}
 
 ## 消息中的表情转换结果
 {message_sticker_result_str if message_sticker_result else "无"}

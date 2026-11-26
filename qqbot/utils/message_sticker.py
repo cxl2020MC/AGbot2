@@ -53,5 +53,5 @@ def extract_faceType_tags(text):
 # 输出: {'faceType': '1', 'faceId': '178', 'ext': 'eyJ0ZXh0Ijoi5q2q56yRIn0='}
 
 if __name__ == "__main__":
-    text = '普通文本<faceType=1,faceId="178",ext="eyJ0ZXh0Ijoi5q2q56yRIn0=">>efefewfw>后续文字<@87A58E0FB1BD6DB6CBF1AFEB9C48D8FA><faceType=1,faceId="178",ext="eyJ0ZXh0Ijoi5q2q56yRIn0=">'
+    text = '普通文本<faceType=1,faceId="178",ext="eyJ0ZXh0Ijoi5q2q56yRIn0=">>efefewfw>后续文字<@87A58E0FB1BD6DB6CBF1AFEB9C48D8FA><faceType=1,faceId="178",ext="eyJ0ZXh0Ijoi5q2q56yRIn0="><faceType=4,faceId="",ext="eyJ0ZXh0IjoiW+mmi10ifQ==">'
     print(extract_faceType_tags(text))
