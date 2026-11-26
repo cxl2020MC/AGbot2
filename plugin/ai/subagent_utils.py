@@ -73,6 +73,7 @@ class SubAgent:
             ai_utils.AiRawMessages(content=ai_utils.make_user_message(message))
         )
         self.ask_ai_tasks.discard(asyncio.current_task())
+        type(self).SubAgentList.remove(self)
 
     async def ask_ai_tools(self, tool_param: AskAIToolParam):
         task = asyncio.create_task(self.ask_ai_worker(tool_param.user_input))
