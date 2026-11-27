@@ -19,6 +19,7 @@ client = openai.AsyncOpenAI(
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"), api_key="ollama"
 )
 db_collection: db.AsyncCollection | None = None
+_memory_cleanup_task: asyncio.Task[None] | None = None
 
 
 search_index_definition = {
@@ -55,7 +56,10 @@ async def init():
             "vector_search_index", search_index_definition
         )
     log.info("记忆数据库初始化完成")
-    asyncio.create_task(memory_cleanup_task(), name="ai_memory_cleanup_task")
+    global _memory_cleanup_task
+    _memory_cleanup_task = asyncio.create_task(
+        memory_cleanup_loop(), name="ai_memory_cleanup_task"
+    )
 
 
 async def get_collection() -> db.AsyncCollection:
@@ -355,7 +359,7 @@ async def delete_memory_tool_call(tool_param: MemoryDeleteToolPram):
     return "记忆删除成功"
 
 
-async def memory_cleanup_task():
+async def memory_cleanup_loop():
     log.info("启动记忆清理任务...")
     db_collection = await get_collection()
     while True:
