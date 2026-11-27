@@ -49,6 +49,7 @@ class QQ_Bot:
         self._http_headers: dict[str, str] = {}
         self._ws: http_client.AsyncWebSocketSession | None = None
         self._heartbeat_task: asyncio.Task[None] | None = None
+        self._access_token_update_task: asyncio.Task[None] | None = None
         self._latest_s: int | None = None
 
         type(self).bot_list.append(self)
@@ -295,7 +296,7 @@ class QQ_Bot:
     ) -> None:
         log.info("启动 QQ_Bot")
         await self.fetch_access_token(app_id, client_secret)
-        asyncio.create_task(
+        self._access_token_update_task = asyncio.create_task(
             self.update_access_token_loop(app_id, client_secret),
             name="update_access_token_loop",
         )
