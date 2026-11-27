@@ -59,3 +59,5 @@ async def get_collection() -> db.AsyncCollection:
         await init()
     assert db_collection is not None
     return db_collection
+
+
