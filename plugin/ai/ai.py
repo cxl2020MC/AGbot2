@@ -11,7 +11,7 @@ from openai.types.chat import (
 from pydantic import BaseModel, Field
 
 from plugin.ai.ai_utils import AiRawMessages
-from qqbot import plugin
+from qqbot import http_client, plugin
 from qqbot.log import logger as log
 from qqbot.qq_bot import QQ_Bot
 
@@ -56,7 +56,7 @@ class DeleteMessageToolParam(BaseModel):
 
 async def get_image_from_url(url, filename):
     log.info(f"从URL获取图片: {url}, filename: {filename}")
-    img = await httpx2.get(url).aread()
+    img = await (await http_client.client.get(url)).aread()
 
     # file = await ai_utils.client.files.create(
     #     file=(filename, img),
