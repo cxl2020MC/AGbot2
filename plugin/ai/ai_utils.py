@@ -189,7 +189,7 @@ class AiChatManager:
         tool_calls = ai_ret_messages.tool_calls
 
         await self.add_message(
-            cast(ChatCompletionMessageParam, ai_ret_messages.to_dict(mode="json"))
+            cast(ChatCompletionMessageParam, ai_ret_messages.to_dict(mode="json", exclude_defaults=True))
         )
         if tool_calls:
             tool_call_scene = tool_calls_utils.ToolScene(
